@@ -158,7 +158,7 @@ int lsh_launch(char **args, char **envp)
 	if (pid == 0) // Дочерний процесс
 	{
 		//if (execvp(args[0], args) == -1)
-		if (execve(path, args, envp) == -1)
+		if (execve(path, args, NULL) == -1)
 		//if (execve("/bin/pwd", args, envp) == -1)
 		{
 			perror("lsh");
