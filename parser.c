@@ -11,18 +11,14 @@ void *emalloc(size_t size)
 }
 
 
-int main(int argc, char **argv, char **env)
+
+void cmd_line_parse(t_ms *ms)
 {
 	
-	t_env en;
-	t_env *en1;
-	
-	en1 = (t_env *)emalloc(sizeof(t_env));
+}
 
-	en.next = en1;
-	printf("%p\n", en.next);
-	//for (int i=0; i<10; i++)
-		//printf("%s\n", env[i]);
+int main(int argc, char **argv, char **env)
+{
 	
 	return (0);
 }
