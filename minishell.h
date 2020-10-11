@@ -13,13 +13,22 @@
 # include <dirent.h> //opendir, readdir, closedir
 //# include "libft/libft.h"
 
-# define MEMALLOC "Memory allocation fail"
+# include "libft/libft.h"
+
+# define MEMALLOC "memory allocation fail"
+# define SEMICOLONERR "parse error near `;;'"
+# define LESSERR "parse error near `<'"
+# define PARSEERR "parse error"
+
+# define SET " <>;" // add pipe
 
 typedef struct		s_cmd
 {
-	char			*name;
-	char			**flag;
-	char			**arg;
+	char			name[255];
+	//char			**flag;
+	//char			**arg;
+	char			flag[20][100];
+	char			arg[20][255]; //getconf ARG_MAX
 	int				pipe;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
