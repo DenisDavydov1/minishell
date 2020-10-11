@@ -11,7 +11,7 @@
 # include <sys/errno.h> //errno
 # include <signal.h> //signal, kill
 # include <dirent.h> //opendir, readdir, closedir
-# include "libft/libft.h"
+//# include "libft/libft.h"
 
 # define MEMALLOC "Memory allocation fail"
 
@@ -38,6 +38,7 @@ typedef struct	s_ms
 	//char		*name;
 	char		*line;
 	char		*path;
+	char		*home; //мб проще получить потом?
 	t_cmd		*cmd;
 	t_env		*env;
 }				t_ms;

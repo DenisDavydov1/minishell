@@ -1,8 +1,9 @@
 #include <stdio.h>
-#include <unistd.h>
-#include <stdlib.h>
+//#include <unistd.h>
+//#include <stdlib.h>
 #include <string.h>
-#include <sys/wait.h>
+//#include <sys/wait.h>
+#include "minishell.h"
 
 #define LSH_RL_BUFSIZE 1024
 #define LSH_TOK_BUFSIZE 64
@@ -11,31 +12,30 @@
 /*
 	Объявление функций для встроенных команд оболочки:
  */
-int lsh_cd(char **args);
-int lsh_help(char **args);
-int lsh_exit(char **args);
-int lsh_echo(char **args);
+int lsh_cd(char **args, t_ms *ms);
+int lsh_pwd(char **args, t_ms *ms);
+int lsh_help(char **args, t_ms *ms);
+int lsh_exit(char **args, t_ms *ms);
+int lsh_echo(char **args, t_ms *ms);
 
 /*
 	Список встроенных команд, за которыми следуют соответствующие функции
  */
 char *builtin_str[] = {
 	"cd",
-	"help",
+	"pwd",
 	"exit",
 	"echo",
-	"pwd",
 	"export",
 	"unset",
-	"env"
-};
+	"env"};
 
-int (*builtin_func[]) (char **) = {
+int (*builtin_func[])(char **, t_ms *) = {
 	&lsh_cd,
-	&lsh_help,
+	&lsh_pwd,
+//	&lsh_help,
 	&lsh_exit,
-	&lsh_echo
-};
+	&lsh_echo};
 
 int ft_strlen(char *s)
 {
@@ -46,6 +46,24 @@ int ft_strlen(char *s)
 		while (s[i])
 			i++;
 	return (i);
+}
+
+char	*ft_strdup(char *s)
+{
+	size_t	i;
+	char	*out;
+
+	out = (char *)malloc(sizeof(char) * (ft_strlen(s) + 1));
+	if (!out)
+		return (NULL);
+	i = 0;
+	while (s[i])
+	{
+		out[i] = s[i];
+		i++;
+	}
+	out[i] = '\0';
+	return (out);
 }
 
 int ft_strcmp(char *s1, char *s2)
@@ -75,34 +93,52 @@ int lsh_num_builtins()
 /*
 	Реализации встроенных функций
 */
-int lsh_cd(char **args)
+
+int lsh_pwd(char **args, t_ms *ms)
 {
-	if (args[1] == NULL) {
-		fprintf(stderr, "lsh: ожидается аргумент для \"cd\"\n");
-	} else {
-		if (chdir(args[1]) != 0) {
-			perror("lsh");
-		}
+	write(1, ms->path, ft_strlen(ms->path));
+	write(1, "\n", 1);
+	return (1);
+}
+
+int lsh_cd(char **args, t_ms *ms)
+{
+	if (args[1] == NULL)
+	{
+		if (chdir(ms->home) != 0)
+			perror("cd");
+		//fprintf(stderr, "lsh: ожидается аргумент для \"cd\"\n");
 	}
+	else
+	{
+		if (chdir(args[1]) != 0)
+			perror("cd");
+	}
+	free(ms->path);
+	ms->path = NULL;
+	ms->path = getcwd(ms->path, 0);
+	//printf("path = %s \n", ms->path);
+
 	return 1;
 }
 
-int lsh_help(char **args)
+/*int lsh_help(char **args)
 {
 	int i;
 	printf("LSH Стивена Бреннана\n");
 	printf("Наберите название программы и её аргументы и нажмите enter.\n");
 	printf("Вот список встроенных команд:\n");
 
-	for (i = 0; i < lsh_num_builtins(); i++) {
+	for (i = 0; i < lsh_num_builtins(); i++)
+	{
 		printf("  %s\n", builtin_str[i]);
 	}
 
 	printf("Используйте команду man для получения информации по другим программам.\n");
 	return 1;
-}
+}*/
 
-int lsh_echo(char **args)
+int lsh_echo(char **args, t_ms *ms)
 {
 	//printf ("args = |%s| \n", args[1]);
 	if (ft_strcmp(args[1], "-n"))
@@ -115,7 +151,7 @@ int lsh_echo(char **args)
 	return 1;
 }
 
-int lsh_exit(char **args)
+int lsh_exit(char **args, t_ms *ms)
 {
 	return 0;
 }
@@ -143,7 +179,7 @@ char *unite_str(char *path)
 	return (res);
 }
 
-int lsh_launch(char **args, char **envp)
+int lsh_launch(char **args, char **envp, t_ms *ms)
 {
 	pid_t pid, wpid;
 	int status;
@@ -158,7 +194,7 @@ int lsh_launch(char **args, char **envp)
 	if (pid == 0) // Дочерний процесс
 	{
 		//if (execvp(args[0], args) == -1)
-		if (execve(path, args, NULL) == -1)
+		if (execve(path, args, NULL) == -1) //нужно ли вообще envp?
 		//if (execve("/bin/pwd", args, envp) == -1)
 		{
 			perror("lsh");
@@ -178,23 +214,27 @@ int lsh_launch(char **args, char **envp)
 char **lsh_split_line(char *line)
 {
 	int bufsize = LSH_TOK_BUFSIZE, position = 0;
-	char **tokens = malloc(bufsize * sizeof(char*));
+	char **tokens = malloc(bufsize * sizeof(char *));
 	char *token;
 
-	if (!tokens) {
+	if (!tokens)
+	{
 		fprintf(stderr, "lsh: ошибка выделения памяти\n");
 		exit(EXIT_FAILURE);
 	}
 
 	token = strtok(line, LSH_TOK_DELIM);
-	while (token != NULL) {
+	while (token != NULL)
+	{
 		tokens[position] = token;
 		position++;
 
-		if (position >= bufsize) {
+		if (position >= bufsize)
+		{
 			bufsize += LSH_TOK_BUFSIZE;
-			tokens = realloc(tokens, bufsize * sizeof(char*));
-			if (!tokens) {
+			tokens = realloc(tokens, bufsize * sizeof(char *));
+			if (!tokens)
+			{
 				fprintf(stderr, "lsh: ошибка выделения памяти\n");
 				exit(EXIT_FAILURE);
 			}
@@ -214,22 +254,22 @@ char *lsh_read_line(void)
 	return line;
 }
 
-int lsh_execute(char **args, char **envp)
+int lsh_execute(char **args, char **envp, t_ms *ms)
 {
 	int i = 0;
 
 	if (args[0] == NULL) // Была введена пустая команда.
-			return 1;
+		return 1;
 	while (i < lsh_num_builtins())
 	{
 		if (strcmp(args[0], builtin_str[i]) == 0)
-			return (*builtin_func[i])(args);
+			return (*builtin_func[i])(args, ms);
 		i++;
 	}
-	return lsh_launch(args, envp);
+	return lsh_launch(args, envp, ms);
 }
 
-void lsh_loop(char **envp)
+void lsh_loop(char **envp, t_ms *ms)
 {
 	char *line;
 	char **args;
@@ -241,7 +281,7 @@ void lsh_loop(char **envp)
 		line = lsh_read_line();
 		args = lsh_split_line(line);
 		//printf("line = %s\n", line);
-		status = lsh_execute(args, envp);
+		status = lsh_execute(args, envp, ms);
 		free(line);
 		free(args);
 	}
@@ -252,7 +292,18 @@ int main(int argc, char **argv, char **envp)
 	// Загрузка файлов конфигурации при их наличии.
 
 	// Запуск цикла команд.
-	lsh_loop(envp);
+	t_ms ms;
+	int i = 0;
+	while (envp[i])
+	{
+		if (envp[i][0] == 'P' && envp[i][1] == 'W')
+			ms.path = ft_strdup(envp[i] + 4);
+			//printf("%s \n", ms.path);
+		if (envp[i][0] == 'H' && envp[i][1] == 'O')
+			ms.home = ft_strdup(envp[i] + 5);
+		i++;
+	}
+	lsh_loop(envp, &ms);
 
 	// Выключение / очистка памяти.
 
