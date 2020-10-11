@@ -6,7 +6,7 @@
 /*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/05/02 16:06:28 by abarbie           #+#    #+#             */
-/*   Updated: 2020/06/13 22:52:12 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/11 19:16:39 by abarbie          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -61,5 +61,7 @@ void				ft_putnbr_fd(int n, int fd);
 
 int					ft_strcmp(const char *s1, const char *s2);
 char				*ft_strpass(const char *s, int c);
+char				*ft_strcpy(char *dest, const char *src);
+char				**ft_splitset(char const *s, char *set);
 
 #endif
