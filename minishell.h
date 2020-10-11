@@ -13,11 +13,13 @@
 # include <dirent.h> //opendir, readdir, closedir
 # include "libft/libft.h"
 
+# define MEMALLOC "Memory allocation fail"
+
 typedef struct		s_cmd
 {
 	char			*name;
 	char			**flag;
-	char			**args;
+	char			**arg;
 	int				pipe;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
