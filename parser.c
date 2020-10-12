@@ -191,7 +191,20 @@ int split_validity_semicolon(char **s)
 {
 	if (!*s)
 		return (1);
-	if (**s == ';')
+	while (*s && **s == ' ')
+		s++;
+	if (*s && **s == ';')
+		return (0);
+	return (1);
+}
+
+int split_validity_pipe(char **s)
+{
+	if (!*s)
+		return (0);
+	while (*s && **s == ' ')
+		s++;
+	if (*s && (**s == '|' || **s == ';'))
 		return (0);
 	return (1);
 }
@@ -207,6 +220,8 @@ int split_validity(char **s)
 		else if (**s == '>' && !split_validity_greater(s + 1))
 			return (0);
 		else if (**s == ';' && !split_validity_semicolon(s + 1))
+			return (0);
+		else if (**s == '|' && !split_validity_pipe(s + 1))
 			return (0);
 		s++;
 	}
@@ -225,7 +240,7 @@ char **tcmd_skip(t_ms *ms, char **s)
 
 void tcmd_newtcmd(t_ms *ms)
 {
-	if (*ms->cmd->name)
+	if (*ms->cmd->name || **ms->cmd->flag || **ms->cmd->arg)
 		ms->cmd = tcmd_init(ms);
 }
 
@@ -234,16 +249,19 @@ char **tcmd_set_name(t_ms *ms, char **s)
 	s = tcmd_skip(ms, s);
 	if (*s && **s == '>' && *(s + 1) && **(s + 1) == '>')
 	{
+		tcmd_newtcmd(ms);
 		ft_strcpy(ms->cmd->name, ">>");
 		return (s + 2);
 	}
 	else if (*s && **s == '<' && *(s + 1) && **(s + 1) == '>')
 	{
+		tcmd_newtcmd(ms);
 		ft_strcpy(ms->cmd->name, "<>");
 		return (s + 2);
 	}
-	else if (*s && **s != ';')
+	else if (*s && **s != ';' && **s != '|')
 	{
+		tcmd_newtcmd(ms);
 		ft_strcpy(ms->cmd->name, *s);
 		return (s + 1);
 	}
@@ -259,28 +277,26 @@ int is_flag(char *s)
 	return (0);
 }
 
-void tcmd_addflag(t_cmd **cmd, char *flag)
+char **tcmd_addflag(t_ms *ms, char **s)
 {
 	int i;
 
-	if (*flag == ' ')
-		return ;
 	i = 0;
-	while ((*cmd)->flag[i][0])
+	while (ms->cmd->flag[i][0])
 		i++;
-	ft_strcpy((*cmd)->flag[i], flag);
+	ft_strcpy(ms->cmd->flag[i], *s);
+	return (s + 1);
 }
 
-void tcmd_addarg(t_cmd **cmd, char *arg)
+char **tcmd_addarg(t_ms *ms, char **s)
 {
 	int i;
 
-	if (*arg == ' ')
-		return ;
 	i = 0;
-	while ((*cmd)->arg[i][0])
+	while (ms->cmd->arg[i][0])
 		i++;
-	ft_strcpy((*cmd)->arg[i], arg);
+	ft_strcpy(ms->cmd->arg[i], *s);
+	return (s + 1);
 }
 
 char **tcmd_semicolon(t_ms *ms, char **s)
@@ -288,7 +304,20 @@ char **tcmd_semicolon(t_ms *ms, char **s)
 	s = tcmd_skip(ms, s);
 	if (*s && **s == ';')
 	{
-		ms->cmd = tcmd_init(ms);
+		if (!*ms->cmd->name && !**ms->cmd->flag && !**ms->cmd->arg)
+			throw_error(PARSEERR, ms);
+		tcmd_newtcmd(ms);
+		return (s + 1);
+	}
+	return (s);
+}
+
+char **tcmd_pipe(t_ms *ms, char **s)
+{
+	s = tcmd_skip(ms, s);
+	if (*s && **s == '|')
+	{
+		ms->cmd->pipe = 1;
 		return (s + 1);
 	}
 	return (s);
@@ -299,28 +328,33 @@ void tcmd_set(t_ms *ms, char **s)
 	while (*s)
 	{
 		s = tcmd_semicolon(ms, s);
-		//if (*s && **s == ';' && (ms->cmd = tcmd_init(ms)))
-		//	s++;
-		//if (*s && **s != ';')
 		s = tcmd_set_name(ms, s);
 		while ((s = tcmd_skip(ms, s)) && *s && is_flag(*s))
-		{
-			//s = tcmd_skip(ms, s);
-			tcmd_addflag(&ms->cmd, *s);
-			s++;
-		}
+			s = tcmd_addflag(ms, s);
 		while ((s = tcmd_skip(ms, s)) && *s)
 		{
-			//s = tcmd_skip(ms, s);
 			if (!in_set(**s, SET))
-			{
-				tcmd_addarg(&ms->cmd, *s);
-				s++;
-			}
+				s = tcmd_addarg(ms, s);
 			else
 				break ;
 		}
+		s = tcmd_pipe(ms, s);
 	}
+}
+
+void split_free(char **s)
+{
+	char **p;
+
+	if (!s)
+		return ;
+	p = s;
+	while (*p)
+	{
+		free(*p);
+		p++;
+	}
+	free(s);
 }
 
 void tms_lineparse(t_ms *ms)
@@ -333,11 +367,7 @@ void tms_lineparse(t_ms *ms)
 		throw_error(PARSEERR, ms); // free split array if validation fails
 	// add flags and args counting and allocation char** 
 	tcmd_set(ms, split);
-
-
-	
-	//free(split);
-
+	split_free(split);
 }
 
 int main(int argc, char **argv, char **env)
@@ -345,7 +375,7 @@ int main(int argc, char **argv, char **env)
 	t_ms ms;
 
 	ms = tms_init();
-	ms.line = "  cat -t a; man <> a  > b; ;   yu"; // name may be <>
+	ms.line = " cat -t -v b<a | man <> a  > b; catm>>a;   yu  --leak -n -n-n ans;>b;<rt; ";
 
 	tms_lineparse(&ms);
 
