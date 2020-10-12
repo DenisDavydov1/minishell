@@ -160,18 +160,20 @@ void delete_from_env(t_ms *ms, char *s)
 	prev = tmp;
 	while (tmp && tmp->name)
 	{
-		if (ft_strcmp2(tmp->name, s, ft_strlen(s)))
+		if (ft_strcmp1(tmp->name, s))
+		{
+			if (prev == tmp)
+				ms->env = tmp->next;
+			else
+				prev->next = tmp->next;
+			free(tmp->name);
+			free(tmp->value);
+			free(tmp);
 			break ;
+		}
 		prev = tmp;
 		tmp = tmp->next;
 	}
-	if (prev == tmp)
-		ms->env = prev->next;
-	else
-		prev->next = tmp->next;
-	free(tmp->name);
-	free(tmp->value);
-	free(tmp);
 }
 
 int lsh_pwd(char **args, t_ms *ms)
