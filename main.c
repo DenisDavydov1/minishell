@@ -380,6 +380,56 @@ void lsh_loop(t_ms *ms)
 	}
 }
 
+t_env *tenv_init(char *name, char *value)
+{
+	t_env *env;
+
+	env = (t_env *)e_malloc(sizeof(t_env));
+	env->name = name;
+	env->value = value;
+	env->next = NULL;
+	return (env);
+}
+
+void tenv_set(t_ms *ms, char **envp)
+{
+	t_env *e;
+	char **split;
+
+	e = NULL;
+	while (*envp)
+	{
+		split = e_split(*envp, '=');
+		if (!e)
+		{
+			ms->env = tenv_init(split[0], split[1]);
+			e = ms->env;
+		}
+		else
+		{
+			e->next = tenv_init(split[0], split[1]);
+			e = e->next;
+		}
+		free(split);
+		envp++;
+	}
+}
+
+void tenv_print(t_env *env)
+{
+	int i;
+
+	i = 0;
+	while (env)
+	{
+		printf("%3d. %s = %s\n", i,\
+			env->name ? env->name : NULL, \
+			env->value ? env->value : NULL);
+		i++;
+		env = env->next;
+	}
+}
+
 int main(int argc, char **argv, char **envp)
 {
 	// Загрузка файлов конфигурации при их наличии.
@@ -388,7 +438,10 @@ int main(int argc, char **argv, char **envp)
 	t_ms ms;
 	t_env *env;
 	t_env *first;
+
+	/*
 	char **test;
+	
 	int i = 0;
 	env = malloc(sizeof(t_env));
 	first = env;
@@ -404,8 +457,11 @@ int main(int argc, char **argv, char **envp)
 		}
 	}
 	env->next = NULL;
-	env = first;
-	ms.env = env;
+	*/
+	//env = first;
+	tenv_set(&ms, envp);
+	tenv_print(ms.env);
+	ft_export_sort(ms.env);
 	/*while (first->name)
 	{
 		printf("name = %s \n value = %s \n", first->name, first->value);

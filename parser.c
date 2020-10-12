@@ -39,13 +39,6 @@ void tms_free(t_ms *ms)
 }
 */
 
-void throw_error(char *errtype)
-{
-	ft_putstr_fd("minishell: ", 2);
-	ft_putendl_fd(errtype, 2);
-	exit(EXIT_FAILURE);
-}
-
 void *e_malloc(size_t size)
 {
 	void *out;
@@ -57,9 +50,18 @@ void *e_malloc(size_t size)
 
 char *e_strdup(char *s)
 {
-	void *out;
+	char *out;
 	
 	if (!(out = ft_strdup(s)))
+		throw_error(MEMALLOC);
+	return (out);
+}
+
+char **e_split(char *s, char c)
+{
+	char **out;
+	
+	if (!(out = ft_split(s, c)))
 		throw_error(MEMALLOC);
 	return (out);
 }
@@ -427,7 +429,7 @@ void tms_lineparse(t_ms *ms)
 	tcmd_set(ms, split);
 	split_free(split);
 }
-
+/*
 int main(int argc, char **argv, char **env)
 {
 	t_ms ms;
@@ -439,6 +441,7 @@ int main(int argc, char **argv, char **env)
 
 	tcmd_print(ms.cmd);
 
-	//exit(EXIT_SUCCESS);*/
+	//exit(EXIT_SUCCESS);
 	return (0);
 }
+*/

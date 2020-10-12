@@ -50,4 +50,12 @@ typedef struct	s_ms
 	t_env		*env;
 }				t_ms;
 
+void ft_export_sort(t_env *env);
+void throw_error(char *errtype);
+void *e_malloc(size_t size);
+char *e_strdup(char *s);
+char **e_split(char *s, char c);
+
+void tenv_print(t_env *env);
+
 #endif
