@@ -25,10 +25,10 @@
 typedef struct		s_cmd
 {
 	char			*name;
-	//char			**flag;
-	//char			**arg;
-	char			flag[20][100];
-	char			arg[20][255]; //getconf ARG_MAX
+	char			**flag;
+	char			**arg;
+	//char			flag[20][100];
+	//char			arg[20][255]; //getconf ARG_MAX
 	int				pipe;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
