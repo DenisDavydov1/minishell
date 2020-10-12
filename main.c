@@ -37,7 +37,7 @@ int (*builtin_func[])(char **, t_ms *) = {
 	&lsh_exit,
 	&lsh_echo};
 
-int ft_strlen(char *s)
+/*int ft_strlen(char *s) 
 {
 	int i;
 
@@ -83,6 +83,20 @@ int ft_strcmp(char *s1, char *s2)
 	if (s1[i] != s2[i])
 		return (0);
 	return (1);
+}*/
+
+static char	**free_arr(char **arr)
+{
+	unsigned int i;
+
+	i = 0;
+	while (arr[i])
+	{
+		free(arr[i]);
+		i++;
+	}
+	free(arr);
+	return (NULL);
 }
 
 int lsh_num_builtins()
@@ -122,22 +136,6 @@ int lsh_cd(char **args, t_ms *ms)
 	return 1;
 }
 
-/*int lsh_help(char **args)
-{
-	int i;
-	printf("LSH Стивена Бреннана\n");
-	printf("Наберите название программы и её аргументы и нажмите enter.\n");
-	printf("Вот список встроенных команд:\n");
-
-	for (i = 0; i < lsh_num_builtins(); i++)
-	{
-		printf("  %s\n", builtin_str[i]);
-	}
-
-	printf("Используйте команду man для получения информации по другим программам.\n");
-	return 1;
-}*/
-
 int lsh_echo(char **args, t_ms *ms)
 {
 	//printf ("args = |%s| \n", args[1]);
@@ -154,7 +152,7 @@ int lsh_echo(char **args, t_ms *ms)
 int lsh_exit(char **args, t_ms *ms)
 {
 	return 0;
-}
+} 
 
 char *unite_str(char *path)
 {
@@ -293,15 +291,38 @@ int main(int argc, char **argv, char **envp)
 
 	// Запуск цикла команд.
 	t_ms ms;
+	t_env *env;
+	t_env *first;
+	char **test;
 	int i = 0;
+	env = malloc(sizeof(t_env));
+	first = env;
 	while (envp[i])
 	{
-		if (envp[i][0] == 'P' && envp[i][1] == 'W')
+		/*if (envp[i][0] == 'P' && envp[i][1] == 'W')
 			ms.path = ft_strdup(envp[i] + 4);
 			//printf("%s \n", ms.path);
 		if (envp[i][0] == 'H' && envp[i][1] == 'O')
 			ms.home = ft_strdup(envp[i] + 5);
-		i++;
+		i++;*/
+		test = ft_split(envp[i], '=');
+		//printf("%s   %s\n", test[0], test[1]);
+		//env = malloc(sizeof(t_env));
+		env->name = test[0];
+		env->value = test[1];
+		if (envp[i++])
+		{
+			env->next = malloc(sizeof(t_env));
+			env = env->next;
+		}
+
+		//i++;
+	}
+	env->next = NULL;
+	while (first)
+	{
+		printf("name = %s \n value = %s \n", first->name, first->value);
+		first = first->next;
 	}
 	lsh_loop(envp, &ms);
 
