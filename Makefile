@@ -37,7 +37,7 @@ INCLUDE = -I$(HDR_DIR)
 all: $(NAME)
 
 $(NAME): $(LIBFT) $(LIBFT_OBJ) $(OBJ_DIR) $(OBJ)
-	@$(CC) $(OBJ_DIR)*.o $(LIBS) -o $@ $(INCLUDE)
+	@$(CC) $(OBJ_DIR)*.o $(LIBS)  -o $@ $(INCLUDE)
 	@echo "$(NAME) created"
 
 $(OBJ_DIR):
@@ -45,7 +45,7 @@ $(OBJ_DIR):
 	@echo "$(OBJ_DIR) created"
 
 $(OBJ_DIR)%.o : $(SRC_DIR)%.c $(HDR) $(LIBFT)
-	@$(CC) $(FLAGS) $(LIBS) -c $< $(INCLUDE)
+	@$(CC) $(FLAGS) -c $< $(INCLUDE)
 	@mv *.o $(OBJ_DIR)
 
 $(LIBFT): $(LIBFT_OBJ)

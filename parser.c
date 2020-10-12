@@ -213,18 +213,41 @@ int split_validity(char **s)
 	return (1);
 }
 
+char **tcmd_skip(t_ms *ms, char **s)
+{
+	if (*s && **s == ' ')
+	{
+		while (*s && **s == ' ')
+			s++;
+	}
+	return (s);
+}
 
+void tcmd_newtcmd(t_ms *ms)
+{
+	if (*ms->cmd->name)
+		ms->cmd = tcmd_init(ms);
+}
 
 char **tcmd_set_name(t_ms *ms, char **s)
 {
-	if (**s == '>' && *(s + 1) && **(s + 1) == '>')
+	s = tcmd_skip(ms, s);
+	if (*s && **s == '>' && *(s + 1) && **(s + 1) == '>')
 	{
 		ft_strcpy(ms->cmd->name, ">>");
-		s++;
+		return (s + 2);
 	}
-	else //(**s == '>') || (**s = '<') || word
+	else if (*s && **s == '<' && *(s + 1) && **(s + 1) == '>')
+	{
+		ft_strcpy(ms->cmd->name, "<>");
+		return (s + 2);
+	}
+	else if (*s && **s != ';')
+	{
 		ft_strcpy(ms->cmd->name, *s);
-	return (s + 1);
+		return (s + 1);
+	}
+	return (s);
 }
 
 
@@ -260,12 +283,13 @@ void tcmd_addarg(t_cmd **cmd, char *arg)
 	ft_strcpy((*cmd)->arg[i], arg);
 }
 
-char **tcmd_skip(t_ms *ms, char **s)
+char **tcmd_semicolon(t_ms *ms, char **s)
 {
-	if (*s && **s == ' ')
+	s = tcmd_skip(ms, s);
+	if (*s && **s == ';')
 	{
-		while (*s && **s == ' ')
-			s++;
+		ms->cmd = tcmd_init(ms);
+		return (s + 1);
 	}
 	return (s);
 }
@@ -274,20 +298,20 @@ void tcmd_set(t_ms *ms, char **s)
 {
 	while (*s)
 	{
-		s = tcmd_skip(ms, s);
-		if (*s && **s == ';' && (ms->cmd = tcmd_init(ms)))
-			s++;
-		if (*s && **s != ';')
-			s = tcmd_set_name(ms, s);
-		while (*s && is_flag(*s))
+		s = tcmd_semicolon(ms, s);
+		//if (*s && **s == ';' && (ms->cmd = tcmd_init(ms)))
+		//	s++;
+		//if (*s && **s != ';')
+		s = tcmd_set_name(ms, s);
+		while ((s = tcmd_skip(ms, s)) && *s && is_flag(*s))
 		{
-			s = tcmd_skip(ms, s);
+			//s = tcmd_skip(ms, s);
 			tcmd_addflag(&ms->cmd, *s);
 			s++;
 		}
-		while (*s)
+		while ((s = tcmd_skip(ms, s)) && *s)
 		{
-			s = tcmd_skip(ms, s);
+			//s = tcmd_skip(ms, s);
 			if (!in_set(**s, SET))
 			{
 				tcmd_addarg(&ms->cmd, *s);
@@ -321,7 +345,7 @@ int main(int argc, char **argv, char **env)
 	t_ms ms;
 
 	ms = tms_init();
-	ms.line = "  cat  a; man <> a  > b; ;   yu"; // name may be <>
+	ms.line = "  cat -t a; man <> a  > b; ;   yu"; // name may be <>
 
 	tms_lineparse(&ms);
 
