@@ -59,7 +59,7 @@ t_cmd *tcmd_init(t_ms *ms)
 
 	if (!(cmd = (t_cmd *)malloc(sizeof(t_cmd))))
 		throw_error(MEMALLOC, ms);
-	ft_memset(cmd->name, 0, 255);
+	cmd->name = NULL;
 	i = 0;
 	while (i < 20)
 	{
@@ -228,7 +228,7 @@ int split_validity(char **s)
 	return (1);
 }
 
-char **tcmd_skip(t_ms *ms, char **s)
+char **tcmd_skip(char **s)
 {
 	if (*s && **s == ' ')
 	{
@@ -240,29 +240,29 @@ char **tcmd_skip(t_ms *ms, char **s)
 
 void tcmd_newtcmd(t_ms *ms)
 {
-	if (*ms->cmd->name || **ms->cmd->flag || **ms->cmd->arg)
+	if (ms->cmd->name || **ms->cmd->flag || **ms->cmd->arg)
 		ms->cmd = tcmd_init(ms);
 }
 
 char **tcmd_set_name(t_ms *ms, char **s)
 {
-	s = tcmd_skip(ms, s);
+	s = tcmd_skip(s);
 	if (*s && **s == '>' && *(s + 1) && **(s + 1) == '>')
 	{
 		tcmd_newtcmd(ms);
-		ft_strcpy(ms->cmd->name, ">>");
+		ms->cmd->name = ft_strdup(">>");
 		return (s + 2);
 	}
 	else if (*s && **s == '<' && *(s + 1) && **(s + 1) == '>')
 	{
 		tcmd_newtcmd(ms);
-		ft_strcpy(ms->cmd->name, "<>");
+		ms->cmd->name = ft_strdup("<>");
 		return (s + 2);
 	}
 	else if (*s && **s != ';' && **s != '|')
 	{
 		tcmd_newtcmd(ms);
-		ft_strcpy(ms->cmd->name, *s);
+		ms->cmd->name = ft_strdup(*s);
 		return (s + 1);
 	}
 	return (s);
@@ -301,7 +301,7 @@ char **tcmd_addarg(t_ms *ms, char **s)
 
 char **tcmd_semicolon(t_ms *ms, char **s)
 {
-	s = tcmd_skip(ms, s);
+	s = tcmd_skip(s);
 	if (*s && **s == ';')
 	{
 		if (!*ms->cmd->name && !**ms->cmd->flag && !**ms->cmd->arg)
@@ -314,7 +314,7 @@ char **tcmd_semicolon(t_ms *ms, char **s)
 
 char **tcmd_pipe(t_ms *ms, char **s)
 {
-	s = tcmd_skip(ms, s);
+	s = tcmd_skip(s);
 	if (*s && **s == '|')
 	{
 		ms->cmd->pipe = 1;
@@ -323,15 +323,38 @@ char **tcmd_pipe(t_ms *ms, char **s)
 	return (s);
 }
 
+int split_countflags(char **s)
+{
+	int f;
+
+	f = 0;
+	while (*s)
+	{
+		s = tcmd_skip(s);
+		if (*s && is_flag(*s))
+			f++;
+		else
+			return (f);
+		s++;
+	}
+	return (f);
+}
+
+void charxx_alloc(char **, char **s)
+{
+
+}
+
 void tcmd_set(t_ms *ms, char **s)
 {
 	while (*s)
 	{
 		s = tcmd_semicolon(ms, s);
 		s = tcmd_set_name(ms, s);
-		while ((s = tcmd_skip(ms, s)) && *s && is_flag(*s))
+		printf("%d\n", split_countflags(s));
+		while ((s = tcmd_skip(s)) && *s && is_flag(*s))
 			s = tcmd_addflag(ms, s);
-		while ((s = tcmd_skip(ms, s)) && *s)
+		while ((s = tcmd_skip(s)) && *s)
 		{
 			if (!in_set(**s, SET))
 				s = tcmd_addarg(ms, s);
@@ -356,6 +379,7 @@ void split_free(char **s)
 	}
 	free(s);
 }
+
 
 void tms_lineparse(t_ms *ms)
 {

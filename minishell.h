@@ -24,7 +24,7 @@
 
 typedef struct		s_cmd
 {
-	char			name[255];
+	char			*name;
 	//char			**flag;
 	//char			**arg;
 	char			flag[20][100];
