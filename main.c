@@ -285,6 +285,8 @@ void lsh_loop(char **envp, t_ms *ms)
 	}
 }
 
+void ft_export(t_env *env);
+
 int main(int argc, char **argv, char **envp)
 {
 	// Загрузка файлов конфигурации при их наличии.
@@ -319,11 +321,14 @@ int main(int argc, char **argv, char **envp)
 		//i++;
 	}
 	env->next = NULL;
+	ft_export(first);
+	/*
 	while (first)
 	{
 		printf("name = %s \n value = %s \n", first->name, first->value);
 		first = first->next;
 	}
+	*/
 	lsh_loop(envp, &ms);
 
 	// Выключение / очистка памяти.
