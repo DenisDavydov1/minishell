@@ -5,26 +5,26 @@
 //#include <sys/wait.h>
 #include "minishell.h"
 
-#define LSH_RL_BUFSIZE 1024
-#define LSH_TOK_BUFSIZE 64
-#define LSH_TOK_DELIM " \t\r\n\a"
+#define msh_RL_BUFSIZE 1024
+#define msh_TOK_BUFSIZE 64
+#define msh_TOK_DELIM " \t\r\n\a"
 
 /*
 	Объявление функций для встроенных команд оболочки:
  */
-int lsh_cd(char **args, t_ms *ms);
-int lsh_pwd(char **args, t_ms *ms);
-int lsh_exit(char **args, t_ms *ms);
-int lsh_echo(char **args, t_ms *ms);
-int lsh_env(char **args, t_ms *ms);
-int lsh_export(char **args, t_ms *ms);
-int lsh_unset(char **args, t_ms *ms);
-int lsh_minishell(char **args, t_ms *ms);
+//int msh_cd(char **args, t_ms *ms);
+//int msh_pwd(char **args, t_ms *ms);
+//int msh_exit(char **args, t_ms *ms);
+//int msh_echo(char **args, t_ms *ms);
+//int msh_env(char **args, t_ms *ms);
+//int msh_export(char **args, t_ms *ms);
+//int msh_unset(char **args, t_ms *ms);
+int msh_minishell(char **args, t_ms *ms);
 
 /*
 	Список встроенных команд, за которыми следуют соответствующие функции
  */
-char *builtin_str[] = {
+/*char *builtin_str[] = {
 	"cd",
 	"pwd",
 	"exit",
@@ -36,14 +36,14 @@ char *builtin_str[] = {
 	};
 
 int (*builtin_func[])(char **, t_ms *) = {
-	&lsh_cd,
-	&lsh_pwd,
-	&lsh_exit,
-	&lsh_echo,
-	&lsh_env,
-	&lsh_export,
-	&lsh_unset,
-	&lsh_minishell};
+	&msh_cd,
+	&msh_pwd,
+	&msh_exit,
+	&msh_echo,
+	&msh_env,
+	&msh_export,
+	&msh_unset,
+	&msh_minishell}; */
 
 
 int ft_strcmp1(char *s1, char *s2)
@@ -82,6 +82,33 @@ int ft_strcmp2(char *s1, char *s2, int count)
 	return (1);
 }
 
+int ft_strcmp3(char *s1, char *s2)
+{
+	int i;
+
+	i = 0;
+	if (s1 && s2)
+	{
+		while (s1[i])
+		{
+			if (s1[i] > 64 && s1[i] < 91)
+			{
+				if (s1[i] != s2[i] + 32)
+					return (0);
+			}
+			else
+			{
+				if (s1[i] != s2[i])
+					return (0);
+			}
+			i++;
+		}
+	}
+	if (s1[i] != s2[i])
+		return (0);
+	return (1);
+}
+
 /*static char	**free_arr(char **arr)
 {
 	unsigned int i;
@@ -95,10 +122,10 @@ int ft_strcmp2(char *s1, char *s2, int count)
 	return (NULL);
 }*/
 
-int lsh_num_builtins()
+/*int msh_num_builtins()
 {
 	return sizeof(builtin_str) / sizeof(char *);
-}
+} */
 
 /*
 	Реализации встроенных функций
@@ -135,7 +162,7 @@ void replace_pwd(t_ms *ms)
 	free(old_pwd->value);
 	old_pwd->value = pwd->value;
 	pwd->value = NULL;
-	pwd->value = getcwd(pwd->value, 0);
+	pwd->value = getcwd(pwd->value, 0); //убрать эту функцию и передавать путь вручную?
 }
 
 void add_in_env(t_ms *ms, char *s)
@@ -179,27 +206,32 @@ void delete_from_env(t_ms *ms, char *s)
 	}
 }
 
-int lsh_pwd(char **args, t_ms *ms)
+int msh_pwd(t_ms *ms)
 {
 	char *s;
+
 	s = find_in_env(ms, "PWD");
 	write(1, s, ft_strlen(s));
 	write(1, "\n", 1);
 	return (1);
 }
 
-int lsh_cd(char **args, t_ms *ms)
+int msh_cd(t_ms *ms)
 {
-	char *s;
-	if (args[1] == NULL)
+	//char *s;
+	char **tmp;
+
+	tmp = ms->cmd->arg;
+	if (tmp && *tmp)
 	{
-		s = find_in_env(ms, "HOME");
-		if (chdir(s) != 0)
+		if (chdir(*tmp) != 0)
 			perror("cd");
 	}
 	else
 	{
-		if (chdir(args[1]) != 0)
+		//s = find_in_env(ms, "HOME");
+		//if (chdir(s) != 0)
+		if (chdir(find_in_env(ms, "HOME")) != 0)
 			perror("cd");
 	}
 	replace_pwd(ms);
@@ -207,24 +239,55 @@ int lsh_cd(char **args, t_ms *ms)
 	return 1;
 }
 
-int lsh_echo(char **args, t_ms *ms)
+int msh_echo(t_ms *ms)
 {
-	if (ft_strcmp1(args[1], "-n"))
+	char **flag;
+	char **arg;
+
+	flag = ms->cmd->flag;
+	arg = ms->cmd->arg;
+	if (flag && *flag && ft_strcmp1(*flag, "-n"))
+	{
+		if (arg && *arg)
+		{
+			while (*arg)
+			{
+				write(1, *arg, ft_strlen(*arg));
+				arg++;
+			}
+		}
+	}
+	else
+	{
+		if (arg && *arg)
+		{
+			while (*arg)
+			{
+				write(1, *arg, ft_strlen(*arg));
+				arg++;
+			}
+		}
+		write(1, "\n", 1);
+	}
+
+
+	/*if (ft_strcmp1(args[1], "-n"))
 		write(1, args[2], ft_strlen(args[2]));
 	else
 	{
 		write(1, args[1], ft_strlen(args[1]));
 		write(1, "\n", 1);
-	}
+	}*/
 	return 1;
 }
 
-int lsh_exit(char **args, t_ms *ms)
+int msh_exit(t_ms *ms)
 {
-	return 0;
+	//return 0;
+	exit(0);
 }
 
-int lsh_env(char **args, t_ms *ms)
+int msh_env(t_ms *ms)
 {
 	t_env *tmp;
 
@@ -240,26 +303,45 @@ int lsh_env(char **args, t_ms *ms)
 	return (1);
 }
 
-int lsh_export(char **args, t_ms *ms)
+int msh_export(t_ms *ms)
 {
-	t_env *tmp;
+	char **tmp;
 
-	if (args[1])
-		add_in_env(ms, args[1]);
+	tmp = ms->cmd->arg;
+
+	if (tmp && *tmp)
+	{
+		while (*tmp)
+		{
+			add_in_env(ms, *tmp);
+			tmp++;
+		}
+	}
 	else
 		ft_export_sort(ms->env);
-	
 	return(1);
 }
 
-int lsh_unset(char **args, t_ms *ms)
+int msh_unset(t_ms *ms)
 {
-	if (args[1])
-		delete_from_env(ms, args[1]);
+	char **tmp;
+
+	tmp = ms->cmd->arg;
+
+	if (tmp && *tmp)
+	{
+		while (*tmp)
+		{
+			delete_from_env(ms, *tmp);
+			tmp++;
+		}
+	}
+	//if (args[1])
+	//	delete_from_env(ms, args[1]);
 	return (1);
 }
 
-int lsh_minishell(char **args, t_ms *ms)
+int msh_minishell(char **args, t_ms *ms)
 {
 	char **envp;
 
@@ -291,49 +373,86 @@ char *unite_str(char *path)
 	return (res);
 }
 
-int lsh_launch(char **args, t_ms *ms)
+char **create_argv(t_ms *ms)
+{
+	int i;
+	char **flag;
+	char **arg;
+
+	i = 0;
+	flag = ms->cmd->flag;
+	arg = ms->cmd->arg;
+	if (ms->cmd->name)
+		i++;
+	if (flag && *flag)
+	{
+		while (*flag)
+		{
+			i++;
+			flag++;
+		}
+	}
+	
+	
+}
+
+int msh_launch(char **argc, t_ms *ms)
 {
 	pid_t pid, wpid;
 	int status;
+	//char argv[2][2] = {"ls", "-l"};
+
+	//*argv = ms->cmd->name;
+	char **tmp;
+	tmp = argc;
+	while (*tmp)
+	{
+		printf("tmp = %s \n", *tmp);
+		tmp++;
+	}
 
 	pid = fork();
 	//printf("args[0] = %s \n", args[0]);
-	char *path = unite_str(args[0]);
+	char *path = unite_str(ms->cmd->name);
+	//char *path = unite_str(args[0]);
 	//printf("path = %s \n", path);
 
 	if (pid == 0) // Дочерний процесс
 	{
 		//if (execvp(args[0], args) == -1)
-		if (execve(path, args, NULL) == -1) //нужно ли вообще envp?
+		//if (execve(path, args, NULL) == -1) //нужно ли вообще envp?
+		//if (execve(path, ms->cmd->arg, NULL) == -1) //нужно ли вообще envp?
+		if (execve(path, argc, NULL) == -1) //нужно ли вообще envp?
 		//if (execve("/bin/pwd", args, envp) == -1)
 		{
-			perror("lsh");
+			perror("msh");
 			exit(EXIT_FAILURE);
 		}
 		else if (pid < 0) // Ошибка при форкинге
-			perror("lsh");
+			perror("msh");
 		else // Родительский процесс
 		{
 			while (!WIFEXITED(status) && !WIFSIGNALED(status))
 				wpid = waitpid(pid, &status, WUNTRACED);
 		}
 	}
+	free(path);
 	return 1;
 }
 
-char **lsh_split_line(char *line)
+char **msh_split_line(char *line)
 {
-	int bufsize = LSH_TOK_BUFSIZE, position = 0;
+	int bufsize = msh_TOK_BUFSIZE, position = 0;
 	char **tokens = malloc(bufsize * sizeof(char *));
 	char *token;
 
 	if (!tokens)
 	{
-		fprintf(stderr, "lsh: ошибка выделения памяти\n");
+		fprintf(stderr, "msh: ошибка выделения памяти\n");
 		exit(EXIT_FAILURE);
 	}
 
-	token = strtok(line, LSH_TOK_DELIM);
+	token = strtok(line, msh_TOK_DELIM);
 	while (token != NULL)
 	{
 		tokens[position] = token;
@@ -341,45 +460,105 @@ char **lsh_split_line(char *line)
 
 		if (position >= bufsize)
 		{
-			bufsize += LSH_TOK_BUFSIZE;
+			bufsize += msh_TOK_BUFSIZE;
 			tokens = realloc(tokens, bufsize * sizeof(char *));
 			if (!tokens)
 			{
-				fprintf(stderr, "lsh: ошибка выделения памяти\n");
+				fprintf(stderr, "msh: ошибка выделения памяти\n");
 				exit(EXIT_FAILURE);
 			}
 		}
 
-		token = strtok(NULL, LSH_TOK_DELIM);
+		token = strtok(NULL, msh_TOK_DELIM);
 	}
 	tokens[position] = NULL;
 	return tokens;
 }
 
-char *lsh_read_line(void)
+/*char *msh_read_line(void)
 {
 	char *line = NULL;
 	size_t bufsize = 0; // getline сама выделит память
 	getline(&line, &bufsize, stdin);
 	return line;
-}
+}*/
 
-int lsh_execute(char **args, t_ms *ms)
+int msh_execute(char **args, t_ms *ms)
+//int msh_execute(t_ms *ms)
 {
-	int i = 0;
+	int ret;
+	
+	ret = 1;
+	//int i = 0;
 
-	if (args[0] == NULL) // Была введена пустая команда.
+	/*if (args[0] == NULL) // Была введена пустая команда.
 		return 1;
-	while (i < lsh_num_builtins())
+	while (i < msh_num_builtins())
 	{
 		if (strcmp(args[0], builtin_str[i]) == 0)
 			return (*builtin_func[i])(args, ms);
 		i++;
 	}
-	return lsh_launch(args, ms);
+	return msh_launch(args, ms);*/
+	if (!ms->cmd->name)
+		return (ret);
+	else if (ft_strcmp3(ms->cmd->name, "echo"))
+		return (ret = msh_echo(ms));
+	else if (ft_strcmp3(ms->cmd->name, "cd"))
+		return (ret = msh_cd(ms));
+	else if (ft_strcmp3(ms->cmd->name, "pwd"))
+		return (ret = msh_pwd(ms));
+	else if (ft_strcmp3(ms->cmd->name, "export"))
+		return (ret = msh_export(ms));
+	else if (ft_strcmp3(ms->cmd->name, "unset"))
+		return (ret = msh_unset(ms));
+	else if (ft_strcmp3(ms->cmd->name, "env"))
+		return (ret = msh_env(ms));
+	else if (ft_strcmp3(ms->cmd->name, "exit"))
+		return (ret = msh_exit(ms));
+	else
+		return (ret = msh_launch(args, ms));
 }
 
-void lsh_loop(t_ms *ms)
+int ft_strcpy_my(char *s1, char *s2)
+{
+	int i;
+
+	i = 0;
+	while (s1[i])
+	{
+		s2[i] = s1[i];
+		i++;
+	}
+	return (0);
+}
+
+int get_next_line(char **line)
+{
+	char buf;
+	char *new;
+	int count;
+	int i;
+
+	i = 0;
+	if (!(*line = (char*)e_malloc(sizeof(char))))
+		return (-1);
+	*line[0] = '\0';
+	while ((count = read(0, &buf, 1)) > 0 && buf != '\n')
+	{
+		if (!(new = (char*)malloc(sizeof(char) * (i + 2))))
+			return (-1);
+		ft_strcpy_my(*line, new);
+		free(*line);
+		new[i++] = buf;
+		new[i] = '\0';
+		*line = new;
+	}
+	new = NULL;
+	return(count);
+}
+
+void msh_loop(t_ms *ms)
 {
 	char *line;
 	char **args;
@@ -387,13 +566,33 @@ void lsh_loop(t_ms *ms)
 
 	while (status)
 	{
-		//printf("> ");
-		line = lsh_read_line();
-		args = lsh_split_line(line);
+		//printf("minishell-1.0$ ");
+		//line = msh_read_line();
+		//args = msh_split_line(line);
 		//printf("line = %s\n", line);
-		status = lsh_execute(args, ms);
-		free(line);
-		free(args);
+		//ms->cmd = tcmd_init(ms);
+		get_next_line(&ms->line);
+		//printf("line1 = %c len = %zu \n", (ms->line)[0], ft_strlen(ms->line));
+		if (ft_strlen(ms->line) > 0)
+		{
+			tms_lineparse(ms);
+			args = msh_split_line(ms->line);
+			status = msh_execute(args, ms);
+			//free(ms->line);
+			free(args);
+		}
+		free(ms->line);
+		//printf("line1 = %s \n", ms->line);
+		//printf("line1 = %d \n", (int)ms->line[ft_strlen(ms->line)]);
+		//tms_lineparse(ms);
+		//printf("line2 = %s \n", ms->line);
+		//args = msh_split_line(ms->line);
+		//printf("line3 = %s \n", ms->line);
+		//status = msh_execute(args, ms);
+		//status = msh_execute(args, ms);
+		//free(line);
+		//free(ms->line);
+		//free(args);
 	}
 }
 
@@ -459,7 +658,7 @@ int main(int argc, char **argv, char **envp)
 	t_env *first;
 
 	tenv_set(&ms, envp);
-	lsh_loop(&ms);
+	msh_loop(&ms);
 
 	// Выключение / очистка памяти.
 
