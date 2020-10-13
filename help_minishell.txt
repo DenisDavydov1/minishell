@@ -9,6 +9,12 @@ to do list:
 
 6. cd ~, cd .., cd /
 
+7.  cat "a b"
+    cat: a b: No such file or directory
+
+8.  echo n m
+    n m
+
 
 
 

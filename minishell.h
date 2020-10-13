@@ -60,6 +60,9 @@ char **charxx_alloc(int size);
 void charxx_free(char **s);
 char **tenv_to_envp(t_env *env);
 
+t_ms tms_init(void);
+t_cmd *tcmd_init(t_ms *ms);
+
 void tenv_print(t_env *env);
 
 #endif
