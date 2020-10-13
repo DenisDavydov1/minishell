@@ -1,22 +1,16 @@
 #include "minishell.h"
 
-void *emalloc(size_t size)
-{
-	void *out;
-	
-	if (!(out = malloc(size)))
-		exit(EXIT_FAILURE);
-	return (out);
-}
 
-void tcmd_gotofirst(t_cmd **cmd)
+t_cmd *tcmd_gotofirst(t_cmd *cmd)
 {
-	while ((*cmd)->prev)
+	while (cmd->prev)
 	{
-		*cmd = (*cmd)->prev;
+		cmd = cmd->prev;
 	}
+	return (cmd);
 }
 
+/*
 void tcmd_free(t_cmd *cmd)
 {
 	t_cmd *ptr;
@@ -43,13 +37,33 @@ void tms_free(t_ms *ms)
 	//free(ms->path);
 	tcmd_free(ms->cmd);
 }
+*/
 
-void throw_error(char *errtype, t_ms *ms)
+void *e_malloc(size_t size)
 {
-	tms_free(ms);
-	ft_putstr_fd("minishell: ", 2);
-	ft_putendl_fd(errtype, 2);
-	exit(EXIT_FAILURE);
+	void *out;
+	
+	if (!(out = malloc(size)))
+		throw_error(MEMALLOC);
+	return (out);
+}
+
+char *e_strdup(char *s)
+{
+	char *out;
+	
+	if (!(out = ft_strdup(s)))
+		throw_error(MEMALLOC);
+	return (out);
+}
+
+char **e_split(char *s, char c)
+{
+	char **out;
+	
+	if (!(out = ft_split(s, c)))
+		throw_error(MEMALLOC);
+	return (out);
 }
 
 t_cmd *tcmd_init(t_ms *ms)
@@ -58,15 +72,10 @@ t_cmd *tcmd_init(t_ms *ms)
 	int i;
 
 	if (!(cmd = (t_cmd *)malloc(sizeof(t_cmd))))
-		throw_error(MEMALLOC, ms);
-	ft_memset(cmd->name, 0, 255);
-	i = 0;
-	while (i < 20)
-	{
-		ft_memset(cmd->flag[i], 0, 100);
-		ft_memset(cmd->arg[i], 0, 255);
-		i++;
-	}
+		throw_error(MEMALLOC);
+	cmd->name = NULL;
+	cmd->flag = NULL;
+	cmd->arg = NULL;
 	cmd->pipe = 0;
 	cmd->next = NULL;
 	cmd->prev = ms->cmd;
@@ -90,16 +99,16 @@ t_ms tms_init(void)
 void tcmd_print(t_cmd *cmd)
 {
 	int i = 0;
-	tcmd_gotofirst(&cmd);
+	cmd = tcmd_gotofirst(cmd);
 	while (cmd)
 	{
 		printf("\nCMD #%d\n", i++);
 		printf("name: %s\n", cmd->name);
 		printf("Flags: ");
-		for (int j=0; cmd->flag[j][0]; j++)
+		for (int j=0; cmd->flag && cmd->flag[j]; j++)
 			printf("%s ", cmd->flag[j]);
 		printf("\nArgs: ");
-		for (int j=0; cmd->arg[j][0]; j++)
+		for (int j=0; cmd->arg && cmd->arg[j]; j++)
 			printf("%s ", cmd->arg[j]);
 		printf("\nPipe: %i\n", cmd->pipe);
 		printf("Prev: %s, Next: %s\n",	cmd->prev ? "Yes" : "No", \
@@ -228,7 +237,7 @@ int split_validity(char **s)
 	return (1);
 }
 
-char **tcmd_skip(t_ms *ms, char **s)
+char **tcmd_skip(char **s)
 {
 	if (*s && **s == ' ')
 	{
@@ -240,29 +249,29 @@ char **tcmd_skip(t_ms *ms, char **s)
 
 void tcmd_newtcmd(t_ms *ms)
 {
-	if (*ms->cmd->name || **ms->cmd->flag || **ms->cmd->arg)
+	if (ms->cmd->name || ms->cmd->flag || ms->cmd->arg)
 		ms->cmd = tcmd_init(ms);
 }
 
 char **tcmd_set_name(t_ms *ms, char **s)
 {
-	s = tcmd_skip(ms, s);
+	s = tcmd_skip(s);
 	if (*s && **s == '>' && *(s + 1) && **(s + 1) == '>')
 	{
 		tcmd_newtcmd(ms);
-		ft_strcpy(ms->cmd->name, ">>");
+		ms->cmd->name = ft_strdup(">>");
 		return (s + 2);
 	}
 	else if (*s && **s == '<' && *(s + 1) && **(s + 1) == '>')
 	{
 		tcmd_newtcmd(ms);
-		ft_strcpy(ms->cmd->name, "<>");
+		ms->cmd->name = ft_strdup("<>");
 		return (s + 2);
 	}
 	else if (*s && **s != ';' && **s != '|')
 	{
 		tcmd_newtcmd(ms);
-		ft_strcpy(ms->cmd->name, *s);
+		ms->cmd->name = ft_strdup(*s);
 		return (s + 1);
 	}
 	return (s);
@@ -282,9 +291,9 @@ char **tcmd_addflag(t_ms *ms, char **s)
 	int i;
 
 	i = 0;
-	while (ms->cmd->flag[i][0])
+	while (ms->cmd->flag[i])
 		i++;
-	ft_strcpy(ms->cmd->flag[i], *s);
+	ms->cmd->flag[i] = e_strdup(*s);
 	return (s + 1);
 }
 
@@ -293,19 +302,19 @@ char **tcmd_addarg(t_ms *ms, char **s)
 	int i;
 
 	i = 0;
-	while (ms->cmd->arg[i][0])
+	while (ms->cmd->arg[i])
 		i++;
-	ft_strcpy(ms->cmd->arg[i], *s);
+	ms->cmd->arg[i] = e_strdup(*s);
 	return (s + 1);
 }
 
 char **tcmd_semicolon(t_ms *ms, char **s)
 {
-	s = tcmd_skip(ms, s);
+	s = tcmd_skip(s);
 	if (*s && **s == ';')
 	{
-		if (!*ms->cmd->name && !**ms->cmd->flag && !**ms->cmd->arg)
-			throw_error(PARSEERR, ms);
+		if (!ms->cmd->name && !ms->cmd->flag && !ms->cmd->arg)
+			throw_error(PARSEERR);
 		tcmd_newtcmd(ms);
 		return (s + 1);
 	}
@@ -314,7 +323,7 @@ char **tcmd_semicolon(t_ms *ms, char **s)
 
 char **tcmd_pipe(t_ms *ms, char **s)
 {
-	s = tcmd_skip(ms, s);
+	s = tcmd_skip(s);
 	if (*s && **s == '|')
 	{
 		ms->cmd->pipe = 1;
@@ -323,15 +332,66 @@ char **tcmd_pipe(t_ms *ms, char **s)
 	return (s);
 }
 
+int split_countflags(char **s)
+{
+	int f;
+
+	f = 0;
+	while (*s)
+	{
+		s = tcmd_skip(s);
+		if (*s && is_flag(*s))
+			f++;
+		else
+			return (f);
+		s++;
+	}
+	return (f);
+}
+
+int split_countargs(char **s)
+{
+	int a;
+
+	a = 0;
+	while (*s)
+	{
+		s = tcmd_skip(s);
+		if (*s && !in_set(**s, SET))
+			a++;
+		else
+			return (a);
+		s++;
+	}
+	return (a);
+}
+
+char **charxx_alloc(int size)
+{
+	char **out;
+
+	out = NULL;
+	if (size > 0)
+	{
+		if (!(out = (char **)malloc(sizeof(char *) * (size + 1))))
+			throw_error(MEMALLOC);
+		while (size >= 0)
+			out[size--] = NULL;
+	}
+	return (out);
+}
+
 void tcmd_set(t_ms *ms, char **s)
 {
 	while (*s)
 	{
 		s = tcmd_semicolon(ms, s);
 		s = tcmd_set_name(ms, s);
-		while ((s = tcmd_skip(ms, s)) && *s && is_flag(*s))
+		ms->cmd->flag = charxx_alloc(split_countflags(s));
+		while ((s = tcmd_skip(s)) && *s && is_flag(*s))
 			s = tcmd_addflag(ms, s);
-		while ((s = tcmd_skip(ms, s)) && *s)
+		ms->cmd->arg = charxx_alloc(split_countargs(s));
+		while ((s = tcmd_skip(s)) && *s)
 		{
 			if (!in_set(**s, SET))
 				s = tcmd_addarg(ms, s);
@@ -357,130 +417,31 @@ void split_free(char **s)
 	free(s);
 }
 
+
 void tms_lineparse(t_ms *ms)
 {
 	char **split;
 
 	if (!(split = ft_splitset(ms->line, SET)))
-		throw_error(MEMALLOC, ms);
+		throw_error(MEMALLOC);
 	if (!split_validity(split))
-		throw_error(PARSEERR, ms); // free split array if validation fails
-	// add flags and args counting and allocation char** 
+		throw_error(PARSEERR);
 	tcmd_set(ms, split);
 	split_free(split);
 }
-
+/*
 int main(int argc, char **argv, char **env)
 {
 	t_ms ms;
 
 	ms = tms_init();
-	ms.line = " cat -t -v b<a | man <> a  > b; catm>>a;   yu  --leak -n -n-n ans;>b;<rt; ";
+	ms.line = "cat -t -v b<a | man <> a  > b; catm>>a;   yu  --leak -n -n-n ans;>b;<rt; ";
 
 	tms_lineparse(&ms);
 
 	tcmd_print(ms.cmd);
-	tms_free(&ms);
 
-	//free(ms.cmd);
-	//exit(EXIT_SUCCESS);*/
+	//exit(EXIT_SUCCESS);
 	return (0);
-}
-
-
-
-/*
-void charxxfree(char **s)
-{
-	int i;
-
-	if (!s)
-		return ;
-	i = 0;
-	while (s[i])
-	{
-		free(s[i]);
-		i++;
-	}
-	free(s);
-}
-
-void tcmd_free(t_cmd *cmd)
-{
-	t_cmd *ptr;
-	int i;
-
-	if (!cmd)
-		return ;
-	tcmd_gotofirst(&cmd);
-	while (cmd)
-	{
-		charxxfree(cmd->flag);
-		charxxfree(cmd->arg);
-		ptr = cmd;
-		cmd = cmd->next;
-		free(ptr);
-	}
-}
-
-void tms_free(t_ms *ms)
-{
-	if (!ms)
-		return ;
-	//free(ms->line);
-	//free(ms->path);
-	tcmd_free(ms->cmd);
-}
-
-void throw_error(char *errtype, t_ms *ms)
-{
-	tms_free(ms);
-	ft_putendl_fd(errtype, 2);
-	exit(EXIT_FAILURE);
-}
-
-t_cmd *tcmd_init(t_ms *ms)
-{
-	t_cmd *cmd;
-
-	if (!(cmd = (t_cmd *)malloc(sizeof(t_cmd))))
-		throw_error(MEMALLOC, ms);
-	cmd->name = NULL;
-	cmd->flag = NULL;
-	cmd->arg = NULL;
-	cmd->pipe = 0;
-	cmd->next = NULL;
-	cmd->prev = NULL;
-	if (!(cmd->flag = (char **)malloc(sizeof(char *))))
-		throw_error(MEMALLOC, ms);
-	*cmd->flag = NULL;
-	if (!(cmd->arg = (char **)malloc(sizeof(char *))))
-		throw_error(MEMALLOC, ms);
-	*cmd->arg = NULL;
-	return (cmd);
-}
-
-t_ms tms_init(void)
-{
-	t_ms ms;
-
-	ms.line = NULL;
-	ms.path = NULL;
-	ms.env = NULL;
-	ms.cmd = tcmd_init(&ms);
-	
-	return (ms);
-}
-
-
-void tcmd_addflag(t_cmd **cmd, char *flag)
-{
-	char **ptr;
-
-	ptr = (*cmd)->flag;
-	while (ptr)
-		ptr++;
-	*ptr = flag;
-	++ptr = NULL;
 }
 */

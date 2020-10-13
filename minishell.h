@@ -24,11 +24,9 @@
 
 typedef struct		s_cmd
 {
-	char			name[255];
-	//char			**flag;
-	//char			**arg;
-	char			flag[20][100];
-	char			arg[20][255]; //getconf ARG_MAX
+	char			*name;
+	char			**flag;
+	char			**arg;
 	int				pipe;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
@@ -51,5 +49,13 @@ typedef struct	s_ms
 	t_cmd		*cmd;
 	t_env		*env;
 }				t_ms;
+
+void ft_export_sort(t_env *env);
+void throw_error(char *errtype);
+void *e_malloc(size_t size);
+char *e_strdup(char *s);
+char **e_split(char *s, char c);
+
+void tenv_print(t_env *env);
 
 #endif
