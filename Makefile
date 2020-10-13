@@ -9,7 +9,7 @@ ft_strrchr.c ft_strnstr.c ft_strncmp.c ft_atoi.c ft_isalpha.c ft_isdigit.c \
 ft_isalnum.c ft_isascii.c ft_isprint.c ft_toupper.c ft_tolower.c \
 ft_calloc.c ft_strdup.c ft_substr.c ft_strjoin.c ft_strtrim.c ft_split.c \
 ft_itoa.c ft_strmapi.c ft_putchar_fd.c ft_putstr_fd.c ft_putendl_fd.c \
-ft_putnbr_fd.c ft_strpass.c
+ft_putnbr_fd.c ft_strcmp.c ft_strpass.c ft_strcpy.c ft_splitset.c
 LIBFT_SRC = $(addprefix $(LIBFT_DIR), $(LIBFT_SRC_LIST))
 LIBFT_OBJ_LIST = $(patsubst %.c, %.o, $(LIBFT_SRC_LIST))
 LIBFT_OBJ = $(addprefix $(LIBFT_DIR), $(LIBFT_OBJ_LIST))
