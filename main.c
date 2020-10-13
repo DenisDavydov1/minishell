@@ -12,38 +12,8 @@
 /*
 	Объявление функций для встроенных команд оболочки:
  */
-//int msh_cd(char **args, t_ms *ms);
-//int msh_pwd(char **args, t_ms *ms);
-//int msh_exit(char **args, t_ms *ms);
-//int msh_echo(char **args, t_ms *ms);
-//int msh_env(char **args, t_ms *ms);
-//int msh_export(char **args, t_ms *ms);
-//int msh_unset(char **args, t_ms *ms);
+
 int msh_minishell(char **args, t_ms *ms);
-
-/*
-	Список встроенных команд, за которыми следуют соответствующие функции
- */
-/*char *builtin_str[] = {
-	"cd",
-	"pwd",
-	"exit",
-	"echo",
-	"env",
-	"export",
-	"unset",
-	"./minishell"
-	};
-
-int (*builtin_func[])(char **, t_ms *) = {
-	&msh_cd,
-	&msh_pwd,
-	&msh_exit,
-	&msh_echo,
-	&msh_env,
-	&msh_export,
-	&msh_unset,
-	&msh_minishell}; */
 
 
 int ft_strcmp1(char *s1, char *s2)
@@ -218,7 +188,6 @@ int msh_pwd(t_ms *ms)
 
 int msh_cd(t_ms *ms)
 {
-	//char *s;
 	char **tmp;
 
 	tmp = ms->cmd->arg;
@@ -229,8 +198,6 @@ int msh_cd(t_ms *ms)
 	}
 	else
 	{
-		//s = find_in_env(ms, "HOME");
-		//if (chdir(s) != 0)
 		if (chdir(find_in_env(ms, "HOME")) != 0)
 			perror("cd");
 	}
@@ -373,7 +340,7 @@ char *unite_str(char *path)
 	return (res);
 }
 
-char **create_argv(t_ms *ms)
+int count_arg(t_ms *ms)
 {
 	int i;
 	char **flag;
@@ -392,38 +359,66 @@ char **create_argv(t_ms *ms)
 			flag++;
 		}
 	}
-	
-	
+	if (arg && *arg)
+	{
+		while (*arg)
+		{
+			i++;
+			arg++;
+		}
+	}
+	return (i);
 }
 
-int msh_launch(char **argc, t_ms *ms)
+char **create_argv(t_ms *ms)
+{
+	int i;
+	char **flag;
+	char **arg;
+	char **argv;
+
+	i = 0;
+	flag = ms->cmd->flag;
+	arg = ms->cmd->arg;
+	argv = charxx_alloc(count_arg(ms));
+	if (ms->cmd->name)
+		argv[i++] = ms->cmd->name;
+	if (flag && *flag)
+	{
+		while (*flag)
+		{
+			argv[i] = *flag;
+			i++;
+			flag++;
+		}
+	}
+	if (arg && *arg)
+	{
+		while (*arg)
+		{
+			argv[i] = *arg;
+			i++;
+			arg++;
+		}
+	}
+	return (argv);
+}
+
+int msh_launch(t_ms *ms)
 {
 	pid_t pid, wpid;
 	int status;
-	//char argv[2][2] = {"ls", "-l"};
+	char **argv;
 
-	//*argv = ms->cmd->name;
-	char **tmp;
-	tmp = argc;
-	while (*tmp)
-	{
-		printf("tmp = %s \n", *tmp);
-		tmp++;
-	}
-
+	argv = create_argv(ms);
 	pid = fork();
-	//printf("args[0] = %s \n", args[0]);
 	char *path = unite_str(ms->cmd->name);
-	//char *path = unite_str(args[0]);
-	//printf("path = %s \n", path);
 
 	if (pid == 0) // Дочерний процесс
 	{
 		//if (execvp(args[0], args) == -1)
 		//if (execve(path, args, NULL) == -1) //нужно ли вообще envp?
-		//if (execve(path, ms->cmd->arg, NULL) == -1) //нужно ли вообще envp?
-		if (execve(path, argc, NULL) == -1) //нужно ли вообще envp?
-		//if (execve("/bin/pwd", args, envp) == -1)
+		if (execve(path, argv, NULL) == -1) //нужно ли вообще envp?
 		{
 			perror("msh");
 			exit(EXIT_FAILURE);
@@ -437,69 +432,15 @@ int msh_launch(char **argc, t_ms *ms)
 		}
 	}
 	free(path);
+	charxx_free(argv);
 	return 1;
 }
 
-char **msh_split_line(char *line)
-{
-	int bufsize = msh_TOK_BUFSIZE, position = 0;
-	char **tokens = malloc(bufsize * sizeof(char *));
-	char *token;
-
-	if (!tokens)
-	{
-		fprintf(stderr, "msh: ошибка выделения памяти\n");
-		exit(EXIT_FAILURE);
-	}
-
-	token = strtok(line, msh_TOK_DELIM);
-	while (token != NULL)
-	{
-		tokens[position] = token;
-		position++;
-
-		if (position >= bufsize)
-		{
-			bufsize += msh_TOK_BUFSIZE;
-			tokens = realloc(tokens, bufsize * sizeof(char *));
-			if (!tokens)
-			{
-				fprintf(stderr, "msh: ошибка выделения памяти\n");
-				exit(EXIT_FAILURE);
-			}
-		}
-
-		token = strtok(NULL, msh_TOK_DELIM);
-	}
-	tokens[position] = NULL;
-	return tokens;
-}
-
-/*char *msh_read_line(void)
-{
-	char *line = NULL;
-	size_t bufsize = 0; // getline сама выделит память
-	getline(&line, &bufsize, stdin);
-	return line;
-}*/
-
-int msh_execute(char **args, t_ms *ms)
-//int msh_execute(t_ms *ms)
+int msh_execute(t_ms *ms)
 {
 	int ret;
 	
 	ret = 1;
-	//int i = 0;
-
-	/*if (args[0] == NULL) // Была введена пустая команда.
-		return 1;
-	while (i < msh_num_builtins())
-	{
-		if (strcmp(args[0], builtin_str[i]) == 0)
-			return (*builtin_func[i])(args, ms);
-		i++;
-	}
-	return msh_launch(args, ms);*/
 	if (!ms->cmd->name)
 		return (ret);
 	else if (ft_strcmp3(ms->cmd->name, "echo"))
@@ -517,7 +458,7 @@ int msh_execute(char **args, t_ms *ms)
 	else if (ft_strcmp3(ms->cmd->name, "exit"))
 		return (ret = msh_exit(ms));
 	else
-		return (ret = msh_launch(args, ms));
+		return (ret = msh_launch(ms));
 }
 
 int ft_strcpy_my(char *s1, char *s2)
@@ -567,32 +508,13 @@ void msh_loop(t_ms *ms)
 	while (status)
 	{
 		//printf("minishell-1.0$ ");
-		//line = msh_read_line();
-		//args = msh_split_line(line);
-		//printf("line = %s\n", line);
-		//ms->cmd = tcmd_init(ms);
 		get_next_line(&ms->line);
-		//printf("line1 = %c len = %zu \n", (ms->line)[0], ft_strlen(ms->line));
 		if (ft_strlen(ms->line) > 0)
 		{
 			tms_lineparse(ms);
-			args = msh_split_line(ms->line);
-			status = msh_execute(args, ms);
-			//free(ms->line);
-			free(args);
+			status = msh_execute(ms);
 		}
 		free(ms->line);
-		//printf("line1 = %s \n", ms->line);
-		//printf("line1 = %d \n", (int)ms->line[ft_strlen(ms->line)]);
-		//tms_lineparse(ms);
-		//printf("line2 = %s \n", ms->line);
-		//args = msh_split_line(ms->line);
-		//printf("line3 = %s \n", ms->line);
-		//status = msh_execute(args, ms);
-		//status = msh_execute(args, ms);
-		//free(line);
-		//free(ms->line);
-		//free(args);
 	}
 }
 
@@ -646,8 +568,6 @@ void tenv_print(t_env *env)
 	}
 }
 
-
-
 int main(int argc, char **argv, char **envp)
 {
 	// Загрузка файлов конфигурации при их наличии.
@@ -664,5 +584,3 @@ int main(int argc, char **argv, char **envp)
 
 	return EXIT_SUCCESS;
 }
-
-//  gcc main.c libft/libft.a

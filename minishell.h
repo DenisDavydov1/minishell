@@ -62,6 +62,7 @@ char **tenv_to_envp(t_env *env);
 
 t_ms tms_init(void);
 t_cmd *tcmd_init(t_ms *ms);
+void tms_lineparse(t_ms *ms);
 
 void tenv_print(t_env *env);
 
