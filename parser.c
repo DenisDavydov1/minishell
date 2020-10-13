@@ -48,6 +48,15 @@ void *e_malloc(size_t size)
 	return (out);
 }
 
+void *e_calloc(size_t nmemb, size_t size)
+{
+	void *out;
+	
+	if (!(out = ft_calloc(nmemb, size)))
+		throw_error(MEMALLOC);
+	return (out);
+}
+
 char *e_strdup(char *s)
 {
 	char *out;
@@ -402,7 +411,7 @@ void tcmd_set(t_ms *ms, char **s)
 	}
 }
 
-void split_free(char **s)
+void charxx_free(char **s)
 {
 	char **p;
 
@@ -427,7 +436,7 @@ void tms_lineparse(t_ms *ms)
 	if (!split_validity(split))
 		throw_error(PARSEERR);
 	tcmd_set(ms, split);
-	split_free(split);
+	charxx_free(split);
 }
 /*
 int main(int argc, char **argv, char **env)

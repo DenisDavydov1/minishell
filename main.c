@@ -19,6 +19,7 @@ int lsh_echo(char **args, t_ms *ms);
 int lsh_env(char **args, t_ms *ms);
 int lsh_export(char **args, t_ms *ms);
 int lsh_unset(char **args, t_ms *ms);
+int lsh_minishell(char **args, t_ms *ms);
 
 /*
 	Список встроенных команд, за которыми следуют соответствующие функции
@@ -30,7 +31,8 @@ char *builtin_str[] = {
 	"echo",
 	"env",
 	"export",
-	"unset"
+	"unset",
+	"./minishell"
 	};
 
 int (*builtin_func[])(char **, t_ms *) = {
@@ -40,7 +42,8 @@ int (*builtin_func[])(char **, t_ms *) = {
 	&lsh_echo,
 	&lsh_env,
 	&lsh_export,
-	&lsh_unset};
+	&lsh_unset,
+	&lsh_minishell};
 
 
 int ft_strcmp1(char *s1, char *s2)
@@ -140,14 +143,15 @@ void add_in_env(t_ms *ms, char *s)
 	char **test;
 	t_env *tmp;
 
-	test = ft_split(s, '=');
+	test = e_split(s, '=');
 	tmp = ms->env;
 	while (tmp->next && tmp->next->name)
 		tmp = tmp->next;
-	tmp->next = malloc(sizeof(t_env));
+	tmp->next = (t_env *)e_malloc(sizeof(t_env));
 	tmp->next->name = test[0];
 	tmp->next->value = test[1];
 	tmp->next->next = NULL;
+	free(test);
 }
 
 void delete_from_env(t_ms *ms, char *s)
@@ -189,7 +193,7 @@ int lsh_cd(char **args, t_ms *ms)
 	char *s;
 	if (args[1] == NULL)
 	{
-		s = find_in_env(ms, "HOME"); //потерянный указатель?
+		s = find_in_env(ms, "HOME");
 		if (chdir(s) != 0)
 			perror("cd");
 	}
@@ -252,6 +256,15 @@ int lsh_unset(char **args, t_ms *ms)
 {
 	if (args[1])
 		delete_from_env(ms, args[1]);
+	return (1);
+}
+
+int lsh_minishell(char **args, t_ms *ms)
+{
+	char **envp;
+
+	envp = tenv_to_envp(ms->env);
+	execve("./minishell", NULL, envp);
 	return (1);
 }
 
@@ -434,6 +447,8 @@ void tenv_print(t_env *env)
 	}
 }
 
+
+
 int main(int argc, char **argv, char **envp)
 {
 	// Загрузка файлов конфигурации при их наличии.
@@ -444,14 +459,6 @@ int main(int argc, char **argv, char **envp)
 	t_env *first;
 
 	tenv_set(&ms, envp);
-	//tenv_print(ms.env);
-	//ft_export_sort(ms.env);
-
-	/*while (first->name)
-	{
-		printf("name = %s \n value = %s \n", first->name, first->value);
-		first = first->next;
-	}*/
 	lsh_loop(&ms);
 
 	// Выключение / очистка памяти.

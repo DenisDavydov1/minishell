@@ -53,8 +53,12 @@ typedef struct	s_ms
 void ft_export_sort(t_env *env);
 void throw_error(char *errtype);
 void *e_malloc(size_t size);
+void *e_calloc(size_t nmemb, size_t size);
 char *e_strdup(char *s);
 char **e_split(char *s, char c);
+char **charxx_alloc(int size);
+void charxx_free(char **s);
+char **tenv_to_envp(t_env *env);
 
 void tenv_print(t_env *env);
 

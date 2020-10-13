@@ -1,3 +1,17 @@
+
+
+to do list:
+1.  при запуске минишелла удалять значение переменной  old_pwd, при переходе записывать в нее предыдущий путь
+2. export не должен добавлять переменную с цифрой в начале названия (bash: export: `7aa=asdf': not a valid identifier)
+3. экспорт не должен добавлять если вокруг равно есть пробелы (bash: export: `=': not a valid identifier)
+4. export export oooo=(rty rty w) делает запись: declare -ax oooo='([0]="rty" [1]="rty" [2]="w")'
+5. export oooo=rty rty w делает три записи: declare -x oooo="rty", declare -x rty, declare -x w
+
+6. cd ~, cd .., cd /
+
+
+
+
 > не должен перезаписывать файл полностью, а должен записать сначала файла
 
 
