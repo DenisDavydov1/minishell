@@ -100,7 +100,7 @@ t_ms tms_init(void)
 	ms.line = NULL;
 	ms.path = NULL;
 	ms.cmd = NULL;
-	ms.cmd = tcmd_init(&ms);
+	ms.cmd = NULL; //tcmd_init(&ms);
 	ms.env = NULL;
 	return (ms);
 }
@@ -324,7 +324,10 @@ char **tcmd_semicolon(t_ms *ms, char **s)
 	{
 		if (!ms->cmd->name && !ms->cmd->flag && !ms->cmd->arg)
 			throw_error(PARSEERR);
-		tcmd_newtcmd(ms);
+		//tcmd_newtcmd(ms);
+		//tcmd_newtcmd(ms);
+		ms->cmd = tcmd_init(ms);
+		ms->cmd = tcmd_init(ms);
 		return (s + 1);
 	}
 	return (s);
@@ -426,7 +429,56 @@ void charxx_free(char **s)
 	free(s);
 }
 
+int tcmd_isempty(t_cmd *cmd)
+{
+	if (cmd->name || cmd->flag || cmd->arg)
+		return (0);
+	return (1);
+}
 
+t_cmd *tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
+{
+	t_cmd *next;
+
+	if (ms->cmd == ptr) //mb error here - them not equal
+	{
+		if (ms->cmd->next)
+			ms->cmd = ms->cmd->next;
+		else if (ms->cmd->prev)
+			ms->cmd = ms->cmd->prev;
+	}
+	if (ptr->next)
+		ptr->next->prev = ptr->prev;
+	else if (ptr->prev)
+		ptr->prev->next = ptr->next;
+	next = ptr->next;
+	free(ptr->name);
+	charxx_free(ptr->flag);
+	charxx_free(ptr->arg);
+	free(ptr);
+	return (next);
+}
+/*
+t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
+{
+	if (ms->cmd->prev && tcmd_isempty(ms->cmd->prev)) // !ms->cmd->prev->name)
+		return (tcmd_delete_cmd(ms, ptr));
+	else if ()
+	//return (NULL);
+}
+
+void tcmd_optimize(t_ms *ms)
+{
+	t_cmd *ptr;
+
+	ptr = tcmd_gotofirst(ms->cmd);
+	while (ptr)
+	{
+		if (ptr && !ft_strcmp(ptr->name, "<"))
+			ptr = tcmd_opt_less(ms, ptr);
+	}
+}
+*/
 void tms_lineparse(t_ms *ms)
 {
 	char **split;
@@ -435,19 +487,23 @@ void tms_lineparse(t_ms *ms)
 		throw_error(MEMALLOC);
 	if (!split_validity(split))
 		throw_error(PARSEERR);
+	ms->cmd = ms->cmd ? ms->cmd : tcmd_init(ms);
 	tcmd_set(ms, split);
 	charxx_free(split);
+	//tcmd_optimize(ms);
 }
+
 /*
 int main(int argc, char **argv, char **env)
 {
 	t_ms ms;
 
 	ms = tms_init();
-	ms.line = "cat -t -v b<a | man <> a  > b; catm>>a;   yu  --leak -n -n-n ans;>b;<rt; ";
+	//ms.cmd = tcmd_init(&ms);
 
+	ms.line = ft_strdup("cat -t -v b<a | man <> a  > b; cat m>>a;   yu  --leak -n -n-n ans;>b;<rt; ");
 	tms_lineparse(&ms);
-
+	
 	tcmd_print(ms.cmd);
 
 	//exit(EXIT_SUCCESS);
