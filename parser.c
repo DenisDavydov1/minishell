@@ -25,23 +25,24 @@ void charxx_free(char **s)
 	free(s);
 }
 
-void tcmd_free(t_cmd *cmd)
+void tcmd_free(t_ms *ms)
 {
 	t_cmd *ptr;
-	int i;
 
-	if (!cmd)
+	if (!ms->cmd)
 		return ;
-	cmd = tcmd_gotofirst(cmd);
-	while (cmd)
+	ms->cmd = tcmd_gotofirst(ms->cmd);
+	while (ms->cmd)
 	{
-		free(cmd->name);
-		charxx_free(cmd->flag);
-		charxx_free(cmd->arg);
-		ptr = cmd;
-		cmd = cmd->next;
+		free(ms->cmd->name);
+		free(ms->cmd->file);
+		charxx_free(ms->cmd->flag);
+		charxx_free(ms->cmd->arg);
+		ptr = ms->cmd;
+		ms->cmd = ms->cmd->next;
 		free(ptr);
 	}
+	ms->cmd = NULL;
 }
 
 void tcmd_free_one(t_cmd *cmd)
@@ -49,6 +50,7 @@ void tcmd_free_one(t_cmd *cmd)
 	if (!cmd)
 		return ;
 	free(cmd->name);
+	free(cmd->file);
 	charxx_free(cmd->flag);
 	charxx_free(cmd->arg);
 	free(cmd);
@@ -112,6 +114,8 @@ t_cmd *tcmd_init(t_ms *ms)
 	cmd->flag = NULL;
 	cmd->arg = NULL;
 	cmd->pipe = 0;
+	cmd->write = 0;
+	cmd->file = NULL;
 	cmd->next = NULL;
 	cmd->prev = ms->cmd;
 	if (ms->cmd)
@@ -124,7 +128,6 @@ t_cmd *tcmd_insert(t_cmd *to)
 {
 	t_cmd *cmd;
 	t_cmd *t;
-	int i;
 
 	if (!(cmd = (t_cmd *)malloc(sizeof(t_cmd))))
 		throw_error(MEMALLOC);
@@ -132,13 +135,17 @@ t_cmd *tcmd_insert(t_cmd *to)
 	cmd->flag = NULL;
 	cmd->arg = NULL;
 	cmd->pipe = 0;
+	cmd->write = 0;
+	cmd->file = NULL;
+	cmd->prev = NULL;
+	cmd->next = NULL;
 	if (to->next)
 	{
 		t = to->next;
-		to->next->prev = cmd;
 		to->next = cmd;
 		cmd->next = t;
-		cmd->prev = to;
+		t->prev = cmd;
+		cmd->prev = to;	
 	}
 	else
 	{
@@ -155,7 +162,7 @@ t_ms tms_init(void)
 	ms.line = NULL;
 	ms.path = NULL;
 	ms.cmd = NULL;
-	ms.cmd = NULL; //tcmd_init(&ms);
+	ms.cmd = NULL;
 	ms.env = NULL;
 	return (ms);
 }
@@ -163,6 +170,11 @@ t_ms tms_init(void)
 void tcmd_print(t_cmd *cmd)
 {
 	int i = 0;
+	if (!cmd)
+	{
+		printf("NO CMD");
+		return ;
+	}
 	cmd = tcmd_gotofirst(cmd);
 	while (cmd)
 	{
@@ -175,9 +187,13 @@ void tcmd_print(t_cmd *cmd)
 		for (int j=0; cmd->arg && cmd->arg[j]; j++)
 			printf("%s ", cmd->arg[j]);
 		printf("\nPipe: %i\n", cmd->pipe);
-		printf("\nAddr: %p\n", cmd);
-		printf("Prev: %p, Next: %p\n",	cmd->prev ? cmd->prev : 0, \
-										cmd->next ? cmd->next : 0);
+		printf("Write: %i (%s)\n", cmd->write, cmd->write ? \
+			(cmd->write == 1 ? "write to file" : "append to file" ) : "write to stdout");
+		//printf("\nAddr: %p\n", cmd);
+		//printf("Prev: %p, Next: %p\n",	cmd->prev ? cmd->prev : 0, \
+		//								cmd->next ? cmd->next : 0);
+		printf("Prev: %s, Next: %s\n",	cmd->prev ? "Yes" : "No", \
+										cmd->next ? "Yes" : "No");
 		cmd = cmd->next;
 	}
 }
@@ -393,6 +409,8 @@ char **tcmd_pipe(t_ms *ms, char **s)
 	if (*s && **s == '|')
 	{
 		ms->cmd->pipe = 1;
+		ms->cmd = tcmd_init(ms);
+		ms->cmd = tcmd_init(ms);
 		return (s + 1);
 	}
 	return (s);
@@ -468,6 +486,50 @@ void tcmd_set(t_ms *ms, char **s)
 	}
 }
 
+int charxx_len(char **ss)
+{
+	int len;
+
+	len = 0;
+	while (ss && *ss)
+	{
+		ss++;
+		len++;
+	}
+	return (len);
+}
+
+char **charxx_insert(char **ss, char *s, int pos)
+{
+	char **out;
+	int i;
+
+	if (!ss)
+	{
+		out = charxx_alloc(2);
+		out[0] = e_strdup(s);
+		return (out);
+	}
+	out = charxx_alloc(charxx_len(ss) + 2);
+	i = -1;
+	while (++i < pos)
+		out[i] = e_strdup(ss[i]);
+	out[i] = e_strdup(s);
+	while (ss && ss[i])
+	{
+		out[i + 1] = e_strdup(ss[i]);
+		i++;
+	}
+	charxx_free(ss);
+	return (out);
+}
+
+
+
+
+
+
+
 void tcmd_replace_lg(t_cmd *cmd)
 {
 	while (cmd)
@@ -481,21 +543,25 @@ void tcmd_replace_lg(t_cmd *cmd)
 	}
 }
 
-
-
-
-
-
-
-
-
-
-
 int tcmd_isempty(t_cmd *cmd)
 {
-	if (cmd->name || cmd->flag || cmd->arg)
+	if (cmd->name || (cmd->flag && *cmd->flag) || (cmd->arg && *cmd->arg))
 		return (0);
 	return (1);
+}
+
+int tcmd_delete_cmd_if_equal(t_ms *ms)
+{
+	if (ms->cmd->next)
+		ms->cmd = ms->cmd->next;
+	else if (ms->cmd->prev)
+		ms->cmd = ms->cmd->prev;
+	else
+	{
+		tcmd_free(ms);
+		return (1);
+	}
+	return (0);
 }
 
 t_cmd *tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
@@ -503,12 +569,8 @@ t_cmd *tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
 	t_cmd *next;
 
 	if (ms->cmd == ptr)
-	{
-		if (ms->cmd->next)
-			ms->cmd = ms->cmd->next;
-		else if (ms->cmd->prev)
-			ms->cmd = ms->cmd->prev;
-	}
+		if (tcmd_delete_cmd_if_equal(ms))
+			return (NULL);
 	if (ptr->next)
 	{
 		ptr->next->prev = ptr->prev;
@@ -550,26 +612,45 @@ t_cmd *tcmd_gotolast(t_cmd *cmd, char *s)
 	return (cmd);
 }
 
+t_cmd *tcmd_write_empty_file(t_ms *ms, t_cmd *ptr)
+{
+	int fd;
+
+	ptr->file = e_strdup("tmp_file");
+	if ((fd = open(ptr->file, O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU)) < 0)
+		throw_error(MEMALLOC);
+	close(fd);
+	return (ptr->next);
+}
+
 t_cmd *tcmd_opt_less_greater(t_ms *ms, t_cmd *ptr)
 {
 	t_cmd *tmp_last;
 	t_cmd *tmp_cur;
 
 	if (*(ptr->name) == '<' && ((ptr->prev && tcmd_isempty(ptr->prev)) || !ptr->prev)) // !ms->cmd->prev->name)
-		return (tcmd_delete_cmd(ms, ptr));
+		return (tcmd_write_empty_file(ms, ptr)); //(tcmd_delete_cmd(ms, ptr));
 	if (*(ptr->name) == '>' && ((ptr->prev && tcmd_isempty(ptr->prev)) || !ptr->prev))
 		return ((ptr = tcmd_insert(ptr)));
 	else if (ptr->next)
 	{
 		tmp_last = tcmd_gotolast(ptr, ptr->name);
 		tmp_cur = ptr;
-		while (tmp_cur && tmp_cur != tmp_last)
+		///printf("last name: %s\n", tmp_last->name);
+		while (tmp_cur && tmp_cur->name && ptr->name && tmp_cur != tmp_last)
 		{
+			//printf("cur name: %s, ptr->name: %s\n", tmp_cur->name, ptr->name);
 			if (!ft_strcmp(tmp_cur->name, ptr->name))
+			{
+				//printf("deleted\n");
 				tmp_cur = tcmd_delete_cmd(ms, tmp_cur);
+			}
 			else
+			{
 				tmp_cur = tmp_cur->next;
+			}
 		}
+		//tcmd_print(ms->cmd);
 	}
 	return (ptr->next);
 }
@@ -585,27 +666,116 @@ t_cmd *tcmd_opt_less_greater(t_ms *ms, t_cmd *ptr)
 void tcmd_remove_nulls(t_ms *ms)
 {
 	t_cmd *ptr;
-	int i = 0;
 
+	if (!ms->cmd)
+		return ;
 	ptr = tcmd_gotofirst(ms->cmd);
 	while (ptr)
 	{
-		//printf("\n!\n");
 		if (tcmd_isempty(ptr))
 			ptr = tcmd_delete_cmd(ms, ptr);
 		else
 			ptr = ptr->next;
-		//printf("%d %p\n", i, ptr ? ptr : 0);
 	}
-	
 }
+
+void tcmd_flags_to_args(t_ms *ms)
+{
+	int i;
+	t_cmd *ptr;
+
+	ptr = tcmd_gotofirst(ms->cmd);
+	while (ptr)
+	{
+		if (ptr->name && in_set(*ptr->name, SET) && ptr->flag)
+		{
+			i = 0;
+			while (ptr->flag[i])
+			{
+				ptr->arg = charxx_insert(ptr->arg, ptr->flag[i], i);
+				free(ptr->flag[i]);
+				ptr->flag[i] = NULL;
+				i++;
+			}
+		}
+		ptr = ptr->next;
+	}
+}
+
+void tcmd_divide_args(t_ms *ms)
+{
+	int i;
+	t_cmd *ptr;
+
+	ptr = tcmd_gotofirst(ms->cmd);
+	while (ptr)
+	{
+		if (ptr->name && in_set(*ptr->name, SET) && ptr->arg && charxx_len(ptr->arg) > 1)
+		{
+			ptr = tcmd_insert(ptr);
+			i = 1;
+			while (ptr->prev->arg[i])
+			{
+				ptr->arg = charxx_insert(ptr->arg, ptr->prev->arg[i], i - 1);
+				free(ptr->prev->arg[i]);
+				ptr->prev->arg[i] = NULL;
+				i++;
+			}
+		}
+		ptr = ptr->next;
+	}
+}
+
+void tcmd_put_args_to_cmd(t_ms *ms)
+{
+	int i;
+	t_cmd *ptr;
+	t_cmd *ptr_cmd;
+	t_cmd *ptr_last;
+
+	ptr = tcmd_gotofirst(ms->cmd);
+	while (ptr)
+	{
+		if (tcmd_isempty(ptr))
+		{
+			ptr = ptr->next;
+			continue ;
+		}
+		ptr_cmd = ptr;
+		ptr_last = tcmd_gotoempty(ptr);
+		while (ptr)
+		{
+			if (!ptr->name && ptr->arg)
+			{
+				i = -1;
+				while (ptr->arg[++i])
+				{
+					ptr_cmd->arg = charxx_insert(ptr_cmd->arg, ptr->arg[i], charxx_len(ptr_cmd->arg));
+					free(ptr->arg[i]);
+					ptr->arg[i] = NULL;
+				}
+			}
+			if (ptr == ptr_last)
+				break ;
+			ptr = ptr->next;
+		}
+		ptr = ptr->next;
+	}
+}
+
+
 
 void tcmd_optimize(t_ms *ms)
 {
 	t_cmd *ptr;
 
+	if (!ms->cmd)
+		return ;
 	ptr = tcmd_gotofirst(ms->cmd);
 	tcmd_replace_lg(ptr);
+	tcmd_flags_to_args(ms);
+	//tcmd_divide_args(ms);
+	//tcmd_put_args_to_cmd(ms);
 	while (ptr)
 	{
 		if (ptr && ptr->name && (!ft_strcmp(ptr->name, "<") || !ft_strcmp(ptr->name, ">")))
@@ -639,9 +809,8 @@ void tms_lineparse(t_ms *ms)
 	tcmd_set(ms, split);
 	charxx_free(split);
 	tcmd_optimize(ms);
-	
 }
-
+/*
 
 int main(int argc, char **argv, char **env)
 {
@@ -650,12 +819,13 @@ int main(int argc, char **argv, char **env)
 	ms = tms_init();
 	//ms.cmd = tcmd_init(&ms);
 
-	ms.line = ft_strdup("tye >a >b ; <a<b; >b>t"); // <a, <a<b
+	ms.line = ft_strdup("cat h < a > d c b | < -n y | cat -e "); // cat h < a > d c b < y u i; + pipe
 	tms_lineparse(&ms);
 	
 	
 	tcmd_print(ms.cmd);
 
-	//exit(EXIT_SUCCESS);
+	exit(EXIT_SUCCESS);
 	return (0);
 }
+*/

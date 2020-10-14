@@ -11,8 +11,6 @@
 # include <sys/errno.h> //errno
 # include <signal.h> //signal, kill
 # include <dirent.h> //opendir, readdir, closedir
-//# include "libft/libft.h"
-
 # include "libft/libft.h"
 
 # define MEMALLOC "memory allocation fail"
@@ -20,7 +18,7 @@
 # define LESSERR "parse error near `<'"
 # define PARSEERR "parse error"
 
-# define SET " <>;|" // add pipe
+# define SET " <>;|" // add " '
 
 typedef struct		s_cmd
 {
@@ -28,6 +26,8 @@ typedef struct		s_cmd
 	char			**flag;
 	char			**arg;
 	int				pipe;
+	int				write; // 0 - write to stdout, 1 - write to file, 2 - append to file
+	char			*file; // write result of command to this file
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }					t_cmd;
