@@ -698,6 +698,44 @@ void tcmd_flags_to_args(t_ms *ms)
 	}
 }
 
+t_cmd *tcmd_has_cmd(t_cmd *cmd)
+{
+	while (cmd && cmd->prev && ((!cmd->name && cmd->arg) || (cmd->name && in_set(*cmd->name, SET))))
+	{
+		cmd = cmd->prev;
+	}
+	if (cmd->name && !in_set(*cmd->name, SET))
+		return (cmd);
+	else
+		return (0);
+}
+
+t_cmd *tcmd_make_cmd(t_cmd *cmd)
+{
+	int i;
+	int j;
+
+	i = 0;
+	cmd->name = e_strdup(cmd->arg[i++]);
+	while (is_flag(cmd->arg[i]))
+	{
+		cmd->flag = charxx_insert(cmd->flag, cmd->arg[i], i - 1);
+		i++;
+	}
+	j = 0;
+	while (cmd->arg[i])
+	{
+		free(cmd->arg[j]);
+		cmd->arg[j++] = cmd->arg[i++];
+	}
+	while (j < i - 1)
+	{
+		free(cmd->arg[j]);
+		cmd->arg[j++] = NULL;
+	}
+	return (cmd);
+}
+
 void tcmd_divide_args(t_ms *ms)
 {
 	int i;
@@ -719,6 +757,8 @@ void tcmd_divide_args(t_ms *ms)
 				ptr->prev->arg[i] = NULL;
 				i++;
 			}
+			if (!tcmd_has_cmd(ptr->prev))
+				ptr = tcmd_make_cmd(ptr);
 		}
 		ptr = ptr->next;
 	}
@@ -752,6 +792,7 @@ void tcmd_put_args_to_cmd(t_ms *ms)
 					free(ptr->arg[i]);
 					ptr->arg[i] = NULL;
 				}
+				ptr = tcmd_delete_cmd(ms, ptr);
 			}
 			if (ptr == ptr_last)
 				break ;
@@ -795,6 +836,7 @@ t_cmd *tcmd_get_cmd(t_ms *ms, t_cmd *cmd)
 	return (cmd);
 }
 
+/*
 void tcmd_set_write_files(t_ms *ms)
 {
 	t_cmd *ptr;
@@ -826,31 +868,53 @@ void tcmd_set_write_files(t_ms *ms)
 			ptr = ptr->next;
 	}
 }
+*/
 
-
-t_cmd *tcmd_opt_less_greater(t_ms *ms, t_cmd *ptr)
+t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 {
-	t_cmd *tmp_last;
-	t_cmd *tmp_cur;
+	t_cmd *ptr_cmd;
+	t_cmd *ptr_last;
 
-	if (*(ptr->name) == '<' && ((ptr->prev && tcmd_isempty(ptr->prev)) || !ptr->prev))
-		return (tcmd_write_empty_file(ms, ptr));
-	if (*(ptr->name) == '>' && ((ptr->prev && tcmd_isempty(ptr->prev)) || !ptr->prev))
+	if ((ptr_cmd = tcmd_has_cmd(ptr)) && (!ptr_cmd->arg || (ptr_cmd->arg && !*ptr_cmd->arg)))
+	{
+		ptr_last = tcmd_gotolast(ptr, "<");
+		ptr_cmd->arg = charxx_insert(ptr_cmd->arg, *ptr_last->arg, 0);
+		ptr_last = tcmd_delete_cmd(ms, ptr_last);
+		return (ptr->next);
+	}
+
+	return (ptr->next);
+}
+
+t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
+{
+	t_cmd *tmp;
+	t_cmd *tmp_cmd;
+
+	if (!ptr->prev || (ptr->prev && tcmd_isempty(ptr->prev)))
 		return ((ptr = tcmd_insert(ptr)));
 	else if (ptr->next)
 	{
-		tmp_last = tcmd_gotolast(ptr, ptr->name);
-		tmp_cur = ptr;
-		while (tmp_cur && tmp_cur->name && ptr->name && tmp_cur != tmp_last)
+		tmp = tcmd_gotoempty(ptr);
+		tmp = tmp->name ? tmp : tmp->prev;
+		while (tmp && tmp->name && tmp->prev && tmp->prev->name && *tmp->name != '>') //mb &&
+			tmp = tmp->prev;
+		tmp_cmd = tmp;
+		while (tmp_cmd && tmp_cmd->name && tmp_cmd->prev && tmp_cmd->prev->name && in_set(*tmp_cmd->name, SET))
+			tmp_cmd = tmp_cmd->prev;
+		if (tmp_cmd && tmp_cmd->name && !in_set(*tmp_cmd->name, SET) && !tmp_cmd->file)
 		{
-			if (!ft_strcmp(tmp_cur->name, ptr->name))
-				tmp_cur = tcmd_delete_cmd(ms, tmp_cur);
-			else
-				tmp_cur = tmp_cur->next;
+			tmp_cmd->file = e_strdup(*tmp->arg);
+			tmp_cmd->write = !ft_strcmp(tmp->name, ">>") ? 2 : 1;
+			tmp = tcmd_delete_cmd(ms, tmp);
+			return (ptr);
+		}
+		else if (tmp_cmd && (!tmp_cmd->name || (tmp_cmd->name && in_set(*tmp_cmd->name, SET))))
+		{
+
 		}
 	}
-	return (ptr->next);
-}
+	return (ptr->next);}
 
 
 void tcmd_optimize_signs(t_ms *ms)
@@ -860,8 +924,10 @@ void tcmd_optimize_signs(t_ms *ms)
 	ptr = tcmd_gotofirst(ms->cmd);
 	while (ptr)
 	{
-		if (ptr && ptr->name && (!ft_strcmp(ptr->name, "<") || !ft_strcmp(ptr->name, ">")))
-			ptr = tcmd_opt_less_greater(ms, ptr);
+		if (ptr && ptr->name && !ft_strcmp(ptr->name, "<"))
+			ptr = tcmd_opt_less(ms, ptr);
+		else if (ptr && ptr->name && (!ft_strcmp(ptr->name, ">" ) || !ft_strcmp(ptr->name, ">>")))
+			ptr = tcmd_opt_greater(ms, ptr);
 		else
 			ptr = ptr->next;
 	}
@@ -877,6 +943,7 @@ void tcmd_put_arg_to_name(t_ms *ms)
 		if (ptr->prev && tcmd_isempty(ptr->prev) && !tcmd_isempty(ptr) && \
 			!ptr->name && ptr->arg && *ptr->arg)
 		{
+			printf("argtname: %s\n", *ptr->arg);
 			ptr->name = e_strdup(*ptr->arg);
 			ptr->arg = charxx_delete_one(ptr->arg, 0);
 		}
@@ -891,8 +958,17 @@ void tcmd_put_input_args_to_cmd(t_ms *ms)
 	ptr = tcmd_gotofirst(ms->cmd);
 	while (ptr)
 	{
-		if ()
-		ptr = ptr->next;
+		if (ptr->name && *ptr->name == '<' && ptr->arg && ptr->prev && \
+			ptr->prev->name && !in_set(*ptr->prev->name, SET))
+		{
+			if (!ptr->prev->arg || (ptr->prev->arg && !*ptr->prev->arg))
+				ptr->prev->arg = charxx_insert(ptr->prev->arg, *ptr->arg, 0);
+			ptr = tcmd_delete_cmd(ms, ptr);
+		}
+		else
+		{
+			ptr = ptr->next;
+		}
 	}
 }*/
 
@@ -904,16 +980,19 @@ void tcmd_optimize(t_ms *ms)
 		return ;
 	ptr = tcmd_gotofirst(ms->cmd);
 	tcmd_replace_lg(ms);
+	tcmd_move_pipes(ms);
 	tcmd_flags_to_args(ms);
 	tcmd_divide_args(ms);
-	tcmd_optimize_signs(ms);
 	tcmd_put_arg_to_name(ms);
-	tcmd_move_pipes(ms);
 	tcmd_put_args_to_cmd(ms);
-	tcmd_set_write_files(ms);
+	
+	tcmd_optimize_signs(ms);
+	
+
+	//tcmd_set_write_files(ms);
 	//tcmd_put_input_args_to_cmd(ms);
 
-	//tcmd_remove_nulls(ms);
+	tcmd_remove_nulls(ms);
 }
 
 
@@ -949,7 +1028,7 @@ int main(int argc, char **argv, char **env)
 	ms = tms_init();
 	//ms.cmd = tcmd_init(&ms);
 
-	ms.line = ft_strdup("cat h < a > d c b | < -n < y t >> fo h| cat -e "); // cat h < a > d c b < y u i; + pipe //< e < t > t
+	ms.line = ft_strdup("cat a > b <> a| cat -e ");
 	tms_lineparse(&ms);
 	
 	
