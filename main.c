@@ -16,7 +16,7 @@
 int msh_minishell(char **args, t_ms *ms);
 
 
-int ft_strcmp1(char *s1, char *s2)
+int ft_strcmp1(char *s1, char *s2) //заменить на либу?
 {
 	int i;
 
@@ -79,233 +79,18 @@ int ft_strcmp3(char *s1, char *s2)
 	return (1);
 }
 
-/*static char	**free_arr(char **arr)
-{
-	unsigned int i;
-	i = 0;
-	while (arr[i])
-	{
-		free(arr[i]);
-		i++;
-	}
-	free(arr);
-	return (NULL);
-}*/
-
-/*int msh_num_builtins()
-{
-	return sizeof(builtin_str) / sizeof(char *);
-} */
-
-/*
-	Реализации встроенных функций
-*/
 char *find_in_env(t_ms *ms, char *s)
 {
 	t_env *tmp;
 
 	tmp = ms->env;
-	while (tmp->next)
+	while (tmp)
 	{
 		if (ft_strcmp2(tmp->name, s, ft_strlen(s)))
 			return(tmp->value);
 		tmp = tmp->next;
 	}
 	return (NULL);
-}
-
-void replace_pwd(t_ms *ms)
-{
-	t_env *tmp;
-	t_env *pwd;
-	t_env *old_pwd;
-
-	tmp = ms->env;
-	while (tmp->next)
-	{
-		if (ft_strcmp2(tmp->name, "PWD", 3))
-			pwd = tmp;
-		if (ft_strcmp2(tmp->name, "OLDPWD", 6))
-			old_pwd = tmp;
-		tmp = tmp->next;
-	}
-	free(old_pwd->value);
-	old_pwd->value = pwd->value;
-	pwd->value = NULL;
-	pwd->value = getcwd(pwd->value, 0); //убрать эту функцию и передавать путь вручную?
-}
-
-void add_in_env(t_ms *ms, char *s)
-{
-	char **test;
-	t_env *tmp;
-
-	test = e_split(s, '=');
-	tmp = ms->env;
-	while (tmp->next && tmp->next->name)
-		tmp = tmp->next;
-	tmp->next = (t_env *)e_malloc(sizeof(t_env));
-	tmp->next->name = test[0];
-	tmp->next->value = test[1];
-	tmp->next->next = NULL;
-	free(test);
-}
-
-void delete_from_env(t_ms *ms, char *s)
-{
-	t_env *tmp;
-	t_env *prev;
-
-	tmp = ms->env;
-	prev = tmp;
-	while (tmp && tmp->name)
-	{
-		if (ft_strcmp1(tmp->name, s))
-		{
-			if (prev == tmp)
-				ms->env = tmp->next;
-			else
-				prev->next = tmp->next;
-			free(tmp->name);
-			free(tmp->value);
-			free(tmp);
-			break ;
-		}
-		prev = tmp;
-		tmp = tmp->next;
-	}
-}
-
-int msh_pwd(t_ms *ms)
-{
-	char *s;
-
-	s = find_in_env(ms, "PWD");
-	write(1, s, ft_strlen(s));
-	write(1, "\n", 1);
-	return (1);
-}
-
-int msh_cd(t_ms *ms)
-{
-	char **tmp;
-
-	tmp = ms->cmd->arg;
-	if (tmp && *tmp)
-	{
-		if (chdir(*tmp) != 0)
-			perror("cd");
-	}
-	else
-	{
-		if (chdir(find_in_env(ms, "HOME")) != 0)
-			perror("cd");
-	}
-	replace_pwd(ms);
-
-	return 1;
-}
-
-int msh_echo(t_ms *ms)
-{
-	char **flag;
-	char **arg;
-
-	flag = ms->cmd->flag;
-	arg = ms->cmd->arg;
-	if (flag && *flag && ft_strcmp1(*flag, "-n"))
-	{
-		if (arg && *arg)
-		{
-			while (*arg)
-			{
-				write(1, *arg, ft_strlen(*arg));
-				arg++;
-			}
-		}
-	}
-	else
-	{
-		if (arg && *arg)
-		{
-			while (*arg)
-			{
-				write(1, *arg, ft_strlen(*arg));
-				arg++;
-			}
-		}
-		write(1, "\n", 1);
-	}
-
-
-	/*if (ft_strcmp1(args[1], "-n"))
-		write(1, args[2], ft_strlen(args[2]));
-	else
-	{
-		write(1, args[1], ft_strlen(args[1]));
-		write(1, "\n", 1);
-	}*/
-	return 1;
-}
-
-int msh_exit(t_ms *ms)
-{
-	//return 0;
-	exit(0);
-}
-
-int msh_env(t_ms *ms)
-{
-	t_env *tmp;
-
-	tmp = ms->env;
-	while (tmp && tmp->name)
-	{
-		write(1, tmp->name, ft_strlen(tmp->name));
-		write(1, "=", 1);
-		write(1, tmp->value, ft_strlen(tmp->value));
-		write(1, "\n", 1);
-		tmp = tmp->next;
-	}
-	return (1);
-}
-
-int msh_export(t_ms *ms)
-{
-	char **tmp;
-
-	tmp = ms->cmd->arg;
-
-	if (tmp && *tmp)
-	{
-		while (*tmp)
-		{
-			add_in_env(ms, *tmp);
-			tmp++;
-		}
-	}
-	else
-		ft_export_sort(ms->env);
-	return(1);
-}
-
-int msh_unset(t_ms *ms)
-{
-	char **tmp;
-
-	tmp = ms->cmd->arg;
-
-	if (tmp && *tmp)
-	{
-		while (*tmp)
-		{
-			delete_from_env(ms, *tmp);
-			tmp++;
-		}
-	}
-	//if (args[1])
-	//	delete_from_env(ms, args[1]);
-	return (1);
 }
 
 int msh_minishell(char **args, t_ms *ms)
@@ -315,125 +100,6 @@ int msh_minishell(char **args, t_ms *ms)
 	envp = tenv_to_envp(ms->env);
 	execve("./minishell", NULL, envp);
 	return (1);
-}
-
-char *unite_str(char *path)
-{
-	int i = 0;
-	int j = 0;
-	char *res;
-	char s[5] = "/bin/";
-
-	res = malloc(ft_strlen(path) + 6);
-	while (i < 5)
-	{
-		res[i] = s[i];
-		i++;
-	}
-	while (j < ft_strlen(path))
-	{
-		res[i] = path[j];
-		i++;
-		j++;
-	}
-	res[i] = '\0';
-	return (res);
-}
-
-int count_arg(t_ms *ms)
-{
-	int i;
-	char **flag;
-	char **arg;
-
-	i = 0;
-	flag = ms->cmd->flag;
-	arg = ms->cmd->arg;
-	if (ms->cmd->name)
-		i++;
-	if (flag && *flag)
-	{
-		while (*flag)
-		{
-			i++;
-			flag++;
-		}
-	}
-	if (arg && *arg)
-	{
-		while (*arg)
-		{
-			i++;
-			arg++;
-		}
-	}
-	return (i);
-}
-
-char **create_argv(t_ms *ms)
-{
-	int i;
-	char **flag;
-	char **arg;
-	char **argv;
-
-	i = 0;
-	flag = ms->cmd->flag;
-	arg = ms->cmd->arg;
-	argv = charxx_alloc(count_arg(ms));
-	if (ms->cmd->name)
-		argv[i++] = ms->cmd->name;
-	if (flag && *flag)
-	{
-		while (*flag)
-		{
-			argv[i] = *flag;
-			i++;
-			flag++;
-		}
-	}
-	if (arg && *arg)
-	{
-		while (*arg)
-		{
-			argv[i] = *arg;
-			i++;
-			arg++;
-		}
-	}
-	return (argv);
-}
-
-int msh_launch(t_ms *ms)
-{
-	pid_t pid, wpid;
-	int status;
-	char **argv;
-
-	argv = create_argv(ms);
-	pid = fork();
-	char *path = unite_str(ms->cmd->name);
-
-	if (pid == 0) // Дочерний процесс
-	{
-		//if (execvp(args[0], args) == -1)
-		//if (execve(path, args, NULL) == -1) //нужно ли вообще envp?
-		if (execve(path, argv, NULL) == -1) //нужно ли вообще envp?
-		{
-			perror("msh");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid < 0) // Ошибка при форкинге
-			perror("msh");
-		else // Родительский процесс
-		{
-			while (!WIFEXITED(status) && !WIFSIGNALED(status))
-				wpid = waitpid(pid, &status, WUNTRACED);
-		}
-	}
-	free(path);
-	charxx_free(argv);
-	return 1;
 }
 
 int msh_execute(t_ms *ms)
@@ -567,7 +233,7 @@ void tenv_print(t_env *env)
 		env = env->next;
 	}
 }
-/*
+
 int main(int argc, char **argv, char **envp)
 {
 	// Загрузка файлов конфигурации при их наличии.
@@ -583,4 +249,4 @@ int main(int argc, char **argv, char **envp)
 	// Выключение / очистка памяти.
 
 	return EXIT_SUCCESS;
-}*/
+}

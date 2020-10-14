@@ -66,4 +66,24 @@ void tms_lineparse(t_ms *ms);
 
 void tenv_print(t_env *env);
 
+//add function
+int msh_cd(t_ms *ms);
+int msh_exit(t_ms *ms);
+int msh_env(t_ms *ms);
+int msh_export(t_ms *ms);
+int msh_echo(t_ms *ms);
+int msh_pwd(t_ms *ms);
+int msh_unset(t_ms *ms);
+int msh_launch(t_ms *ms);
+
+//add utils for function
+int ft_strcmp2(char *s1, char *s2, int count);
+int ft_strcmp1(char *s1, char *s2);
+char *find_in_env(t_ms *ms, char *s);
+int add_in_env(t_ms *ms, char *s);
+void delete_from_env(t_ms *ms, char *s);
+int tenv_len(t_env *env);
+void charxx_swap(char **s1, char **s2);
+void export_print(char **s);
+
 #endif
