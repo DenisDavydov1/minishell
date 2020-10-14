@@ -89,7 +89,9 @@ int add_in_env(t_ms *ms, char *s)
 {
 	char **test;
 	t_env *tmp;
-	char *value;
+	char **value;
+	//char **value1;
+	char *old_value;
 
 	//test = e_split(s, '='); //переписать функцию, делить только по первому знаку "=" ?
 	test = ft_split_first(s, '=');
@@ -100,20 +102,16 @@ int add_in_env(t_ms *ms, char *s)
 		charxx_free(test);
 		return (0);
 	}
-	value = find_in_env(ms, test[0]);
-	if (value)
-		delete_from_env(ms, test[0]);
-		/*old_value = value; //нужно ли заменять значение?
-		value = test[1];
-		free(test[0]);
-		free(old_value);*/
-	tmp = ms->env;
-	while (tmp->next)
-		tmp = tmp->next;
-	tmp->next = (t_env *)e_malloc(sizeof(t_env));
-	tmp->next->name = test[0];
-	tmp->next->value = test[1];
-	tmp->next->next = NULL;
+	if (!(find_and_replace_env(ms, test[0], test[1])))
+	{
+		tmp = ms->env;
+		while (tmp->next)
+			tmp = tmp->next;
+		tmp->next = (t_env *)e_malloc(sizeof(t_env));
+		tmp->next->name = test[0];
+		tmp->next->value = test[1];
+		tmp->next->next = NULL;
+	}
 	free(test); //как правильно очистить?
 	return (1);
 }

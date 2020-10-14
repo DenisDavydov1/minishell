@@ -93,6 +93,27 @@ char *find_in_env(t_ms *ms, char *s)
 	return (NULL);
 }
 
+int find_and_replace_env(t_ms *ms, char *name, char *value)
+{
+	t_env *tmp;
+	char *old_value;
+
+	tmp = ms->env;
+	while (tmp)
+	{
+		if (ft_strcmp2(tmp->name, name, ft_strlen(name)))
+		{
+			old_value = tmp->value;
+			tmp->value = value;
+			free(old_value);
+			free(name);
+			return (1);
+		}
+		tmp = tmp->next;
+	}
+	return (0);
+}
+
 int msh_minishell(char **args, t_ms *ms)
 {
 	char **envp;
