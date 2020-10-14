@@ -567,7 +567,7 @@ void tenv_print(t_env *env)
 		env = env->next;
 	}
 }
-
+/*
 int main(int argc, char **argv, char **envp)
 {
 	// Загрузка файлов конфигурации при их наличии.
@@ -583,4 +583,4 @@ int main(int argc, char **argv, char **envp)
 	// Выключение / очистка памяти.
 
 	return EXIT_SUCCESS;
-}
+}*/
