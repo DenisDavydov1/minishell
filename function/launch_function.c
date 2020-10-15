@@ -1,6 +1,36 @@
 #include "minishell.h"
 
-char *unite_str(char *path)
+char	*find_path(char *name, char **path)
+{
+	char	*full_path;
+	int		i;
+	void	*stat;
+	char *exec;
+
+	exec = ft_strjoin("/", name);
+	if (!(stat = malloc(sizeof(struct stat))))
+		return (NULL);
+	i = 0;
+	full_path = NULL;
+	while (path[i])
+	{
+		full_path = ft_strjoin(path[i], exec);
+		if (!lstat(full_path, stat))
+		{
+			free(exec);
+			free(stat);
+			return (full_path);
+		}
+		free(full_path);
+		i++;
+	}
+	free(exec);
+	free(stat);
+	return (NULL);
+}
+
+
+/*char *unite_str(char *path)
 {
 	int i = 0;
 	int j = 0;
@@ -21,7 +51,7 @@ char *unite_str(char *path)
 	}
 	res[i] = '\0';
 	return (res);
-}
+}*/
 
 int count_arg(t_ms *ms)
 {
@@ -93,15 +123,44 @@ int msh_launch(t_ms *ms)
 	int status;
 	char **argv;
 
+	char	**envp;
+	char	**path;
+	char 	*full_path;
+
+	path = ms->path;
+	if (!ft_strncmp(ms->cmd->name, "./", 2))
+	{
+		full_path = ms->cmd->name;
+		printf("fullpath = %s \n", full_path);
+		//argv = NULL;
+		//envp = tenv_to_envp(ms->env);
+		//execve(full_path, argv, envp);
+		//while (!WIFEXITED(status) && !WIFSIGNALED(status))
+		//		wpid = waitpid(pid, &status, WUNTRACED);
+	}
+	else
+	{
+		while(*path)
+		{
+			if ((full_path = find_path(ms->cmd->name, ms->path)))
+				break;
+			path++;
+		}
+		//argv = create_argv(ms);
+	}
 	argv = create_argv(ms);
+	envp = tenv_to_envp(ms->env);
 	pid = fork();
-	char *path = unite_str(ms->cmd->name);
+	//char *path = unite_str(ms->cmd->name);
+	//printf("fullpath = %s \n", full_path);
+	//argv[0] = full_path;
+	printf("pid = %d \n", pid);
 
 	if (pid == 0) // Дочерний процесс
 	{
 		//if (execvp(args[0], args) == -1)
 		//if (execve(path, args, NULL) == -1) //нужно ли вообще envp?
-		if (execve(path, argv, NULL) == -1) //нужно ли вообще envp?
+		if (execve(full_path, argv, envp) == -1) //нужно ли вообще envp?
 		{
 			perror("msh");
 			exit(EXIT_FAILURE);
@@ -110,11 +169,14 @@ int msh_launch(t_ms *ms)
 			perror("msh");
 		else // Родительский процесс
 		{
-			while (!WIFEXITED(status) && !WIFSIGNALED(status))
-				wpid = waitpid(pid, &status, WUNTRACED);
+			//while (!WIFEXITED(status) && !WIFSIGNALED(status))
+			//	wpid = waitpid(pid, &status, WUNTRACED);
+			while ((wpid = wait(&status)) > 0)
+				NULL;
 		}
 	}
-	free(path);
-	charxx_free(argv);
+	free(full_path);
+	//charxx_free(argv);
+	//charxx_free(envp);
 	return 1;
 }

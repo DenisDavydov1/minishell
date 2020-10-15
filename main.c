@@ -5,15 +5,15 @@
 //#include <sys/wait.h>
 #include "minishell.h"
 
-#define msh_RL_BUFSIZE 1024
-#define msh_TOK_BUFSIZE 64
-#define msh_TOK_DELIM " \t\r\n\a"
+//#define msh_RL_BUFSIZE 1024
+//#define msh_TOK_BUFSIZE 64
+//#define msh_TOK_DELIM " \t\r\n\a"
 
 /*
 	Объявление функций для встроенных команд оболочки:
  */
 
-int msh_minishell(char **args, t_ms *ms);
+//int msh_minishell(char **args, t_ms *ms);
 
 
 int ft_strcmp1(char *s1, char *s2) //заменить на либу?
@@ -35,7 +35,7 @@ int ft_strcmp1(char *s1, char *s2) //заменить на либу?
 	return (1);
 }
 
-int ft_strcmp2(char *s1, char *s2, int count)
+int ft_strcmp2(char *s1, char *s2, int count) //strncmp?
 {
 	int i;
 
@@ -146,6 +146,7 @@ int msh_execute(t_ms *ms)
 		return (ret = msh_exit(ms));
 	else
 		return (ret = msh_launch(ms));
+		//return (ret = run_bin(ms));
 }
 
 int ft_strcpy_my(char *s1, char *s2)
@@ -186,7 +187,7 @@ int get_next_line(char **line)
 	return(count);
 }
 
-void msh_loop(t_ms *ms)
+int msh_loop(t_ms *ms)
 {
 	char *line;
 	char **args;
@@ -203,6 +204,7 @@ void msh_loop(t_ms *ms)
 		}
 		free(ms->line);
 	}
+	return (0);
 }
 
 t_env *tenv_init(char *name, char *value)
@@ -238,6 +240,7 @@ void tenv_set(t_ms *ms, char **envp)
 		free(split);
 		envp++;
 	}
+	ms->path = e_split(find_in_env(ms, "PATH"), ':');
 }
 
 void tenv_print(t_env *env)
@@ -261,10 +264,26 @@ int main(int argc, char **argv, char **envp)
 
 	// Запуск цикла команд.
 	t_ms ms;
-	t_env *env;
-	t_env *first;
+	//pid_t pid, wpid;
+	//int status;
 
 	tenv_set(&ms, envp);
+	/*if (!(pid = fork()))
+	{
+		if (!(msh_loop(&ms)))
+		{
+			perror("msh");
+			exit(EXIT_FAILURE);
+		}
+
+		else // Родительский процесс
+		{
+			while (!WIFEXITED(status) && !WIFSIGNALED(status))
+				wpid = waitpid(pid, &status, WUNTRACED);
+		}
+	}
+	while ((wpid = wait(&status)) > 0)
+		NULL;*/
 	msh_loop(&ms);
 
 	// Выключение / очистка памяти.
