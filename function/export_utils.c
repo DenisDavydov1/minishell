@@ -79,7 +79,6 @@ int check_env_value(char *s)
 		}
 		return (1);
 	}
-	//ft_putstr_fd("not a valid identifier\n", 1);
 	return (0);
 }
 
