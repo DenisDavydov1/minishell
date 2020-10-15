@@ -61,6 +61,28 @@ int check_env_name(char *s)
 	return (0);
 }
 
+int check_env_value(char *s)
+{
+	int i;
+
+	i = 0;
+	if (s)
+	{
+		while (s[i]) //добавить обработку экранирования и кавычек
+		{
+			if (s[i] == ' ' || s[i] == '<' || s[i] == '>' || s[i] == '|' || s[i] == '&')
+			{
+				ft_putstr_fd("not a valid identifier\n", 1);
+				return (0);
+			}
+			i++;
+		}
+		return (1);
+	}
+	//ft_putstr_fd("not a valid identifier\n", 1);
+	return (0);
+}
+
 char		**ft_split_first(char *s, char c)
 {
 	char	**out;
@@ -80,6 +102,8 @@ char		**ft_split_first(char *s, char c)
 			}
 			i++;
 		}
+		out[0] = ft_strdup(s);
+		return (out);
 	}
 	charxx_free(out);
 	return (NULL);
@@ -90,14 +114,18 @@ int add_in_env(t_ms *ms, char *s)
 	char **test;
 	t_env *tmp;
 	char **value;
-	//char **value1;
 	char *old_value;
 
 	//test = e_split(s, '='); //переписать функцию, делить только по первому знаку "=" ?
 	test = ft_split_first(s, '=');
 	if (!test)
 		return (0);
-	if (!(check_env_name(test[0])))
+	if (!(check_env_name(test[0]))) //если одновременно, то рисует две ошибки
+	{
+		charxx_free(test);
+		return (0);
+	}
+	if (!(check_env_value(test[1])))
 	{
 		charxx_free(test);
 		return (0);
