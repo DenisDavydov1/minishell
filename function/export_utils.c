@@ -98,7 +98,7 @@ int check_env_value(t_ms *ms, char *s)
 	return (0);
 }
 
-char		**ft_split_first(char *s, char c)
+char		**ft_split_first(t_ms *ms, char *s, char c)
 {
 	char	**out;
 	int i;
@@ -107,11 +107,21 @@ char		**ft_split_first(char *s, char c)
 	out = charxx_alloc(2);
 	if (s)
 	{
-		if (!(ft_strchr(s, c)) || (!(ft_strcmp(s, "="))))
+		//if (!(ft_strchr(s, c)) || (!(ft_strcmp(s, "="))))
+		//if (!(ft_strchr(s, c)))
+
+		if (!(ft_strcmp(s, "=")))
 		{
 			out[0] = ft_strdup(s);
 			return (out);
 		}
+		if (!(ft_strchr(s, c)))
+		{
+			check_env_name(ms, s);
+			free(out);
+			return (NULL);
+		}
+
 		while (s[i])
 		{
 			if (s[i] == c)
@@ -137,7 +147,7 @@ int add_in_env(t_ms *ms, char *s)
 	char *old_value;
 
 	//test = e_split(s, '='); //переписать функцию, делить только по первому знаку "=" ?
-	test = ft_split_first(s, '=');
+	test = ft_split_first(ms, s, '=');
 	if (!test)
 		return (0);
 	//printf("test0 = |%s|  test1 = |%s| \n", test[0], test[1]);
