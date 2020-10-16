@@ -146,7 +146,6 @@ int msh_execute(t_ms *ms)
 		return (ret = msh_exit(ms));
 	else
 		return (ret = msh_launch(ms));
-		//return (ret = run_bin(ms));
 }
 
 int ft_strcpy_my(char *s1, char *s2)
@@ -195,7 +194,7 @@ int msh_loop(t_ms *ms)
 
 	while (status)
 	{
-		//printf("minishell-1.0$ ");
+		ft_putstr_fd("minishell-1.0$ ", 1);
 		get_next_line(&ms->line);
 		if (ft_strlen(ms->line) > 0)
 		{
@@ -264,26 +263,8 @@ int main(int argc, char **argv, char **envp)
 
 	// Запуск цикла команд.
 	t_ms ms;
-	//pid_t pid, wpid;
-	//int status;
 
 	tenv_set(&ms, envp);
-	/*if (!(pid = fork()))
-	{
-		if (!(msh_loop(&ms)))
-		{
-			perror("msh");
-			exit(EXIT_FAILURE);
-		}
-
-		else // Родительский процесс
-		{
-			while (!WIFEXITED(status) && !WIFSIGNALED(status))
-				wpid = waitpid(pid, &status, WUNTRACED);
-		}
-	}
-	while ((wpid = wait(&status)) > 0)
-		NULL;*/
 	msh_loop(&ms);
 
 	// Выключение / очистка памяти.
