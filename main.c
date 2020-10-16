@@ -268,6 +268,7 @@ int main(int argc, char **argv, char **envp)
 	//int status;
 
 	tenv_set(&ms, envp);
+	
 	/*if (!(pid = fork()))
 	{
 		if (!(msh_loop(&ms)))
@@ -284,6 +285,7 @@ int main(int argc, char **argv, char **envp)
 	}
 	while ((wpid = wait(&status)) > 0)
 		NULL;*/
+		
 	msh_loop(&ms);
 
 	// Выключение / очистка памяти.
