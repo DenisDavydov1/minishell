@@ -362,8 +362,10 @@ char **tcmd_set_name(t_ms *ms, char **s)
 
 int is_flag(char *s)
 {
+	if (*s == '\"' || *s == '\'')
+		s++;
 	if ((*s == '-' && ft_strlen(s) > 1 && !ft_strchr(s + 1, '-')) || \
-		(*s == '-' && ft_strlen(s) > 2 && *(s + 1) == '-' && !ft_strchr(s + 2, '-'))) // --leak-check=full ????? '-' in middle flag
+		(*s == '-' && ft_strlen(s) > 2 && *(s + 1) == '-' && !ft_strchr(s + 2, '-')))
 		return (1);
 	return (0);
 }
@@ -726,12 +728,11 @@ t_cmd *tcmd_make_cmd(t_cmd *cmd)
 	while (cmd->arg[i])
 	{
 		free(cmd->arg[j]);
-		cmd->arg[j++] = cmd->arg[i++];
-	}
-	while (j < i - 1)
-	{
-		free(cmd->arg[j]);
-		cmd->arg[j++] = NULL;
+		cmd->arg[j] = e_strdup(cmd->arg[i]);
+		free(cmd->arg[i]);
+		cmd->arg[i] = NULL;
+		j++;
+		i++;
 	}
 	return (cmd);
 }
@@ -974,25 +975,24 @@ void tcmd_put_input_args_to_cmd(t_ms *ms)
 
 void tcmd_optimize(t_ms *ms)
 {
-	t_cmd *ptr;
+	//t_cmd *ptr;
 
 	if (!ms->cmd)
 		return ;
-	ptr = tcmd_gotofirst(ms->cmd);
+	//ptr = tcmd_gotofirst(ms->cmd);
 	tcmd_replace_lg(ms);
 	tcmd_move_pipes(ms);
 	tcmd_flags_to_args(ms);
 	tcmd_divide_args(ms);
 	tcmd_put_arg_to_name(ms);
 	tcmd_put_args_to_cmd(ms);
-	
 	tcmd_optimize_signs(ms);
-	
+	tcmd_remove_nulls(ms);
 
 	//tcmd_set_write_files(ms);
 	//tcmd_put_input_args_to_cmd(ms);
 
-	tcmd_remove_nulls(ms);
+	
 }
 
 
@@ -1001,7 +1001,119 @@ void tcmd_optimize(t_ms *ms)
 
 
 
+/*
+** SPLIT_SET
+*/
 
+static char	**free_arr(char **arr)
+{
+	unsigned int i;
+
+	i = 0;
+	while (arr[i])
+	{
+		free(arr[i]);
+		i++;
+	}
+	free(arr);
+	return (NULL);
+}
+/*
+static int in_set(char c, char *set)
+{
+	int j;
+
+	j = 0;
+	while (set[j])
+	{
+		if (c == set[j])
+			return (1);
+		j++;
+	}
+	return (0);
+}*/
+
+int get_quote_end(char *s, char quote, int start)
+{
+	int end;
+
+	end = start + 1;
+	while (s && s[end] && s[end] != quote)
+		end++;
+	if (s[end] == quote)
+	{
+		while (s[end + 1] && !in_set(s[end + 1], SET))
+			end++;
+		return (end);
+	}
+	else
+		return (0);
+}
+
+static char	**arralloc(char *s, char *set)
+{
+	int words;
+	int added;
+	int i;
+
+	if (!s)
+		return (NULL);
+	words = 0;
+	added = 0;
+	i = -1;
+	while (s && s[++i])
+	{
+		if (s[i] == '\'' || s[i] == '\"')
+		{
+			if ((i = get_quote_end(s, s[i], i)) && ++words)
+				added = 0;
+			else
+				throw_error(PARSEERR);
+		}
+		else if (in_set(s[i], set) && ++words)
+			added = 0;
+		else if (!added && ++words)
+			added = 1;
+	}
+	//printf("words: %d\n", words);
+	return ((char **)e_malloc((words + 1) * sizeof(char *)));
+}
+
+char		**ft_splitset(char *s, char *set)
+{
+	char	**out;
+	char	**word_pt;
+	size_t	start;
+	size_t	end;
+
+	out = arralloc(s, set);
+	word_pt = out;
+	start = 0;
+	end = 0;
+	while (s[start])
+	{
+		if (s[start] == '\'' || s[start] == '\"')
+		{
+			end = get_quote_end(s, s[start], start) + 1;
+		}
+		else if (in_set(s[start], set))
+			end++;
+		else
+			while (s[end] && !in_set(s[end], set))
+				end++;
+		if (start < end)
+			if (!(*word_pt++ = ft_substr(s, (unsigned int)start, end - start)))
+				return (free_arr(out));
+		start = end;
+	}
+	*word_pt = NULL;
+	return (out);
+}
+
+
+/*
+**
+*/
 
 
 
@@ -1028,7 +1140,9 @@ int main(int argc, char **argv, char **env)
 	ms = tms_init();
 	//ms.cmd = tcmd_init(&ms);
 
-	ms.line = ft_strdup("cat a > b <> a| cat -e ");
+	//ms.line = ft_strdup("echo \"$PATH  uuu\" 'aaa   aaa' bbb \"'123  456'\" | ec\"$c$o\" \"-la\" azaza < g >> t > g");
+	//ms.line = ft_strdup("echo '$PATH     uuu'");
+	ms.line = ft_strdup("echo aaa    | cat    \"-e\" -\'n\'     \"\" ");
 	tms_lineparse(&ms);
 	
 	
