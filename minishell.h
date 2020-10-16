@@ -18,7 +18,7 @@
 # define LESSERR "parse error near `<'"
 # define PARSEERR "parse error"
 
-# define SET " <>;|" // add " '
+# define SET " <>;|"
 
 typedef struct		s_cmd
 {
