@@ -34,7 +34,8 @@ int msh_unset(t_ms *ms)
 	{
 		while (*tmp)
 		{
-			delete_from_env(ms, *tmp);
+			if (check_env_name(ms, *tmp))
+				delete_from_env(ms, *tmp);
 			tmp++;
 		}
 	}

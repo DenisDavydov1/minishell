@@ -117,7 +117,7 @@ char **create_argv(t_ms *ms)
 	return (res);
 }
 
-void	ft_error(int err, char *exe, char *msg)
+void	ft_error1(int err, char *exe, char *msg)
 {
 	ft_putstr_fd(exe, 1);
 	ft_putchar_fd(':', 1);
@@ -125,16 +125,32 @@ void	ft_error(int err, char *exe, char *msg)
 	return (exit(err));
 }
 
-static int	execute_ps(char *ex, char **args, char **env, char *name)
+int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 {
 	pid_t	pid;
+	DIR *dir;
 
 	pid = fork();
 	if (pid == 0)
-		execve(ex, args, env) == -1 \
-			? ft_error(1, name, "permission denied") : 0; //переделать ошибки
+	{
+		if (execve(ex, args, env) == -1)
+		{
+			if (ft_strchr(ex, '/'))
+			{
+				if (!(dir = opendir(ex)))
+					throw_error(CDERR, ms);
+				else
+				{
+					throw_error(ISADIRERR, ms);
+					closedir(dir);
+				}
+			}
+			else
+				throw_error(CMDNFERR, ms);
+		}
+	}
 	else if (pid < 0)
-		ft_error(1, name, "failed to fork");
+		ft_error1(1, ex, "failed to fork"); //нужна ли эта ошибка?
 	else
 		wait(&pid);
 	return (1);
@@ -149,7 +165,7 @@ int msh_launch(t_ms *ms)
 	char 	*full_path;
 
 	path = ms->path;
-	if (!ft_strncmp(ms->cmd->name, "./", 2))
+	/*if (!ft_strncmp(ms->cmd->name, "./", 2))
 		full_path = ms->cmd->name;
 	else
 	{
@@ -159,10 +175,18 @@ int msh_launch(t_ms *ms)
 				break;
 			path++;
 		}
+	}*/
+	while(*path)
+	{
+		if ((full_path = find_path(ms->cmd->name, ms->path)))
+			break;
+		path++;
 	}
+	if (!full_path)
+		full_path = ms->cmd->name;
 	argv = create_argv(ms);
 	envp = tenv_to_envp(ms->env);
-	execute_ps(full_path, argv, envp, full_path);
+	execute_ps(full_path, argv, envp, ms);
 
 	free(full_path);
 	charxx_free(argv);

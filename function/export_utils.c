@@ -1,5 +1,20 @@
 #include "minishell.h"
 
+void env_error(char *name, char *arg)
+{
+	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd(name, 2);
+	ft_putstr_fd(": ", 2);
+	if (arg)
+	{
+		ft_putchar_fd('\'', 2);
+		ft_putstr_fd(arg, 2);
+		ft_putchar_fd('\'', 2);
+		ft_putstr_fd(": ", 2);
+	}
+	ft_putendl_fd("not a valid identifier", 2);
+}
+
 void export_print(char **s)
 {
 	while (*s)
@@ -32,7 +47,7 @@ int tenv_len(t_env *env)
     return (i);
 }
 
-int check_env_name(char *s)
+int check_env_name(t_ms *ms, char *s)
 {
 	int i;
 
@@ -48,20 +63,20 @@ int check_env_name(char *s)
 					i++;
 				else
 				{
-					//perror("export");
-					ft_putstr_fd("not a valid identifier\n", 1); // написать нормальную ошибку
+					env_error(ms->cmd->name, s);
+					//ft_putstr_fd("not a valid identifier\n", 1); // написать нормальную ошибку
 					return (0);
 				}
 			}
 			return (1);
 		}
+		//env_error(ms->cmd->name, s);
 	}
-	//perror("export");
-	ft_putstr_fd("not a valid identifier\n", 1);
+	env_error(ms->cmd->name, s);
 	return (0);
 }
 
-int check_env_value(char *s)
+int check_env_value(t_ms *ms, char *s)
 {
 	int i;
 
@@ -72,7 +87,8 @@ int check_env_value(char *s)
 		{
 			if (s[i] == ' ' || s[i] == '<' || s[i] == '>' || s[i] == '|' || s[i] == '&')
 			{
-				ft_putstr_fd("not a valid identifier\n", 1);
+				env_error(ms->cmd->name, s);
+				//ft_putstr_fd("not a valid identifier\n", 1);
 				return (0);
 			}
 			i++;
@@ -91,6 +107,11 @@ char		**ft_split_first(char *s, char c)
 	out = charxx_alloc(2);
 	if (s)
 	{
+		if (!(ft_strchr(s, c)) || (!(ft_strcmp(s, "="))))
+		{
+			out[0] = ft_strdup(s);
+			return (out);
+		}
 		while (s[i])
 		{
 			if (s[i] == c)
@@ -101,8 +122,8 @@ char		**ft_split_first(char *s, char c)
 			}
 			i++;
 		}
-		out[0] = ft_strdup(s);
-		return (out);
+		//out[0] = ft_strdup(s);
+		//return (out);
 	}
 	charxx_free(out);
 	return (NULL);
@@ -119,16 +140,18 @@ int add_in_env(t_ms *ms, char *s)
 	test = ft_split_first(s, '=');
 	if (!test)
 		return (0);
-	if (!(check_env_name(test[0]))) //если одновременно, то рисует две ошибки
+	//printf("test0 = |%s|  test1 = |%s| \n", test[0], test[1]);
+	if ((!(check_env_name(ms, test[0]))) && (!(check_env_value(ms, test[1]))))
+	//if ((!(check_env_name(ms, test[0]))))
 	{
 		charxx_free(test);
 		return (0);
 	}
-	if (!(check_env_value(test[1])))
+	/*if (!(check_env_value(ms, test[1])))
 	{
 		charxx_free(test);
 		return (0);
-	}
+	}*/
 	if (!(find_and_replace_env(ms, test[0], test[1])))
 	{
 		tmp = ms->env;

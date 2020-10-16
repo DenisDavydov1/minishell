@@ -240,6 +240,7 @@ void tenv_set(t_ms *ms, char **envp)
 		envp++;
 	}
 	ms->path = e_split(find_in_env(ms, "PATH"), ':');
+	ms->home = ft_strdup(find_in_env(ms, "HOME"));
 }
 
 void tenv_print(t_env *env)
@@ -255,6 +256,19 @@ void tenv_print(t_env *env)
 		i++;
 		env = env->next;
 	}
+}
+
+void ft_error(char *name, char *arg, char *error)
+{
+	ft_putstr_fd("minishell: ", 2);
+	ft_putstr_fd(name, 2);
+	ft_putstr_fd(": ", 2);
+	if (arg)
+	{
+		ft_putstr_fd(arg, 2);
+		ft_putstr_fd(": ", 2);
+	}
+	ft_putendl_fd(error, 2);
 }
 
 int main(int argc, char **argv, char **envp)

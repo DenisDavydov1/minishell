@@ -15,8 +15,21 @@ int throw_error(char *errtype, t_ms *ms)
 	}
 	else if (!ft_strcmp(errtype, CMDNFERR))
 	{
-		ft_putendl_fd(ms->cmd->name, 2);
+		ft_putstr_fd(ms->cmd->name, 2);
 		ft_putendl_fd(CMDNFERR, 2);
+		exit(EXIT_FAILURE);
+	}
+	else if (!ft_strcmp(errtype, CDERR))
+	{
+		ft_putstr_fd(ms->cmd->name, 2);
+		ft_putendl_fd(CDERR, 2);
+		exit(EXIT_FAILURE);
+	}
+	else if (!ft_strcmp(errtype, ISADIRERR))
+	{
+		ft_putstr_fd(ms->cmd->name, 2);
+		ft_putendl_fd(ISADIRERR, 2);
+		exit(EXIT_FAILURE);
 	}
 	return (1);
 }

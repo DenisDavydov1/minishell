@@ -76,6 +76,7 @@ int msh_export(t_ms *ms)
 	{
 		while (*tmp)
 		{
+			//printf("tmp = %s \n", *tmp);
 			add_in_env(ms, *tmp);
 			tmp++;
 		}

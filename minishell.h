@@ -2,6 +2,7 @@
 # define MINISHELL_H
 
 # include <stdio.h> //strerror
+# include <string.h> //strerror
 # include <stdlib.h> //malloc, free, exit
 # include <unistd.h> //write, read, fork, getcwd, \
 					//chdir, execve, dup, dup2, pipe,
@@ -17,6 +18,9 @@
 # define PARSEERR "parse error"
 # define CMDNFERR ": command not found"
 # define PERMISSIONERR ": Permission denied"
+# define CDERR ": No such file or directory"
+# define ISADIRERR ": is a directory" //сложно обработать
+
 
 # define SET " <>;|"
 
@@ -45,7 +49,7 @@ typedef struct	s_ms
 	//char		*name;
 	char		*line;
 	char		**path;
-	//char		*home; //мб проще получить потом?
+	char		*home; //мб проще получить потом?
 	t_cmd		*cmd;
 	t_env		*env;
 }				t_ms;
@@ -88,5 +92,7 @@ void charxx_swap(char **s1, char **s2);
 void export_print(char **s);
 
 void tcmd_free(t_ms *ms);
+void ft_error(char *name, char *arg, char *error);
+int check_env_name(t_ms *ms, char *s);
 
 #endif
