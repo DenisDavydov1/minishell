@@ -95,12 +95,12 @@ char **create_argv(t_ms *ms)
 	arg = ms->cmd->arg;
 	res = charxx_alloc(count_arg(ms));
 	if (ms->cmd->name)
-		res[i++] = ms->cmd->name;
+		res[i++] = ft_strdup(ms->cmd->name);
 	if (flag && *flag)
 	{
 		while (*flag)
 		{
-			res[i] = *flag;
+			res[i] = ft_strdup(*flag);
 			i++;
 			flag++;
 		}
@@ -109,7 +109,7 @@ char **create_argv(t_ms *ms)
 	{
 		while (*arg)
 		{
-			res[i] = *arg;
+			res[i] = ft_strdup(*arg);
 			i++;
 			arg++;
 		}
@@ -117,10 +117,31 @@ char **create_argv(t_ms *ms)
 	return (res);
 }
 
+void	ft_error(int err, char *exe, char *msg)
+{
+	ft_putstr_fd(exe, 1);
+	ft_putchar_fd(':', 1);
+	ft_putendl_fd(msg, 1);
+	return (exit(err));
+}
+
+static int	execute_ps(char *ex, char **args, char **env, char *name)
+{
+	pid_t	pid;
+
+	pid = fork();
+	if (pid == 0)
+		execve(ex, args, env) == -1 \
+			? ft_error(1, name, "permission denied") : 0; //переделать ошибки
+	else if (pid < 0)
+		ft_error(1, name, "failed to fork");
+	else
+		wait(&pid);
+	return (1);
+}
+
 int msh_launch(t_ms *ms)
 {
-	pid_t pid, wpid;
-	int status;
 	char **argv;
 
 	char	**envp;
@@ -129,15 +150,7 @@ int msh_launch(t_ms *ms)
 
 	path = ms->path;
 	if (!ft_strncmp(ms->cmd->name, "./", 2))
-	{
 		full_path = ms->cmd->name;
-		printf("fullpath = %s \n", full_path);
-		//argv = NULL;
-		//envp = tenv_to_envp(ms->env);
-		//execve(full_path, argv, envp);
-		//while (!WIFEXITED(status) && !WIFSIGNALED(status))
-		//		wpid = waitpid(pid, &status, WUNTRACED);
-	}
 	else
 	{
 		while(*path)
@@ -146,37 +159,13 @@ int msh_launch(t_ms *ms)
 				break;
 			path++;
 		}
-		//argv = create_argv(ms);
 	}
 	argv = create_argv(ms);
 	envp = tenv_to_envp(ms->env);
-	pid = fork();
-	//char *path = unite_str(ms->cmd->name);
-	//printf("fullpath = %s \n", full_path);
-	//argv[0] = full_path;
-	printf("pid = %d \n", pid);
+	execute_ps(full_path, argv, envp, full_path);
 
-	if (pid == 0) // Дочерний процесс
-	{
-		//if (execvp(args[0], args) == -1)
-		//if (execve(path, args, NULL) == -1) //нужно ли вообще envp?
-		if (execve(full_path, argv, envp) == -1) //нужно ли вообще envp?
-		{
-			perror("msh");
-			exit(EXIT_FAILURE);
-		}
-		else if (pid < 0) // Ошибка при форкинге
-			perror("msh");
-		else // Родительский процесс
-		{
-			//while (!WIFEXITED(status) && !WIFSIGNALED(status))
-			//	wpid = waitpid(pid, &status, WUNTRACED);
-			while ((wpid = wait(&status)) > 0)
-				NULL;
-		}
-	}
 	free(full_path);
-	//charxx_free(argv);
-	//charxx_free(envp);
+	charxx_free(argv);
+	charxx_free(envp);
 	return 1;
 }
