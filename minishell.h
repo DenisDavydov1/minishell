@@ -44,7 +44,7 @@ typedef struct	s_ms
 	pid_t		pid;
 	//char		*name;
 	char		*line;
-	char		*path;
+	char		**path;
 	char		*home; //мб проще получить потом?
 	t_cmd		*cmd;
 	t_env		*env;
@@ -80,6 +80,7 @@ int msh_launch(t_ms *ms);
 int ft_strcmp2(char *s1, char *s2, int count);
 int ft_strcmp1(char *s1, char *s2);
 char *find_in_env(t_ms *ms, char *s);
+int find_and_replace_env(t_ms *ms, char *name, char *value);
 int add_in_env(t_ms *ms, char *s);
 void delete_from_env(t_ms *ms, char *s);
 int tenv_len(t_env *env);
