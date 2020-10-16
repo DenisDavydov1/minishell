@@ -14,9 +14,9 @@
 # include "libft/libft.h"
 
 # define MEMALLOC "memory allocation fail"
-# define SEMICOLONERR "parse error near `;;'"
-# define LESSERR "parse error near `<'"
 # define PARSEERR "parse error"
+# define CMDNFERR ": command not found"
+# define PERMISSIONERR ": Permission denied"
 
 # define SET " <>;|"
 
@@ -45,13 +45,13 @@ typedef struct	s_ms
 	//char		*name;
 	char		*line;
 	char		**path;
-	char		*home; //мб проще получить потом?
+	//char		*home; //мб проще получить потом?
 	t_cmd		*cmd;
 	t_env		*env;
 }				t_ms;
 
 void ft_export_sort(t_env *env);
-void throw_error(char *errtype);
+int throw_error(char *errtype, t_ms *ms);
 void *e_malloc(size_t size);
 void *e_calloc(size_t nmemb, size_t size);
 char *e_strdup(char *s);
@@ -62,7 +62,7 @@ char **tenv_to_envp(t_env *env);
 
 t_ms tms_init(void);
 t_cmd *tcmd_init(t_ms *ms);
-void tms_lineparse(t_ms *ms);
+int tms_lineparse(t_ms *ms);
 
 void tenv_print(t_env *env);
 
@@ -86,5 +86,7 @@ void delete_from_env(t_ms *ms, char *s);
 int tenv_len(t_env *env);
 void charxx_swap(char **s1, char **s2);
 void export_print(char **s);
+
+void tcmd_free(t_ms *ms);
 
 #endif

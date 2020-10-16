@@ -72,7 +72,7 @@ void *e_malloc(size_t size)
 	void *out;
 	
 	if (!(out = malloc(size)))
-		throw_error(MEMALLOC);
+		throw_error(MEMALLOC, NULL);
 	return (out);
 }
 
@@ -81,7 +81,7 @@ void *e_calloc(size_t nmemb, size_t size)
 	void *out;
 	
 	if (!(out = ft_calloc(nmemb, size)))
-		throw_error(MEMALLOC);
+		throw_error(MEMALLOC, NULL);
 	return (out);
 }
 
@@ -90,7 +90,7 @@ char *e_strdup(char *s)
 	char *out;
 	
 	if (!(out = ft_strdup(s)))
-		throw_error(MEMALLOC);
+		throw_error(MEMALLOC, NULL);
 	return (out);
 }
 
@@ -99,7 +99,7 @@ char **e_split(char *s, char c)
 	char **out;
 	
 	if (!(out = ft_split(s, c)))
-		throw_error(MEMALLOC);
+		throw_error(MEMALLOC, NULL);
 	return (out);
 }
 
@@ -109,7 +109,7 @@ t_cmd *tcmd_init(t_ms *ms)
 	int i;
 
 	if (!(cmd = (t_cmd *)malloc(sizeof(t_cmd))))
-		throw_error(MEMALLOC);
+		throw_error(MEMALLOC, NULL);
 	cmd->name = NULL;
 	cmd->flag = NULL;
 	cmd->arg = NULL;
@@ -130,7 +130,7 @@ t_cmd *tcmd_insert(t_cmd *to)
 	t_cmd *t;
 
 	if (!(cmd = (t_cmd *)malloc(sizeof(t_cmd))))
-		throw_error(MEMALLOC);
+		throw_error(MEMALLOC, NULL);
 	cmd->name = NULL;
 	cmd->flag = NULL;
 	cmd->arg = NULL;
@@ -397,8 +397,8 @@ char **tcmd_semicolon(t_ms *ms, char **s)
 	s = tcmd_skip(s);
 	if (*s && **s == ';')
 	{
-		if (!ms->cmd->name && !ms->cmd->flag && !ms->cmd->arg)
-			throw_error(PARSEERR);
+		if (!ms->cmd->name && !ms->cmd->flag && !ms->cmd->arg && throw_error(PARSEERR, ms))
+			return (NULL);
 		ms->cmd = tcmd_init(ms);
 		ms->cmd = tcmd_init(ms);
 		return (s + 1);
@@ -461,19 +461,22 @@ char **charxx_alloc(int size)
 	if (size > 0)
 	{
 		if (!(out = (char **)malloc(sizeof(char *) * (size + 1))))
-			throw_error(MEMALLOC);
+			throw_error(MEMALLOC, NULL);
 		while (size >= 0)
 			out[size--] = NULL;
 	}
 	return (out);
 }
 
-void tcmd_set(t_ms *ms, char **s)
+int tcmd_set(t_ms *ms, char **s)
 {
 	while (*s)
 	{
-		s = tcmd_semicolon(ms, s);
+		if (!(s = tcmd_semicolon(ms, s))) // may be lost pointer s
+			return (0);
 		s = tcmd_set_name(ms, s);
+		//s = tcmd_semicolon(ms, s);
+		//s = tcmd_set_name(ms, s);
 		ms->cmd->flag = charxx_alloc(split_countflags(s));
 		while ((s = tcmd_skip(s)) && *s && is_flag(*s))
 			s = tcmd_addflag(ms, s);
@@ -487,6 +490,7 @@ void tcmd_set(t_ms *ms, char **s)
 		}
 		s = tcmd_pipe(ms, s);
 	}
+	return (1);
 }
 
 int charxx_len(char **ss)
@@ -640,13 +644,7 @@ t_cmd *tcmd_gotolast(t_cmd *cmd, char *s)
 
 t_cmd *tcmd_write_empty_file(t_ms *ms, t_cmd *ptr)
 {
-	//int fd;
-
 	ptr->write = 1;
-	//ptr->file = e_strdup("tmp_file");
-	//if ((fd = open(ptr->file, O_CREAT | O_WRONLY | O_TRUNC, S_IRWXU)) < 0)
-	//	throw_error(MEMALLOC);
-	//close(fd);
 	ptr = tcmd_insert(ptr);
 	return (ptr->next);
 }
@@ -1068,7 +1066,7 @@ static char	**arralloc(char *s, char *set)
 			if ((i = get_quote_end(s, s[i], i)) && ++words)
 				added = 0;
 			else
-				throw_error(PARSEERR);
+				return (NULL);
 		}
 		else if (in_set(s[i], set) && ++words)
 			added = 0;
@@ -1079,14 +1077,15 @@ static char	**arralloc(char *s, char *set)
 	return ((char **)e_malloc((words + 1) * sizeof(char *)));
 }
 
-char		**ft_splitset(char *s, char *set)
+char		**e_splitset(char *s, char *set)
 {
 	char	**out;
 	char	**word_pt;
 	size_t	start;
 	size_t	end;
 
-	out = arralloc(s, set);
+	if (!(out = arralloc(s, set)))
+		return (NULL);
 	word_pt = out;
 	start = 0;
 	end = 0;
@@ -1118,18 +1117,23 @@ char		**ft_splitset(char *s, char *set)
 
 
 
-void tms_lineparse(t_ms *ms)
+int tms_lineparse(t_ms *ms)
 {
 	char **split;
 
-	if (!(split = ft_splitset(ms->line, SET)))
-		throw_error(MEMALLOC);
-	if (!split_validity(split))
-		throw_error(PARSEERR);
+	if (!(split = e_splitset(ms->line, SET)) && throw_error(PARSEERR, ms))
+		return (0);
+	if (!split_validity(split) && throw_error(PARSEERR, ms))
+		return (0);
 	ms->cmd = ms->cmd ? ms->cmd : tcmd_init(ms);
-	tcmd_set(ms, split);
+	if (!tcmd_set(ms, split))
+	{
+		charxx_free(split);
+		return (0);
+	}
 	charxx_free(split);
 	tcmd_optimize(ms);
+	return (1);
 }
 
 /*

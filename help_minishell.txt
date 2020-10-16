@@ -43,6 +43,17 @@ bash-3.2$ export a=&
 bash-3.2$ export a=|
 [2]+  Done                    export a=
 
+19. < a ioi a sega
+
+20. bash-3.2$ cd aa libft
+    bash: cd: aa: Permission denied
+
+Актуально:
+1. errors
+2. < -> <>
+3. parser for "" ''
+4. Сигналы
+5. $?
 
 > не должен перезаписывать файл полностью, а должен записать сначала файла
 

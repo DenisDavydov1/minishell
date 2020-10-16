@@ -198,8 +198,8 @@ int msh_loop(t_ms *ms)
 		get_next_line(&ms->line);
 		if (ft_strlen(ms->line) > 0)
 		{
-			tms_lineparse(ms);
-			status = msh_execute(ms);
+			if (tms_lineparse(ms))
+				status = msh_execute(ms);
 		}
 		free(ms->line);
 	}
