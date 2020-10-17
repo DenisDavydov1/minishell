@@ -124,12 +124,21 @@ char *parse_quotes(char *s, t_ms *ms)
 void tcmd_parse_quotes(t_ms *ms)
 {
 	t_cmd *p;
+	char *pt;
+	int i;
 	
 	if (!(p = tcmd_gotofirst(ms->cmd)))
 		return ;
 	while (p)
 	{
 		p->name = p->name ? parse_quotes(p->name, ms) : p->name;
+		i = -1;
+		while (p->flag && p->flag[++i])
+			p->flag[i] = parse_quotes(p->flag[i], ms);
+		i = -1;
+		while (p->arg && p->arg[++i])
+			p->arg[i] = parse_quotes(p->arg[i], ms);
+		p->file = p->file ? parse_quotes(p->file, ms) : p->file;
 		p = p->next;
 	}
 }
