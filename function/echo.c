@@ -17,14 +17,16 @@ void echo_write(t_ms *ms)
 				{
 					s = find_in_env(ms, *arg + 1);
 					if (s)
-						write(1, s, ft_strlen(s));
+						write(ms->cmd->fd, s, ft_strlen(s));
 				}
 				else
-					write(1, "$", 1);
+					write(ms->cmd->fd, "$", 1);
 			}
 			else
-				write(1, *arg, ft_strlen(*arg));
+				write(ms->cmd->fd, *arg, ft_strlen(*arg));
 			arg++;
+			if (*arg)
+				write(ms->cmd->fd, " ", 1);
 		}
 	}
 }
@@ -41,7 +43,7 @@ int msh_echo(t_ms *ms)
 	else
 	{
 		echo_write(ms);
-		write(1, "\n", 1);
+		write(ms->cmd->fd, "\n", 1);
 	}
-	return 1;
+	return (1);
 }

@@ -135,7 +135,9 @@ int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 	{
 		if (execve(ex, args, env) == -1)
 		{
-			if (ft_strchr(ex, '/'))
+			if (ft_strcmp2(ex, "./", 2))
+				throw_error(PERMISSIONERR, ms);
+			else if (ft_strchr(ex, '/'))
 			{
 				if (!(dir = opendir(ex)))
 					throw_error(CDERR, ms);
@@ -188,8 +190,8 @@ int msh_launch(t_ms *ms)
 	envp = tenv_to_envp(ms->env);
 	execute_ps(full_path, argv, envp, ms);
 
-	free(full_path);
+	/*free(full_path);
 	charxx_free(argv);
-	charxx_free(envp);
+	charxx_free(envp);*/
 	return 1;
 }

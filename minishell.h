@@ -23,6 +23,7 @@
 
 
 # define SET " <>;|"
+# define QUOTES "\'\""
 
 typedef struct		s_cmd
 {
@@ -31,6 +32,7 @@ typedef struct		s_cmd
 	char			**arg;
 	int				pipe;
 	int				write; // 0 - write to stdout, 1 - write to file, 2 - append to file
+	int				fd;
 	char			*file; // write result of command to this file
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
@@ -60,12 +62,18 @@ void *e_malloc(size_t size);
 void *e_calloc(size_t nmemb, size_t size);
 char *e_strdup(char *s);
 char **e_split(char *s, char c);
+char *e_strjoin(char *s1, char *s2);
+char *e_substr(char *s, int start, int len);
 char **charxx_alloc(int size);
 void charxx_free(char **s);
 char **tenv_to_envp(t_env *env);
 
+int in_set(char c, char *set);
+void tcmd_parse_quotes(t_ms *ms);
+
 t_ms tms_init(void);
 t_cmd *tcmd_init(t_ms *ms);
+t_cmd *tcmd_gotofirst(t_cmd *cmd);
 int tms_lineparse(t_ms *ms);
 
 void tenv_print(t_env *env);

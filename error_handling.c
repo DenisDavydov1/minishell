@@ -31,5 +31,11 @@ int throw_error(char *errtype, t_ms *ms)
 		ft_putendl_fd(ISADIRERR, 2);
 		exit(EXIT_FAILURE);
 	}
+	else if (!ft_strcmp(errtype, PERMISSIONERR))
+	{
+		ft_putstr_fd(ms->cmd->name, 2);
+		ft_putendl_fd(PERMISSIONERR, 2);
+		exit(EXIT_FAILURE);
+	}
 	return (1);
 }

@@ -3,6 +3,8 @@
 
 t_cmd *tcmd_gotofirst(t_cmd *cmd)
 {
+	if (!cmd)
+		return (NULL);
 	while (cmd->prev)
 	{
 		cmd = cmd->prev;
@@ -103,6 +105,25 @@ char **e_split(char *s, char c)
 	return (out);
 }
 
+char *e_substr(char *s, int start, int len)
+{
+	char *out;
+	
+	if (!(out = ft_substr((char const *)s, (unsigned int)start, (size_t)len)))
+		throw_error(MEMALLOC, NULL);
+	return (out);
+}
+
+char *e_strjoin(char *s1, char *s2)
+{
+	char *out;
+	
+	if (!(out = ft_strjoin((char const *)s1, (char const *)s2)))
+		throw_error(MEMALLOC, NULL);
+	return (out);
+}
+
+
 t_cmd *tcmd_init(t_ms *ms)
 {
 	t_cmd *cmd;
@@ -115,6 +136,7 @@ t_cmd *tcmd_init(t_ms *ms)
 	cmd->arg = NULL;
 	cmd->pipe = 0;
 	cmd->write = 0;
+	cmd->fd = 1;
 	cmd->file = NULL;
 	cmd->next = NULL;
 	cmd->prev = ms->cmd;
@@ -136,6 +158,7 @@ t_cmd *tcmd_insert(t_cmd *to)
 	cmd->arg = NULL;
 	cmd->pipe = 0;
 	cmd->write = 0;
+	cmd->fd = 1;
 	cmd->file = NULL;
 	cmd->prev = NULL;
 	cmd->next = NULL;
@@ -835,7 +858,7 @@ t_cmd *tcmd_get_cmd(t_ms *ms, t_cmd *cmd)
 	return (cmd);
 }
 
-/*
+
 void tcmd_set_write_files(t_ms *ms)
 {
 	t_cmd *ptr;
@@ -867,7 +890,7 @@ void tcmd_set_write_files(t_ms *ms)
 			ptr = ptr->next;
 	}
 }
-*/
+
 
 t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 {
@@ -892,17 +915,18 @@ t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 
 	if (!ptr->prev || (ptr->prev && tcmd_isempty(ptr->prev)))
 		return ((ptr = tcmd_insert(ptr)));
-	else if (ptr->next)
+	else// if (ptr->next)
 	{
 		tmp = tcmd_gotoempty(ptr);
 		tmp = tmp->name ? tmp : tmp->prev;
-		while (tmp && tmp->name && tmp->prev && tmp->prev->name && *tmp->name != '>') //mb &&
+		while (tmp && tmp->name && tmp->prev && tmp->prev->name && *tmp->name != '>')
 			tmp = tmp->prev;
 		tmp_cmd = tmp;
 		while (tmp_cmd && tmp_cmd->name && tmp_cmd->prev && tmp_cmd->prev->name && in_set(*tmp_cmd->name, SET))
 			tmp_cmd = tmp_cmd->prev;
 		if (tmp_cmd && tmp_cmd->name && !in_set(*tmp_cmd->name, SET) && !tmp_cmd->file)
 		{
+			
 			tmp_cmd->file = e_strdup(*tmp->arg);
 			tmp_cmd->write = !ft_strcmp(tmp->name, ">>") ? 2 : 1;
 			tmp = tcmd_delete_cmd(ms, tmp);
@@ -913,7 +937,8 @@ t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 
 		}
 	}
-	return (ptr->next);}
+	return (ptr->next);
+}
 
 
 void tcmd_optimize_signs(t_ms *ms)
@@ -986,11 +1011,11 @@ void tcmd_optimize(t_ms *ms)
 	tcmd_put_args_to_cmd(ms);
 	tcmd_optimize_signs(ms);
 	tcmd_remove_nulls(ms);
-
 	//tcmd_set_write_files(ms);
+	tcmd_parse_quotes(ms);
 	//tcmd_put_input_args_to_cmd(ms);
 
-	
+	ms->cmd = tcmd_gotofirst(ms->cmd);
 }
 
 
@@ -1040,14 +1065,14 @@ int get_quote_end(char *s, char quote, int start)
 		end++;
 	if (s[end] == quote)
 	{
-		while (s[end + 1] && !in_set(s[end + 1], SET))
-			end++;
+		//while (s[end + 1] && !in_set(s[end + 1], SET))
+			//end++;
 		return (end);
 	}
 	else
 		return (0);
 }
-
+/*
 static char	**arralloc(char *s, char *set)
 {
 	int words;
@@ -1065,6 +1090,35 @@ static char	**arralloc(char *s, char *set)
 		{
 			if ((i = get_quote_end(s, s[i], i)) && ++words)
 				added = 0;
+			else
+				return (NULL);
+		}
+		else if (in_set(s[i], set) && ++words)
+			added = 0;
+		else if (!added && ++words)
+			added = 1;
+	}
+	//printf("words: %d\n", words);
+	return ((char **)e_malloc((words + 1) * sizeof(char *)));
+}*/
+
+static char	**arralloc(char *s, char *set)
+{
+	int words;
+	int added;
+	int i;
+
+	if (!s)
+		return (NULL);
+	words = 0;
+	added = 0;
+	i = -1;
+	while (s && s[++i])
+	{
+		if (s[i] == '\'' || s[i] == '\"')
+		{
+			if ((i = get_quote_end(s, s[i], i)))
+				added = 1;
 			else
 				return (NULL);
 		}
@@ -1146,11 +1200,11 @@ int main(int argc, char **argv, char **env)
 
 	//ms.line = ft_strdup("echo \"$PATH  uuu\" 'aaa   aaa' bbb \"'123  456'\" | ec\"$c$o\" \"-la\" azaza < g >> t > g");
 	//ms.line = ft_strdup("echo '$PATH     uuu'");
-	ms.line = ft_strdup("echo aaa    | cat    \"-e\" -\'n\'     \"\" ");
+	ms.line = ft_strdup("echo  > y > u < p >> z < y");
 	tms_lineparse(&ms);
 	
 	
-	tcmd_print(ms.cmd);
+	//tcmd_print(ms.cmd);
 
 	exit(EXIT_SUCCESS);
 	return (0);
