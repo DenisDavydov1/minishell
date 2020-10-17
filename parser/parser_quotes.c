@@ -1,5 +1,5 @@
 #include "../minishell.h"
-
+/*
 int charxx_in_set(char *s, char *set)
 {
 	int i;
@@ -16,7 +16,7 @@ int charxx_in_set(char *s, char *set)
 		s++;
 	}
 	return (0);
-}
+}*/
 
 char *parse_dollar_sign(char *s, int *i, t_ms *ms)
 {
@@ -29,9 +29,7 @@ char *parse_dollar_sign(char *s, int *i, t_ms *ms)
 		(*i)++;
 	name = e_substr(s, start, *i - start); //mb *i - 1
 	value = find_in_env(ms, name);
-	//printf("%s\n", name);
 	free(name);
-	//printf("%s\n", value);
 	return (value ? value : "");
 }
 
@@ -40,9 +38,61 @@ char *parse_single_quote(char *s, int *i)
 	int start;
 
 	start = ++(*i);
-	while (s[*i] != '\'')
+	while (s[*i] && s[*i] != '\'')
 		(*i)++;
 	return (e_substr(s, start, *i - start)); //mb *i - 1
+}
+
+char *pq_add_char(char *out, char *s, int *i)
+{
+	char *tmp;
+
+	tmp = e_calloc(ft_strlen(out) + 2, sizeof(char));
+	ft_strlcat(tmp, out, ft_strlen(out) + 1);
+	ft_strlcat(tmp, &s[*i], ft_strlen(out) + 2);
+	free(out);
+	return (tmp);
+}
+
+char *pq_add_var(char *out, char *s, int *i, t_ms *ms)
+{
+	char *tmp;
+
+	tmp = e_strjoin(out, parse_dollar_sign(s, i, ms));
+	free(out);
+	return (tmp);
+}
+
+char *pq_add_quote(char *out, char *res)
+{
+	char *tmp;
+
+	tmp = e_strjoin(out, res);
+	free(res);
+	free(out);
+	return (tmp);
+}
+
+char *parse_double_quote(char *s, int *i, t_ms *ms)
+{
+	int start;
+	char *res;
+	char *tmp;
+	char *out;
+
+	start = ++(*i);
+	out = e_strdup("");
+	while (s[*i] && s[*i] != '\"')
+	{
+		if (s[*i] == '$')
+			out = pq_add_var(out, s, i, ms);
+		else
+		{
+			out = pq_add_char(out, s, i);
+			(*i)++;
+		}
+	}
+	return (out);
 }
 
 // "" -> > <
@@ -57,40 +107,17 @@ char *parse_quotes(char *s, t_ms *ms)
 	i = 0;
 	while (s[i])
 	{
-		//printf("%c\n", s[i]);
 		if (s[i] == '\'')
-		{
-			res = parse_single_quote(s, &i);
-			tmp = e_strjoin(out, res);
-			free(res);
-			free(out);
-			out = tmp;
-		}
+			out = pq_add_quote(out, parse_single_quote(s, &i));
 		else if (s[i] == '$')
-		{
-			
-			res = parse_dollar_sign(s, &i, ms);
-			tmp = e_strjoin(out, res);
-			free(out);
-			out = tmp;
-		}
-		/*else if (*s = "\"")
-		{
-			res = parse
-		}*/
+			out = pq_add_var(out, s, &i, ms);
+		else if (s[i] == '\"')
+			out = pq_add_quote(out, parse_double_quote(s, &i, ms));
 		else
-		{
-			tmp = e_calloc(ft_strlen(out) + 2, sizeof(char));
-			ft_strlcat(tmp, out, ft_strlen(out) + 1);
-			ft_strlcat(tmp, &s[i], ft_strlen(out) + 2);
-			free(out);
-			out = tmp;
-		}
-		
+			out = pq_add_char(out, s, &i);
 		i++;
 	}
 	free(s);
-	//printf("new_string: %s\n", out);
 	return (out);
 }
 

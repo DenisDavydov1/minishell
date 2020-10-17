@@ -141,7 +141,9 @@ t_cmd *tcmd_init(t_ms *ms)
 	cmd->next = NULL;
 	cmd->prev = ms->cmd;
 	if (ms->cmd)
+	{
 		ms->cmd->next = cmd;
+	}
 	return (cmd);
 }
 
@@ -915,7 +917,7 @@ t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 
 	if (!ptr->prev || (ptr->prev && tcmd_isempty(ptr->prev)))
 		return ((ptr = tcmd_insert(ptr)));
-	else// if (ptr->next)
+	else
 	{
 		tmp = tcmd_gotoempty(ptr);
 		tmp = tmp->name ? tmp : tmp->prev;
@@ -1012,6 +1014,9 @@ void tcmd_optimize(t_ms *ms)
 	tcmd_optimize_signs(ms);
 	tcmd_remove_nulls(ms);
 	//tcmd_set_write_files(ms);
+
+	//tcmd_print(ms->cmd);
+
 	tcmd_parse_quotes(ms);
 	//tcmd_put_input_args_to_cmd(ms);
 
@@ -1101,7 +1106,7 @@ static char	**arralloc(char *s, char *set)
 	//printf("words: %d\n", words);
 	return ((char **)e_malloc((words + 1) * sizeof(char *)));
 }*/
-
+/*
 static char	**arralloc(char *s, char *set)
 {
 	int words;
@@ -1129,6 +1134,39 @@ static char	**arralloc(char *s, char *set)
 	}
 	//printf("words: %d\n", words);
 	return ((char **)e_malloc((words + 1) * sizeof(char *)));
+}*/
+
+static char	**arralloc(char *s, char *set)
+{
+	int words;
+	int added;
+	int i;
+
+	if (!s)
+		return (NULL);
+	words = 0;
+	added = 1;
+	i = -1;
+	while (s && s[++i])
+	{
+		if (!s[i + 1])
+			words++;
+		if (in_set(s[i], set))
+		{
+			words += added ? 1 : 2;
+			added = 1;
+		}
+		else if (s[i] == '\'' || s[i] == '\"')
+		{
+			if (!(i = get_quote_end(s, s[i], i)))
+				return (NULL);
+			added = 0;
+		}
+		else
+			added = 0;
+	}
+	//printf("words: %d\n", words);
+	return ((char **)e_malloc((words + 1) * sizeof(char *)));
 }
 
 char		**e_splitset(char *s, char *set)
@@ -1145,15 +1183,21 @@ char		**e_splitset(char *s, char *set)
 	end = 0;
 	while (s[start])
 	{
-		if (s[start] == '\'' || s[start] == '\"')
+		if (s[end] == '\'' || s[end] == '\"')
 		{
-			end = get_quote_end(s, s[start], start) + 1;
+			end = get_quote_end(s, s[end], end) + 1;
+			if (s[end] && !in_set(s[end], set))
+				continue ;
 		}
-		else if (in_set(s[start], set))
+		else if (in_set(s[end], set))
 			end++;
 		else
-			while (s[end] && !in_set(s[end], set))
+		{
+			while (s[end] && !in_set(s[end], set) && s[end] != '\'' && s[end] != '\"')
 				end++;
+			if (s[end] && !in_set(s[end], set) && (s[end] == '\'' || s[end] == '\"'))
+				continue ;
+		}
 		if (start < end)
 			if (!(*word_pt++ = ft_substr(s, (unsigned int)start, end - start)))
 				return (free_arr(out));

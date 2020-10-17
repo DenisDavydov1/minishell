@@ -357,6 +357,7 @@ int main(int argc, char **argv, char **envp)
 	// Запуск цикла команд.
 	t_ms ms;
 
+	ms = tms_init();
 	tenv_set(&ms, envp);
 	while (msh_loop(&ms))
 		NULL;
