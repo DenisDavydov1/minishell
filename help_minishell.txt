@@ -7,7 +7,7 @@ to do list:
 4. export export oooo=(rty rty w) делает запись: declare -ax oooo='([0]="rty" [1]="rty" [2]="w")'
 5. export oooo=rty rty w делает три записи: declare -x oooo="rty", declare -x rty, declare -x w
 
-6. cd ~, cd .., cd /
+6. cd ~, cd .., cd /    cd -
 
 7.  cat "a b"
     cat: a b: No such file or directory
@@ -65,6 +65,8 @@ bash-3.2$ export a=|
 7. убрать из эхо переменные окружения
 8. если килим, то не должно быть так как у нас (убивать оба процесса при kill родителя)
 9. распарсить бэкслэш и тильду
+10. добавить cd - и убрать oldpwd при первом запуске
+11. Добавить в печать экспорта fd
 
 > не должен перезаписывать файл полностью, а должен записать сначала файла
 

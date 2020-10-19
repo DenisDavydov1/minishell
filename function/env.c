@@ -13,5 +13,6 @@ int msh_env(t_ms *ms)
 		write(1, "\n", 1);
 		tmp = tmp->next;
 	}
+	ms->ret = 0;
 	return (1);
 }

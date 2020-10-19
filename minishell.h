@@ -52,11 +52,12 @@ typedef struct	s_ms
 	char		*line;
 	char		**path;
 	char		*home; //мб проще получить потом?
+	int			ret;
 	t_cmd		*cmd;
 	t_env		*env;
 }				t_ms;
 
-void ft_export_sort(t_env *env);
+//void ft_export_sort(t_ms *ms);
 int throw_error(char *errtype, t_ms *ms);
 void *e_malloc(size_t size);
 void *e_calloc(size_t nmemb, size_t size);
@@ -100,12 +101,13 @@ void charxx_swap(char **s1, char **s2);
 void export_print(char **s);
 
 void tcmd_free(t_ms *ms);
-void ft_error(char *name, char *arg, char *error);
+int ft_error(char *name, char *arg, char *error, t_ms *ms);
 int check_env_name(t_ms *ms, char *s);
 
 
 void signal_handler(int hz);
 void	do_nothing(int nb);
 char **split_replace_quotes(char **s, t_ms *ms);
+char *e_itoa(int n);
 
 #endif

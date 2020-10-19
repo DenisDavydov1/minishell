@@ -274,12 +274,12 @@ int msh_set_fd(t_ms *ms)
 	else if(ms->cmd->write == 1)
 	{
 		if ((fd = open(ms->cmd->file, O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
-			ft_error(NULL, ms->cmd->file, strerror(errno));
+			ft_error(NULL, ms->cmd->file, strerror(errno), ms);
 	}
 	else if(ms->cmd->write == 2)
 	{
 		if ((fd = open(ms->cmd->file, O_CREAT | O_WRONLY | O_APPEND, 0644)) < 0)
-			ft_error(NULL, ms->cmd->file, strerror(errno));
+			ft_error(NULL, ms->cmd->file, strerror(errno), ms);
 	}
 	return (fd);
 }
@@ -387,8 +387,10 @@ int msh_loop(t_ms *ms)
 	ms->line = get_next_line(ms->line);
 	if (ms->line && *ms->line && tms_lineparse(ms))
 	{
+		
 		while (ms->cmd)
 		{
+			tcmd_parse_quotes(ms);
 			if (ms->cmd->name)// && !msh_execute(ms, p))
 			{
 				ms->cmd->fd = msh_set_fd(ms);
@@ -409,7 +411,7 @@ int msh_loop(t_ms *ms)
 	return (1);
 }
 
-void ft_error(char *name, char *arg, char *error)
+int ft_error(char *name, char *arg, char *error, t_ms *ms)
 {
 	ft_putstr_fd("minishell: ", 2);
 	if (name)
@@ -423,6 +425,8 @@ void ft_error(char *name, char *arg, char *error)
 		ft_putstr_fd(": ", 2);
 	}
 	ft_putendl_fd(error, 2);
+	ms->ret = 1;
+	return (0);
 }
 
 /*int start_ms()

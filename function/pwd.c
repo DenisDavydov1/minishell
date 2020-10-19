@@ -7,5 +7,6 @@ int msh_pwd(t_ms *ms)
 	s = find_in_env(ms, "PWD");
 	write(1, s, ft_strlen(s));
 	write(1, "\n", 1);
+	ms->ret = 0;
 	return (1);
 }

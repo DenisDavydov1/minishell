@@ -49,15 +49,16 @@ int msh_cd(t_ms *ms)
 				ft_error(ms->cmd->name, ms->home, strerror(errno));
 		}	*/
 		if (chdir(*tmp) != 0)
-			ft_error(ms->cmd->name, *tmp, strerror(errno));
+			return (ft_error(ms->cmd->name, *tmp, strerror(errno), ms));
 	}
 	else
 	{
 		if (!home)
-			ft_error(ms->cmd->name, NULL, "HOME not set");
+			return (ft_error(ms->cmd->name, NULL, "HOME not set", ms));
 		else if (chdir(home) != 0)
-			ft_error(ms->cmd->name, *tmp, strerror(errno));
+			return (ft_error(ms->cmd->name, *tmp, strerror(errno), ms));
 	}
 	replace_pwd(ms);
+	ms->ret = 0;
 	return 1;
 }

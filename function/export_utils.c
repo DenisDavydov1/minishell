@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void env_error(char *name, char *arg)
+void env_error(char *name, char *arg, t_ms *ms)
 {
 	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd(name, 2);
@@ -13,6 +13,7 @@ void env_error(char *name, char *arg)
 		ft_putstr_fd(": ", 2);
 	}
 	ft_putendl_fd("not a valid identifier", 2);
+	ms->ret = 1;
 }
 
 void export_print(char **s)
@@ -63,7 +64,7 @@ int check_env_name(t_ms *ms, char *s)
 					i++;
 				else
 				{
-					env_error(ms->cmd->name, s);
+					env_error(ms->cmd->name, s, ms);
 					//ft_putstr_fd("not a valid identifier\n", 1); // написать нормальную ошибку
 					return (0);
 				}
@@ -72,7 +73,7 @@ int check_env_name(t_ms *ms, char *s)
 		}
 		//env_error(ms->cmd->name, s);
 	}
-	env_error(ms->cmd->name, s);
+	env_error(ms->cmd->name, s, ms);
 	return (0);
 }
 
@@ -87,7 +88,7 @@ int check_env_value(t_ms *ms, char *s)
 		{
 			if (s[i] == ' ' || s[i] == '<' || s[i] == '>' || s[i] == '|' || s[i] == '&')
 			{
-				env_error(ms->cmd->name, s);
+				env_error(ms->cmd->name, s, ms);
 				//ft_putstr_fd("not a valid identifier\n", 1);
 				return (0);
 			}
@@ -154,14 +155,10 @@ int add_in_env(t_ms *ms, char *s)
 	if ((!(check_env_name(ms, test[0]))) && (!(check_env_value(ms, test[1]))))
 	//if ((!(check_env_name(ms, test[0]))))
 	{
+		//ms->ret = 1;
 		charxx_free(test);
 		return (0);
 	}
-	/*if (!(check_env_value(ms, test[1])))
-	{
-		charxx_free(test);
-		return (0);
-	}*/
 	if (!(find_and_replace_env(ms, test[0], test[1])))
 	{
 		tmp = ms->env;

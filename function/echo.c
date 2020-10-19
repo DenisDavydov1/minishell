@@ -45,5 +45,6 @@ int msh_echo(t_ms *ms)
 		echo_write(ms);
 		write(ms->cmd->fd, "\n", 1);
 	}
+	ms->ret = 0;
 	return (1);
 }

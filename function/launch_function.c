@@ -161,6 +161,9 @@ int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 	}
 	signal(SIGINT, signal_handler);
 	signal(SIGQUIT, do_nothing);
+	//printf("status = %d \n", WEXITSTATUS(pid));
+	ms->ret = WEXITSTATUS(pid);
+	//printf("status1 = %d \n", WEXITED);
 	return (1);
 }
 

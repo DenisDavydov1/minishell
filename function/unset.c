@@ -29,6 +29,7 @@ int msh_unset(t_ms *ms)
 {
 	char **tmp;
 
+	ms->ret = 0;
 	tmp = ms->cmd->arg;
 	if (tmp && *tmp)
 	{

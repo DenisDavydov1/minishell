@@ -43,14 +43,14 @@ char **tenv_to_envp(t_env *env)
     return (envp);
 }
 
-void ft_export_sort(t_env *env)
+void ft_export_sort(t_ms *ms)
 {
     int i;
 	char **char_env;
     char **ptr;
 
-    char_env = tenv_tocharxx(env);
-	i = tenv_len(env);
+    char_env = tenv_tocharxx(ms->env);
+	i = tenv_len(ms->env);
     while (i)
     {
         ptr = char_env;
@@ -64,14 +64,15 @@ void ft_export_sort(t_env *env)
     }
     export_print(char_env);
 	charxx_free(char_env);
+	ms->ret = 0;
 }
 
 int msh_export(t_ms *ms)
 {
 	char **tmp;
 
+	ms->ret = 0;
 	tmp = ms->cmd->arg;
-
 	if (tmp && *tmp)
 	{
 		while (*tmp)
@@ -82,6 +83,6 @@ int msh_export(t_ms *ms)
 		}
 	}
 	else
-		ft_export_sort(ms->env);
+		ft_export_sort(ms);
 	return(1);
 }
