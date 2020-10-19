@@ -1111,7 +1111,7 @@ void tcmd_optimize(t_ms *ms)
 
 	//tcmd_parse_quotes(ms);
 	//tcmd_put_input_args_to_cmd(ms);
-	tcmd_print(ms->cmd);
+	//tcmd_print(ms->cmd);
 
 	ms->cmd = tcmd_gotofirst(ms->cmd);
 }
