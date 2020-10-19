@@ -108,6 +108,20 @@ bash-3.2$ echo $
 $
 
 
+tekuschaya@MacBook mini2 % make && ./minishell       
+minishell created
+minishell-1.0$ gdfgd
+minishell: gdfgd: command not found
+minishell-1.0$ echo $?
+127
+minishell-1.0$ dfd/dfh
+minishell: dfd/dfh: No such file or directory
+minishell-1.0$ echo $?
+127
+minishell-1.0$ pwd
+/var/folders/_l/v92340452ys72vby75f767bc0000gn/T/
+
+
 
  # | Expression  | Result      | Comments
 ---+-------------+-------------+--------------------------------------------------------------------
