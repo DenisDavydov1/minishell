@@ -106,5 +106,6 @@ int check_env_name(t_ms *ms, char *s);
 
 void signal_handler(int hz);
 void	do_nothing(int nb);
+char **split_replace_quotes(char **s, t_ms *ms);
 
 #endif

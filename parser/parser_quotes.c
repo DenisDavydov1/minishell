@@ -1,22 +1,4 @@
 #include "../minishell.h"
-/*
-int charxx_in_set(char *s, char *set)
-{
-	int i;
-
-	i = 0;
-	while (s && *s)
-	{
-		i = -1;
-		while (set[++i])
-		{
-			if (*s == set[i])
-				return (1);
-		}
-		s++;
-	}
-	return (0);
-}*/
 
 char *parse_dollar_sign(char *s, int *i, t_ms *ms)
 {
@@ -25,7 +7,7 @@ char *parse_dollar_sign(char *s, int *i, t_ms *ms)
 	char *value;
 
 	start = ++(*i);
-	while (s[*i] && !in_set(s[*i], QUOTES) && !in_set(s[*i], SET))
+	while (s[*i] && !in_set(s[*i], QUOTES) && !in_set(s[*i], SET) && s[*i] != '$')
 		(*i)++;
 	name = e_substr(s, start, *i - start); //mb *i - 1
 	value = find_in_env(ms, name);
@@ -73,6 +55,11 @@ char *pq_add_quote(char *out, char *res)
 	return (tmp);
 }
 
+/*char *pq_add_tilda(char *out, char *s, int *i, t_ms *ms)
+{
+	return (e_strdup(find_in_env(ms, "HOME")));
+}*/
+
 char *parse_double_quote(char *s, int *i, t_ms *ms)
 {
 	int start;
@@ -113,6 +100,8 @@ char *parse_quotes(char *s, t_ms *ms)
 			out = pq_add_var(out, s, &i, ms);
 		else if (s[i] == '\"')
 			out = pq_add_quote(out, parse_double_quote(s, &i, ms));
+		else if (i == 0 && s[0] == '~' && (!s[1] || s[1] == ' ' || s[1] == '/'))
+			out = e_strdup(find_in_env(ms, "HOME")); //pq_add_tilda(out, s, &i, ms);
 		else
 			out = pq_add_char(out, s, &i);
 		i++;
@@ -121,7 +110,7 @@ char *parse_quotes(char *s, t_ms *ms)
 	return (out);
 }
 
-void tcmd_parse_quotes(t_ms *ms)
+/*void tcmd_parse_quotes(t_ms *ms)
 {
 	t_cmd *p;
 	char *pt;
@@ -141,4 +130,19 @@ void tcmd_parse_quotes(t_ms *ms)
 		p->file = p->file ? parse_quotes(p->file, ms) : p->file;
 		p = p->next;
 	}
+}*/
+
+char **split_replace_quotes(char **s, t_ms *ms)
+{
+	int i;
+
+	if (!s && !*s)
+		return (s);
+	i = 0;
+	while (s[i])
+	{
+		s[i] = parse_quotes(s[i], ms);
+		i++;
+	}
+	return (s);
 }

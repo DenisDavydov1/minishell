@@ -969,7 +969,7 @@ void tcmd_put_arg_to_name(t_ms *ms)
 		if (ptr->prev && tcmd_isempty(ptr->prev) && !tcmd_isempty(ptr) && \
 			!ptr->name && ptr->arg && *ptr->arg)
 		{
-			printf("argtname: %s\n", *ptr->arg);
+			//printf("argtname: %s\n", *ptr->arg);
 			ptr->name = e_strdup(*ptr->arg);
 			ptr->arg = charxx_delete_one(ptr->arg, 0);
 		}
@@ -1015,10 +1015,11 @@ void tcmd_optimize(t_ms *ms)
 	tcmd_remove_nulls(ms);
 	//tcmd_set_write_files(ms);
 
-	//tcmd_print(ms->cmd);
+	
 
-	tcmd_parse_quotes(ms);
+	//tcmd_parse_quotes(ms);
 	//tcmd_put_input_args_to_cmd(ms);
+	//tcmd_print(ms->cmd);
 
 	ms->cmd = tcmd_gotofirst(ms->cmd);
 }
@@ -1223,6 +1224,7 @@ int tms_lineparse(t_ms *ms)
 		return (0);
 	if (!split_validity(split) && throw_error(PARSEERR, ms))
 		return (0);
+	split = split_replace_quotes(split, ms);
 	ms->cmd = ms->cmd ? ms->cmd : tcmd_init(ms);
 	if (!tcmd_set(ms, split))
 	{
