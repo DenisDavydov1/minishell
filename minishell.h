@@ -105,6 +105,6 @@ int check_env_name(t_ms *ms, char *s);
 
 
 void signal_handler(int hz);
-int start_ms();
+void	do_nothing(int nb);
 
 #endif
