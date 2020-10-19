@@ -15,9 +15,9 @@
 
 //int msh_minishell(char **args, t_ms *ms);
 
-char **g_envp;
+//char **g_envp;
 //t_ms g_ms;
-pid_t g_pid;
+//pid_t g_pid;
 
 int ft_strcmp1(char *s1, char *s2) //заменить на либу?
 {
@@ -117,14 +117,6 @@ int find_and_replace_env(t_ms *ms, char *name, char *value)
 	return (0);
 }
 
-/*int msh_minishell(char **args, t_ms *ms)
-{
-	char **envp;
-
-	envp = tenv_to_envp(ms->env);
-	execve("./minishell", NULL, envp);
-	return (1);
-}*/
 /*
 int msh_execute(t_ms *ms)
 {
@@ -216,9 +208,19 @@ t_env *tenv_init(char *name, char *value)
 	t_env *env;
 
 	env = (t_env *)e_malloc(sizeof(t_env));
-	env->name = name;
-	env->value = value;
-	env->next = NULL;
+	if (!(ft_strcmp(name, "OLDPWD")))
+	{
+		env->name = name;
+		env->value = NULL;
+		env->next = NULL;
+		free(value);
+	}
+	else
+	{
+		env->name = name;
+		env->value = value;
+		env->next = NULL;
+	}
 	return (env);
 }
 
@@ -245,7 +247,7 @@ void tenv_set(t_ms *ms, char **envp)
 		envp++;
 	}
 	ms->path = e_split(find_in_env(ms, "PATH"), ':');
-	ms->home = ft_strdup(find_in_env(ms, "HOME"));
+	//ms->home = ft_strdup(find_in_env(ms, "HOME"));
 }
 
 void tenv_print(t_env *env)
@@ -341,42 +343,9 @@ char	*get_next_line(char *command)
 	return (command);
 }
 
-/*void signal_handler(int hz)
-{
-	//signal(SIG_DFL, signal_handler);
-	if (write(1, "\b\b  \n", 5) < 0)
-		return ;
-	start_ms();
-
-	if (kill(g_pid, SIGTERM) < 0)
-		exit(-1);
-	if (!(g_pid = fork()))
-		start_ms();
-	else
-		signal(SIGINT, signal_handler);
-}*/
-
 void display_prompt_msg()
 {
 	write(1, "minishell-1.0$ ", 16);
-}
-
-void	signal_handler(int signo)
-{
-	//if (signo == SIGINT)
-	//{
-
-		if (write(1, "\b\b  \n", 5) < 0)
-			return ;
-		//write(1, "\n", 1);
-		//write(1, "\nminishell-1.0$ ", 16);
-		//ft_putstr_fd("minishell-1.0$ ", 1);
-		//while (write(1, "\b", 1) > 0)
-		//	;
-		//write(1, "\b\b", 6);
-		display_prompt_msg();
-		signal(SIGINT, signal_handler);
-	//}
 }
 
 int msh_loop(t_ms *ms)
@@ -411,7 +380,7 @@ int msh_loop(t_ms *ms)
 	return (1);
 }
 
-int ft_error(char *name, char *arg, char *error, t_ms *ms)
+void ft_error(char *name, char *arg, char *error, t_ms *ms)
 {
 	ft_putstr_fd("minishell: ", 2);
 	if (name)
@@ -426,49 +395,18 @@ int ft_error(char *name, char *arg, char *error, t_ms *ms)
 	}
 	ft_putendl_fd(error, 2);
 	ms->ret = 1;
-	return (0);
 }
 
-/*int start_ms()
+void	sigint_handler(int sn)
 {
-	//pid_t wpid;
-	//int status;
-
-	//signal(SIGINT, signal_handler);
-	while (msh_loop(&g_ms))
-		NULL;
-
-	return (0);
-}*/
-
-void copy_envp(char **env)
-{
-	int i;
-	//char *ptr;
-
-	printf("imhere \n");
-	i = 0;
-	//ptr = *env;
-	while (*env)
-	{
-		env++;
-		i++;
-	}
-	printf("i = %d \n", i);
-	g_envp = charxx_alloc(i); //memory allocation fail
-	i = 0;
-	while (env[i])
-	{
-		g_envp[i] = ft_strdup(env[i]);
-		printf("g_env = %s \n", g_envp[i]);
-		i++;
-	}
+	if (write(1, "\b\b  \n", 5) < 0)
+		return ;
+	display_prompt_msg();
+	signal(SIGINT, sigint_handler);
 }
 
-void	do_nothing(int nb)
+void	sigquit_handler(int nb)
 {
-	//(void)nb;
-	//if (write(1, " \b\b \b", 5) < 0)
 	if (write(1, "\b\b  \b\b", 6) < 0)
 		return ;
 	return ;
@@ -486,19 +424,10 @@ int main(int argc, char **argv, char **envp)
 
 	ms = tms_init();
 	tenv_set(&ms, envp);
-	signal(SIGINT, signal_handler);
-	signal(SIGQUIT, do_nothing);
+	signal(SIGINT, sigint_handler);
+	signal(SIGQUIT, sigquit_handler);
 	while (msh_loop(&ms))
 		NULL;
-	//start_ms();
-	/*copy_envp(envp);
-
-	if (!(g_pid = fork()))
-		start_ms();
-	else
-		signal(SIGINT, signal_handler);
-	while ((wpid = wait(&status)) > 0)
-		NULL;*/
 
 	// Выключение / очистка памяти.
 

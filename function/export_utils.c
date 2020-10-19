@@ -16,12 +16,12 @@ void env_error(char *name, char *arg, t_ms *ms)
 	ms->ret = 1;
 }
 
-void export_print(char **s)
+void export_print(char **s, t_ms *ms)
 {
 	while (*s)
 	{
-		ft_putstr_fd("declare -x ", 1);
-		ft_putendl_fd(*s, 1);
+		ft_putstr_fd("declare -x ", ms->cmd->fd);
+		ft_putendl_fd(*s, ms->cmd->fd);
 		s++;
 	}
 }
@@ -116,12 +116,12 @@ char		**ft_split_first(t_ms *ms, char *s, char c)
 			out[0] = ft_strdup(s);
 			return (out);
 		}
-		if (!(ft_strchr(s, c)))
+		/*if (!(ft_strchr(s, c)))
 		{
 			check_env_name(ms, s);
 			free(out);
 			return (NULL);
-		}
+		}*/
 
 		while (s[i])
 		{
@@ -133,8 +133,8 @@ char		**ft_split_first(t_ms *ms, char *s, char c)
 			}
 			i++;
 		}
-		//out[0] = ft_strdup(s);
-		//return (out);
+		out[0] = ft_strdup(s);
+		return (out);
 	}
 	charxx_free(out);
 	return (NULL);

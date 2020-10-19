@@ -7,10 +7,13 @@ int msh_env(t_ms *ms)
 	tmp = ms->env;
 	while (tmp && tmp->name)
 	{
-		write(1, tmp->name, ft_strlen(tmp->name));
-		write(1, "=", 1);
-		write(1, tmp->value, ft_strlen(tmp->value));
-		write(1, "\n", 1);
+		if (tmp->value)
+		{
+			write(1, tmp->name, ft_strlen(tmp->name));
+			write(1, "=", 1);
+			write(1, tmp->value, ft_strlen(tmp->value));
+			write(1, "\n", 1);
+		}
 		tmp = tmp->next;
 	}
 	ms->ret = 0;

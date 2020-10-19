@@ -11,7 +11,7 @@ void echo_write(t_ms *ms)
 	{
 		while (*arg)
 		{
-			if (**arg == '$')
+			/*if (**arg == '$')
 			{
 				if (ft_strlen(*arg) > 1)
 				{
@@ -22,8 +22,8 @@ void echo_write(t_ms *ms)
 				else
 					write(ms->cmd->fd, "$", 1);
 			}
-			else
-				write(ms->cmd->fd, *arg, ft_strlen(*arg));
+			else*/
+			write(ms->cmd->fd, *arg, ft_strlen(*arg));
 			arg++;
 			if (*arg)
 				write(ms->cmd->fd, " ", 1);

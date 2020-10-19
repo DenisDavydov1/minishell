@@ -13,9 +13,12 @@ char **tenv_tocharxx(t_env *env)
         *ptr = (char *)e_calloc((ft_strlen(env->name) + \
 			ft_strlen(env->value) + 4), sizeof(char));
         ft_strlcat(*ptr, env->name, (len = ft_strlen(env->name) + 1));
-        ft_strlcat(*ptr, "=\"", (len += 3));
-        ft_strlcat(*ptr, env->value, (len += ft_strlen(env->value) + 1));
-        ft_strlcat(*ptr, "\"", (len += 2));
+		if (env->value)
+		{
+			ft_strlcat(*ptr, "=\"", (len += 3));
+			ft_strlcat(*ptr, env->value, (len += ft_strlen(env->value) + 1));
+			ft_strlcat(*ptr, "\"", (len += 2));
+		}
         ptr++;
         env = env->next;
     }
@@ -62,7 +65,7 @@ void ft_export_sort(t_ms *ms)
         }
         i--;
     }
-    export_print(char_env);
+    export_print(char_env, ms);
 	charxx_free(char_env);
 	ms->ret = 0;
 }
