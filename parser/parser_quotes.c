@@ -1,5 +1,14 @@
 #include "../minishell.h"
 
+/*char *parse_dollar_sign_in_loop(t_ms *ms)
+{
+	char *out;
+
+	if (ms->cmd->name && in_set('$', ) && *(ft_strchr(ms->cmd->name, '$') + 1) = '?')
+	if (s[*i] == '?' && ++(*i))
+		return (e_itoa(ms->cmd->ret));
+}*/
+
 char *parse_dollar_sign(char *s, int *i, t_ms *ms)
 {
 	int start;
@@ -7,12 +16,16 @@ char *parse_dollar_sign(char *s, int *i, t_ms *ms)
 	char *value;
 
 	start = ++(*i);
+	if (s[*i] == '?' && ++(*i))
+	{
+		return (e_itoa(ms->ret));
+	}
 	while (s[*i] && !in_set(s[*i], QUOTES) && !in_set(s[*i], SET) && s[*i] != '$')
 		(*i)++;
 	name = e_substr(s, start, *i - start); //mb *i - 1
 	value = find_in_env(ms, name);
 	free(name);
-	return (value ? value : "");
+	return (value ? e_strdup(value) : e_strdup(""));
 }
 
 char *parse_single_quote(char *s, int *i)
@@ -39,8 +52,11 @@ char *pq_add_char(char *out, char *s, int *i)
 char *pq_add_var(char *out, char *s, int *i, t_ms *ms)
 {
 	char *tmp;
+	char *res;
 
-	tmp = e_strjoin(out, parse_dollar_sign(s, i, ms));
+	res = parse_dollar_sign(s, i, ms);
+	tmp = e_strjoin(out, res);
+	free(res);
 	free(out);
 	return (tmp);
 }
@@ -110,6 +126,23 @@ char *parse_quotes(char *s, t_ms *ms)
 	return (out);
 }
 
+void tcmd_parse_quotes(t_ms *ms)
+{
+	t_cmd *p;
+	char *pt;
+	int i;
+	
+	p = ms->cmd;
+	p->name = p->name ? parse_quotes(p->name, ms) : p->name;
+	i = -1;
+	while (p->flag && p->flag[++i])
+		p->flag[i] = parse_quotes(p->flag[i], ms);
+	i = -1;
+	while (p->arg && p->arg[++i])
+		p->arg[i] = parse_quotes(p->arg[i], ms);
+	p->file = p->file ? parse_quotes(p->file, ms) : p->file;
+}
+
 /*void tcmd_parse_quotes(t_ms *ms)
 {
 	t_cmd *p;
@@ -132,6 +165,7 @@ char *parse_quotes(char *s, t_ms *ms)
 	}
 }*/
 
+/*
 char **split_replace_quotes(char **s, t_ms *ms)
 {
 	int i;
@@ -145,4 +179,4 @@ char **split_replace_quotes(char **s, t_ms *ms)
 		i++;
 	}
 	return (s);
-}
+}*/
