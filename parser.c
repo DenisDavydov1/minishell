@@ -1056,7 +1056,7 @@ void tcmd_open_create_files(t_ms *ms)
 		if (ptr->name && !ft_strcmp(ptr->name, "<") && ptr->arg && *ptr->arg)
 		{
 			if ((fd = open(*ptr->arg, O_RDONLY) < 0))
-				return (tcmd_set_echo_err(ms, ptr, CDERR));
+				tcmd_set_echo_err(ms, ptr, CDERR);
 			else
 				close(fd);
 		}
@@ -1065,7 +1065,7 @@ void tcmd_open_create_files(t_ms *ms)
 			ptr->arg && *ptr->arg)
 		{
 			if ((fd = open(*ptr->arg, O_CREAT, 0644) < 0))
-				return (tcmd_set_echo_err(ms, ptr, CDERR));
+				tcmd_set_echo_err(ms, ptr, CDERR);
 			else
 				close(fd);
 		}
@@ -1111,7 +1111,7 @@ void tcmd_optimize(t_ms *ms)
 
 	//tcmd_parse_quotes(ms);
 	//tcmd_put_input_args_to_cmd(ms);
-	//tcmd_print(ms->cmd);
+	tcmd_print(ms->cmd);
 
 	ms->cmd = tcmd_gotofirst(ms->cmd);
 }
@@ -1338,7 +1338,7 @@ int main(int argc, char **argv, char **env)
 
 	//ms.line = ft_strdup("echo \"$PATH  uuu\" 'aaa   aaa' bbb \"'123  456'\" | ec\"$c$o\" \"-la\" azaza < g >> t > g");
 	//ms.line = ft_strdup("echo '$PATH     uuu'");
-	ms.line = ft_strdup("cat <> [ > y > p | cat -e > i| cat -e; <a");
+	ms.line = ft_strdup("echo <> y > p >>u;<q<>w;echo kkkk >z <c; <>o");
 	tms_lineparse(&ms);
 	
 	
