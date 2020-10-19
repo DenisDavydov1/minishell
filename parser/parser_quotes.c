@@ -16,10 +16,8 @@ char *parse_dollar_sign(char *s, int *i, t_ms *ms)
 	char *value;
 
 	start = ++(*i);
-	if (s[*i] == '?' && ++(*i))
-	{
+	if (s[*i] == '?')
 		return (e_itoa(ms->ret));
-	}
 	while (s[*i] && !in_set(s[*i], QUOTES) && !in_set(s[*i], SET) && s[*i] != '$')
 		(*i)++;
 	name = e_substr(s, start, *i - start); //mb *i - 1
