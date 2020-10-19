@@ -103,4 +103,8 @@ void tcmd_free(t_ms *ms);
 void ft_error(char *name, char *arg, char *error);
 int check_env_name(t_ms *ms, char *s);
 
+
+void signal_handler(int hz);
+int start_ms();
+
 #endif

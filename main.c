@@ -15,6 +15,9 @@
 
 //int msh_minishell(char **args, t_ms *ms);
 
+char **g_envp;
+t_ms g_ms;
+pid_t g_pid;
 
 int ft_strcmp1(char *s1, char *s2) //заменить на либу?
 {
@@ -114,14 +117,14 @@ int find_and_replace_env(t_ms *ms, char *name, char *value)
 	return (0);
 }
 
-int msh_minishell(char **args, t_ms *ms)
+/*int msh_minishell(char **args, t_ms *ms)
 {
 	char **envp;
 
 	envp = tenv_to_envp(ms->env);
 	execve("./minishell", NULL, envp);
 	return (1);
-}
+}*/
 /*
 int msh_execute(t_ms *ms)
 {
@@ -148,7 +151,7 @@ int msh_execute(t_ms *ms)
 		return (ret = msh_launch(ms));
 }*/
 
-int ft_strcpy_my(char *s1, char *s2)
+/*int ft_strcpy_my(char *s1, char *s2)
 {
 	int i;
 
@@ -184,7 +187,7 @@ int get_next_line(char **line)
 	}
 	new = NULL;
 	return(count);
-}
+}*/
 /*
 int msh_loop(t_ms *ms)
 {
@@ -207,80 +210,6 @@ int msh_loop(t_ms *ms)
 	return (0);
 }
 */
-
-int msh_set_fd(t_ms *ms)
-{
-	int fd;
-
-	//pipe O_RDWR
-	//printf("%d\n", ms->cmd->write);
-	if (ms->cmd->write == 0)
-		fd = 1;
-	else if(ms->cmd->write == 1)
-	{
-		if ((fd = open(ms->cmd->file, O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
-			ft_error(NULL, ms->cmd->file, strerror(errno));
-	}
-	else if(ms->cmd->write == 2)
-	{
-		if ((fd = open(ms->cmd->file, O_CREAT | O_WRONLY | O_APPEND, 0644)) < 0)
-			ft_error(NULL, ms->cmd->file, strerror(errno));
-	}
-	return (fd);
-}
-
-/*add > < >> <>*/
-int msh_execute(t_ms *ms)
-{
-	int ret;
-	
-	ret = 1;
-	
-	if (ft_strcmp3(ms->cmd->name, "echo"))
-		return (ret = msh_echo(ms));
-	else if (ft_strcmp3(ms->cmd->name, "cd"))
-		return (ret = msh_cd(ms));
-	else if (ft_strcmp3(ms->cmd->name, "pwd"))
-		return (ret = msh_pwd(ms));
-	else if (ft_strcmp3(ms->cmd->name, "export"))
-		return (ret = msh_export(ms));
-	else if (ft_strcmp3(ms->cmd->name, "unset"))
-		return (ret = msh_unset(ms));
-	else if (ft_strcmp3(ms->cmd->name, "env"))
-		return (ret = msh_env(ms));
-	else if (ft_strcmp3(ms->cmd->name, "exit"))
-		return (ret = msh_exit(ms));
-	else
-		return (ret = msh_launch(ms));
-}
-
-int msh_loop(t_ms *ms)
-{
-	ft_putstr_fd("minishell-1.0$ ", 1);
-	get_next_line(&ms->line);
-	if (ms->line && *ms->line && tms_lineparse(ms))
-	{
-		while (ms->cmd)
-		{
-			if (ms->cmd->name)// && !msh_execute(ms, p))
-			{
-				ms->cmd->fd = msh_set_fd(ms);
-				msh_execute(ms);
-				if (!ms->cmd->pipe && ms->cmd->fd > 2)
-					close(ms->cmd->fd);
-			}
-				
-			if (!ms->cmd->next)
-				break ;
-			ms->cmd = ms->cmd->next;
-		}
-	}
-	free(ms->line);
-	ms->line = NULL;
-	tcmd_free(ms);
-	//ret 0 for signals exit
-	return (1);
-}
 
 t_env *tenv_init(char *name, char *value)
 {
@@ -334,6 +263,128 @@ void tenv_print(t_env *env)
 	}
 }
 
+int msh_set_fd(t_ms *ms)
+{
+	int fd;
+
+	//pipe O_RDWR
+	//printf("%d\n", ms->cmd->write);
+	if (ms->cmd->write == 0)
+		fd = 1;
+	else if(ms->cmd->write == 1)
+	{
+		if ((fd = open(ms->cmd->file, O_CREAT | O_WRONLY | O_TRUNC, 0644)) < 0)
+			ft_error(NULL, ms->cmd->file, strerror(errno));
+	}
+	else if(ms->cmd->write == 2)
+	{
+		if ((fd = open(ms->cmd->file, O_CREAT | O_WRONLY | O_APPEND, 0644)) < 0)
+			ft_error(NULL, ms->cmd->file, strerror(errno));
+	}
+	return (fd);
+}
+
+/*add > < >> <>*/
+int msh_execute(t_ms *ms)
+{
+	int ret;
+	
+	ret = 1;
+	
+	if (ft_strcmp3(ms->cmd->name, "echo"))
+		return (ret = msh_echo(ms));
+	else if (ft_strcmp3(ms->cmd->name, "cd"))
+		return (ret = msh_cd(ms));
+	else if (ft_strcmp3(ms->cmd->name, "pwd"))
+		return (ret = msh_pwd(ms));
+	else if (ft_strcmp3(ms->cmd->name, "export"))
+		return (ret = msh_export(ms));
+	else if (ft_strcmp3(ms->cmd->name, "unset"))
+		return (ret = msh_unset(ms));
+	else if (ft_strcmp3(ms->cmd->name, "env"))
+		return (ret = msh_env(ms));
+	else if (ft_strcmp3(ms->cmd->name, "exit"))
+		return (ret = msh_exit(ms));
+	else
+		return (ret = msh_launch(ms));
+}
+
+char	*get_next_line(char *command)
+{
+	char		buf[2];
+	char		*cpy;
+
+	buf[0] = ' ';
+	buf[1] = '\0';
+	while (buf[0] != '\n' && buf[0] == ' ')
+	{
+		if (!(read(0, buf, 1)))
+			if (write(1, "exit\n", 5))
+				exit(EXIT_SUCCESS);
+	}
+	if (!command)
+		command = ft_strdup("");
+	while (buf[0] != '\n')
+	{
+		if (!(cpy = ft_strdup(command)))
+			return (NULL);
+		free(command);
+		if (!(command = ft_strjoin(cpy, buf)))
+			return (NULL);
+		free(cpy);
+		//while (!(read(0, buf, 1)))
+		if (!(read(0, buf, 1)))
+			if (write(1, " \b", 2) < 0)
+				return (NULL);
+	}
+	return (command);
+}
+
+void signal_handler(int hz)
+{
+	//signal(SIG_DFL, signal_handler);
+	if (write(1, "\b\b  \n", 5) < 0)
+		return ;
+	start_ms();
+
+	/*if (kill(g_pid, SIGTERM) < 0)
+		exit(-1);
+	if (!(g_pid = fork()))
+		start_ms();
+	else
+		signal(SIGINT, signal_handler);*/
+}
+
+int msh_loop(t_ms *ms)
+{
+	ft_putstr_fd("minishell-1.0$ ", 1);
+	//get_next_line(&ms->line);
+	ms->line = NULL;
+	ms->line = get_next_line(ms->line);
+	if (ms->line && *ms->line && tms_lineparse(ms))
+	{
+		while (ms->cmd)
+		{
+			if (ms->cmd->name)// && !msh_execute(ms, p))
+			{
+				ms->cmd->fd = msh_set_fd(ms);
+				msh_execute(ms);
+				if (!ms->cmd->pipe && ms->cmd->fd > 2)
+					close(ms->cmd->fd);
+			}
+				
+			if (!ms->cmd->next)
+				break ;
+			ms->cmd = ms->cmd->next;
+		}
+	}
+	free(ms->line);
+	ms->line = NULL;
+	tcmd_free(ms);
+	//ret 0 for signals exit
+	return (1);
+}
+
 void ft_error(char *name, char *arg, char *error)
 {
 	ft_putstr_fd("minishell: ", 2);
@@ -350,19 +401,66 @@ void ft_error(char *name, char *arg, char *error)
 	ft_putendl_fd(error, 2);
 }
 
+int start_ms()
+{
+	//pid_t wpid;
+	//int status;
+
+	signal(SIGINT, signal_handler);
+	while (msh_loop(&g_ms))
+		NULL;
+
+	return (0);
+}
+
+/*void copy_envp(char **env)
+{
+	int i;
+	//char *ptr;
+
+	printf("imhere \n");
+	i = 0;
+	//ptr = *env;
+	while (*env)
+	{
+		env++;
+		i++;
+	}
+	printf("i = %d \n", i);
+	g_envp = charxx_alloc(i); //memory allocation fail
+	i = 0;
+	while (env[i])
+	{
+		g_envp[i] = ft_strdup(env[i]);
+		printf("g_env = %s \n", g_envp[i]);
+		i++;
+	}
+}*/
+
 int main(int argc, char **argv, char **envp)
 {
+
+	pid_t wpid;
+	int status;
 	// Загрузка файлов конфигурации при их наличии.
 
 	// Запуск цикла команд.
-	t_ms ms;
+	//t_ms ms;
 
-	ms = tms_init();
-	tenv_set(&ms, envp);
-	while (msh_loop(&ms))
-		NULL;
+	g_ms = tms_init();
+	tenv_set(&g_ms, envp);
+	start_ms();
+	//copy_envp(envp);
+
+	/*if (!(g_pid = fork()))
+		start_ms();
+	else
+		signal(SIGINT, signal_handler);
+	while ((wpid = wait(&status)) > 0)
+		NULL;*/
 
 	// Выключение / очистка памяти.
 
+//если не делать fork и kill, а стирать символы и чистить структуру?
 	return EXIT_SUCCESS;
 }
