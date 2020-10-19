@@ -154,7 +154,13 @@ int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 	else if (pid < 0)
 		ft_error1(1, ex, "failed to fork"); //нужна ли эта ошибка?
 	else
+	{
+		signal(SIGINT, SIG_IGN);
+		signal(SIGQUIT, SIG_IGN);
 		wait(&pid);
+	}
+	signal(SIGINT, signal_handler);
+	signal(SIGQUIT, do_nothing);
 	return (1);
 }
 

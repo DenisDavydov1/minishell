@@ -1,6 +1,6 @@
 #include "minishell.h"
 
-void check_home(t_ms *ms, char *home)
+/*void check_home(t_ms *ms, char *home)
 {
 	if (home)
 	{
@@ -10,7 +10,7 @@ void check_home(t_ms *ms, char *home)
 			ms->home = ft_strdup(home);
 		}
 	}
-}
+}*/
 
 void replace_pwd(t_ms *ms)
 {
@@ -40,15 +40,15 @@ int msh_cd(t_ms *ms)
 
 	tmp = ms->cmd->arg;
 	home = find_in_env(ms, "HOME");
-	check_home(ms, home);
+	//check_home(ms, home);
 	if (tmp && *tmp)
 	{
-		if (!(ft_strcmp(*tmp, "~")))
+		/*if (!(ft_strcmp(*tmp, "~")))
 		{
 			if (chdir(ms->home) != 0)
 				ft_error(ms->cmd->name, ms->home, strerror(errno));
-		}	
-		else if (chdir(*tmp) != 0)
+		}	*/
+		if (chdir(*tmp) != 0)
 			ft_error(ms->cmd->name, *tmp, strerror(errno));
 	}
 	else

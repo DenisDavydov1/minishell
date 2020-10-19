@@ -16,7 +16,7 @@
 //int msh_minishell(char **args, t_ms *ms);
 
 char **g_envp;
-t_ms g_ms;
+//t_ms g_ms;
 pid_t g_pid;
 
 int ft_strcmp1(char *s1, char *s2) //заменить на либу?
@@ -334,30 +334,54 @@ char	*get_next_line(char *command)
 		free(cpy);
 		//while (!(read(0, buf, 1)))
 		if (!(read(0, buf, 1)))
-			if (write(1, " \b", 2) < 0)
-				return (NULL);
+			return (NULL);
+			//if (write(1, " \b", 2) < 0)
+			//	return (NULL);
 	}
 	return (command);
 }
 
-void signal_handler(int hz)
+/*void signal_handler(int hz)
 {
 	//signal(SIG_DFL, signal_handler);
 	if (write(1, "\b\b  \n", 5) < 0)
 		return ;
 	start_ms();
 
-	/*if (kill(g_pid, SIGTERM) < 0)
+	if (kill(g_pid, SIGTERM) < 0)
 		exit(-1);
 	if (!(g_pid = fork()))
 		start_ms();
 	else
-		signal(SIGINT, signal_handler);*/
+		signal(SIGINT, signal_handler);
+}*/
+
+void display_prompt_msg()
+{
+	write(1, "minishell-1.0$ ", 16);
+}
+
+void	signal_handler(int signo)
+{
+	//if (signo == SIGINT)
+	//{
+
+		if (write(1, "\b\b  \n", 5) < 0)
+			return ;
+		//write(1, "\n", 1);
+		//write(1, "\nminishell-1.0$ ", 16);
+		//ft_putstr_fd("minishell-1.0$ ", 1);
+		//while (write(1, "\b", 1) > 0)
+		//	;
+		//write(1, "\b\b", 6);
+		display_prompt_msg();
+		signal(SIGINT, signal_handler);
+	//}
 }
 
 int msh_loop(t_ms *ms)
 {
-	ft_putstr_fd("minishell-1.0$ ", 1);
+	write(1, "minishell-1.0$ ", 15);
 	//get_next_line(&ms->line);
 	ms->line = NULL;
 	ms->line = get_next_line(ms->line);
@@ -401,19 +425,19 @@ void ft_error(char *name, char *arg, char *error)
 	ft_putendl_fd(error, 2);
 }
 
-int start_ms()
+/*int start_ms()
 {
 	//pid_t wpid;
 	//int status;
 
-	signal(SIGINT, signal_handler);
+	//signal(SIGINT, signal_handler);
 	while (msh_loop(&g_ms))
 		NULL;
 
 	return (0);
-}
+}*/
 
-/*void copy_envp(char **env)
+void copy_envp(char **env)
 {
 	int i;
 	//char *ptr;
@@ -435,7 +459,16 @@ int start_ms()
 		printf("g_env = %s \n", g_envp[i]);
 		i++;
 	}
-}*/
+}
+
+void	do_nothing(int nb)
+{
+	//(void)nb;
+	//if (write(1, " \b\b \b", 5) < 0)
+	if (write(1, "\b\b  \b\b", 6) < 0)
+		return ;
+	return ;
+}
 
 int main(int argc, char **argv, char **envp)
 {
@@ -445,14 +478,18 @@ int main(int argc, char **argv, char **envp)
 	// Загрузка файлов конфигурации при их наличии.
 
 	// Запуск цикла команд.
-	//t_ms ms;
+	t_ms ms;
 
-	g_ms = tms_init();
-	tenv_set(&g_ms, envp);
-	start_ms();
-	//copy_envp(envp);
+	ms = tms_init();
+	tenv_set(&ms, envp);
+	signal(SIGINT, signal_handler);
+	signal(SIGQUIT, do_nothing);
+	while (msh_loop(&ms))
+		NULL;
+	//start_ms();
+	/*copy_envp(envp);
 
-	/*if (!(g_pid = fork()))
+	if (!(g_pid = fork()))
 		start_ms();
 	else
 		signal(SIGINT, signal_handler);
