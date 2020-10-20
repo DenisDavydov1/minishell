@@ -20,6 +20,7 @@
 # define PERMISSIONERR ": Permission denied"
 # define CDERR ": No such file or directory"
 # define ISADIRERR ": is a directory" //сложно обработать
+# define PIPEERR ": pipe error"
 
 
 # define SET " <>;|"
@@ -34,6 +35,7 @@ typedef struct		s_cmd
 	int				write; // 0 - write to stdout, 1 - write to file, 2 - append to file
 	int				fd;
 	char			*file; // write result of command to this file
+	int				pfd[2];
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }					t_cmd;
@@ -112,5 +114,8 @@ void sigquit_handler(int sn);
 
 char **split_replace_quotes(char **s, t_ms *ms);
 char *e_itoa(int n);
+
+void tcmd_print(t_cmd *cmd);
+void close_pfd(t_ms *ms);
 
 #endif

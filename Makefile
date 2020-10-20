@@ -48,7 +48,7 @@ $(OBJ_DIR):
 	@echo "$(OBJ_DIR) created"
 
 $(OBJ_DIR)%.o : $(SRC_DIR)%.c $(HDR) $(LIBFT)
-	@$(CC) $(FLAGS) -c $< $(INCLUDE)
+	@$(CC) $(FLAGS) -g -c $< $(INCLUDE)
 	@mv *.o $(OBJ_DIR)
 
 $(LIBFT): $(LIBFT_OBJ)

@@ -48,11 +48,11 @@
 int throw_error(char *errtype, t_ms *ms)
 {
 	ft_putstr_fd("minishell: ", 2);
-	if (!ft_strcmp(errtype, MEMALLOC))
+	if (!ft_strcmp(errtype, MEMALLOC) || !ft_strcmp(errtype, PIPEERR))
 	{
 		ft_putendl_fd(errtype, 2);
 		exit(EXIT_FAILURE);
-	}	
+	}
 	else if (!ft_strcmp(errtype, PARSEERR))
 	{
 		ft_putendl_fd(PARSEERR, 2);

@@ -292,7 +292,6 @@ int msh_execute(t_ms *ms)
 	int ret;
 	
 	ret = 1;
-	
 	if (ft_strcmp3(ms->cmd->name, "echo"))
 		return (ret = msh_echo(ms));
 	else if (ft_strcmp3(ms->cmd->name, "cd"))
@@ -348,6 +347,17 @@ char	*get_next_line(char *command)
 	write(1, "minishell-1.0$ ", 16);
 }*/
 
+void msh_set_pfd(t_ms *ms)
+{
+	if (ms->cmd->pipe)
+	{
+		if (pipe(ms->cmd->pfd) == -1)
+			throw_error(PIPEERR, NULL);
+		if (ms->cmd->fd < 3)
+			ms->cmd->fd = ms->cmd->pfd[1];
+	}
+}
+
 int msh_loop(t_ms *ms)
 {
 	write(1, "minishell-1.0$ ", 15);
@@ -356,16 +366,20 @@ int msh_loop(t_ms *ms)
 	ms->line = get_next_line(ms->line);
 	if (ms->line && *ms->line && tms_lineparse(ms))
 	{
-		
+		tcmd_print(ms->cmd);
 		while (ms->cmd)
 		{
 			tcmd_parse_quotes(ms);
 			if (ms->cmd->name)// && !msh_execute(ms, p))
 			{
+				//printf("cmd name: %s\n", ms->cmd->name);
 				ms->cmd->fd = msh_set_fd(ms);
+				msh_set_pfd(ms);
 				msh_execute(ms);
-				if (!ms->cmd->pipe && ms->cmd->fd > 2)
-					close(ms->cmd->fd);
+				close_pfd(ms);
+				//if (!ms->cmd->pipe && ms->cmd->fd > 2)
+				//if (ms->cmd->fd > 2)
+				//	close(ms->cmd->fd);
 			}
 				
 			if (!ms->cmd->next)

@@ -125,14 +125,43 @@ void	ft_error1(int err, char *exe, char *msg)
 	return (exit(err));
 }
 
+void close_pfd(t_ms *ms)
+{
+	if (ms->cmd->pipe)
+		close(ms->cmd->pfd[1]);
+	if (ms->cmd->prev && ms->cmd->prev->pipe)
+		close(ms->cmd->prev->pfd[0]);
+	if (ms->cmd->fd > 2)
+		close(ms->cmd->fd);
+}
 int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 {
 	pid_t	pid;
 	DIR *dir;
+	//int tmp_fd;
 
 	pid = fork();
 	if (pid == 0)
 	{
+		if (ms->cmd->write > 0)
+		{
+			dup2(ms->cmd->fd, 1);
+		}
+		else if (ms->cmd->pipe)
+		{
+			dup2(ms->cmd->pfd[1], 1);
+		}
+		if (ms->cmd->prev && ms->cmd->prev->pipe)
+		{
+			dup2(ms->cmd->prev->pfd[0], 0);
+			/*if (ms->cmd->pipe)
+			{
+				dup2(ms->cmd->pfd[1], 1);
+			}*/
+		}
+		//dup2(ms->cmd->pfd[0], 0);
+		//dup2(ms->cmd->pfd[1], 1);
+		//printf("%d\n", pid);
 		if (execve(ex, args, env) == -1)
 		{
 			if (ft_strcmp2(ex, "./", 2))
@@ -150,6 +179,7 @@ int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 			else
 				throw_error(CMDNFERR, ms);
 		}
+		
 	}
 	else if (pid < 0)
 		ft_error1(1, ex, "failed to fork"); //нужна ли эта ошибка?
@@ -158,7 +188,13 @@ int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 		signal(SIGINT, SIG_IGN);
 		signal(SIGQUIT, SIG_IGN);
 		wait(&pid);
-	}
+		close_pfd(ms);
+		/*if (ms->cmd->pipe)
+			close(ms->cmd->pfd[1]);
+		if (ms->cmd->prev && ms->cmd->prev->pipe)
+			close(ms->cmd->prev->pfd[0]); */
+	} 
+	
 	signal(SIGINT, sigint_handler);
 	signal(SIGQUIT, sigquit_handler);
 	//printf("status = %d \n", WEXITSTATUS(pid));

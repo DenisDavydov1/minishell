@@ -147,6 +147,8 @@ t_cmd *tcmd_init(t_ms *ms)
 	cmd->write = 0;
 	cmd->fd = 1;
 	cmd->file = NULL;
+	cmd->pfd[0] = 0;
+	cmd->pfd[1] = 1;
 	cmd->next = NULL;
 	cmd->prev = ms->cmd;
 	if (ms->cmd)
@@ -171,6 +173,8 @@ t_cmd *tcmd_insert(t_cmd *to)
 	cmd->write = 0;
 	cmd->fd = 1;
 	cmd->file = NULL;
+	cmd->pfd[0] = 0;
+	cmd->pfd[1] = 1;
 	cmd->prev = NULL;
 	cmd->next = NULL;
 	if (to->next)
@@ -830,9 +834,9 @@ void tcmd_put_args_to_cmd(t_ms *ms)
 			}
 			if (ptr == ptr_last)
 				break ;
-			ptr = ptr->next;
+			ptr = ptr ? ptr->next : ptr;
 		}
-		ptr = ptr->next;
+		ptr = ptr ? ptr->next : ptr;
 	}
 }
 
@@ -1055,7 +1059,8 @@ void tcmd_open_create_files(t_ms *ms)
 	{
 		if (ptr->name && !ft_strcmp(ptr->name, "<") && ptr->arg && *ptr->arg)
 		{
-			if ((fd = open(*ptr->arg, O_RDONLY) < 0))
+			fd = open(*ptr->arg, O_RDONLY);
+			if (fd < 0)
 				tcmd_set_echo_err(ms, ptr, CDERR);
 			else
 				close(fd);
@@ -1064,7 +1069,8 @@ void tcmd_open_create_files(t_ms *ms)
 			!ft_strcmp(ptr->name, ">>") || !ft_strcmp(ptr->name, "<>")) && \
 			ptr->arg && *ptr->arg)
 		{
-			if ((fd = open(*ptr->arg, O_CREAT, 0644) < 0))
+			fd = open(*ptr->arg, O_CREAT, 0644);
+			if (fd < 0)
 				tcmd_set_echo_err(ms, ptr, CDERR);
 			else
 				close(fd);
@@ -1072,6 +1078,41 @@ void tcmd_open_create_files(t_ms *ms)
 		ptr = ptr->next;
 	}
 }
+
+/*
+void tcmd_open_create_files(t_ms *ms)
+{
+	t_cmd *ptr;
+	int fd;
+
+	ptr = tcmd_gotofirst(ms->cmd);
+	while (ptr)
+	{
+		if (ptr->name && !ft_strcmp(ptr->name, "<") && ptr->arg && *ptr->arg)
+		{
+			if ((fd = open(*ptr->arg, O_RDONLY) < 0))
+				tcmd_set_echo_err(ms, ptr, CDERR);
+			else
+			{
+				printf("file closed\n");
+				close(fd);
+			}	
+		}
+		else if (ptr->name && (!ft_strcmp(ptr->name, ">") || \
+			!ft_strcmp(ptr->name, ">>") || !ft_strcmp(ptr->name, "<>")) && \
+			ptr->arg && *ptr->arg)
+		{
+			if ((fd = open(*ptr->arg, O_CREAT, 0644) < 0))
+				tcmd_set_echo_err(ms, ptr, CDERR);
+			else
+			{
+				printf("file closed\n");
+				close(fd);
+			}
+		}
+		ptr = ptr->next;
+	}
+}*/
 
 void tcmd_remove_signs(t_ms *ms)
 {
@@ -1338,11 +1379,11 @@ int main(int argc, char **argv, char **env)
 
 	//ms.line = ft_strdup("echo \"$PATH  uuu\" 'aaa   aaa' bbb \"'123  456'\" | ec\"$c$o\" \"-la\" azaza < g >> t > g");
 	//ms.line = ft_strdup("echo '$PATH     uuu'");
-	ms.line = ft_strdup("echo <> y > p >>u;<q<>w;echo kkkk >z <c; <>o");
+	ms.line = ft_strdup("echo aa > a");
 	tms_lineparse(&ms);
 	
 	
-	//tcmd_print(ms.cmd);
+	tcmd_print(ms.cmd);
 
 	exit(EXIT_SUCCESS);
 	return (0);

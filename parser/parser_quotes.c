@@ -104,6 +104,7 @@ char *parse_quotes(char *s, t_ms *ms)
 	char *tmp;
 	char *res;
 
+	//printf("before: >%s< ", s);
 	out = e_strdup("");
 	i = 0;
 	while (s[i])
@@ -121,6 +122,7 @@ char *parse_quotes(char *s, t_ms *ms)
 		i++;
 	}
 	free(s);
+	//printf("after: >%s< \n", out);
 	return (out);
 }
 
@@ -131,7 +133,9 @@ void tcmd_parse_quotes(t_ms *ms)
 	int i;
 	
 	p = ms->cmd;
+	printf("before: >%s< ", p->name);
 	p->name = p->name ? parse_quotes(p->name, ms) : p->name;
+	printf("after: >%s< \n", p->name);
 	i = -1;
 	while (p->flag && p->flag[++i])
 		p->flag[i] = parse_quotes(p->flag[i], ms);
