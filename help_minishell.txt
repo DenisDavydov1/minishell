@@ -121,6 +121,8 @@ minishell-1.0$ echo $?
 minishell-1.0$ pwd
 /var/folders/_l/v92340452ys72vby75f767bc0000gn/T/
 
+После ctrl + V не работает ctrl + C
+
 
 
  # | Expression  | Result      | Comments

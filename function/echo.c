@@ -38,7 +38,7 @@ int msh_echo(t_ms *ms)
 
 	flag = ms->cmd->flag;
 	arg = ms->cmd->arg;
-	if (flag && *flag && ft_strcmp1(*flag, "-n"))
+	if (flag && *flag && (!ft_strcmp(*flag, "-n")))
 		echo_write(ms);
 	else
 	{

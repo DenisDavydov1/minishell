@@ -20,7 +20,7 @@ HDR_LIST = minishell.h
 HDR = $(addprefix $(HDR_DIR), $(HDR_LIST))
 
 SRC_DIR = ./#src/
-SRC_LIST = main.c parser.c error_handling.c function/cd.c function/exit.c \
+SRC_LIST = main.c parser.c error_handling.c signal_handler.c init.c function/cd.c function/exit.c \
 function/env.c function/export.c function/export_utils.c function/echo.c function/pwd.c \
 function/unset.c function/launch_function.c parser/parser_quotes.c
 SRC = $(addprefix $(SRC_DIR), $(SRC_LIST))

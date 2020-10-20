@@ -9,7 +9,7 @@ void delete_from_env(t_ms *ms, char *s)
 	prev = tmp;
 	while (tmp)
 	{
-		if (ft_strcmp1(tmp->name, s))
+		if (!ft_strcmp(tmp->name, s))
 		{
 			if (prev == tmp)
 				ms->env = tmp->next;

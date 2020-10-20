@@ -19,7 +19,7 @@
 //t_ms g_ms;
 //pid_t g_pid;
 
-int ft_strcmp1(char *s1, char *s2) //заменить на либу?
+/*int ft_strcmp1(char *s1, char *s2) //заменить на либу?
 {
 	int i;
 
@@ -36,7 +36,7 @@ int ft_strcmp1(char *s1, char *s2) //заменить на либу?
 	if (s1[i] != s2[i])
 		return (0);
 	return (1);
-}
+}*/
 
 int ft_strcmp2(char *s1, char *s2, int count) //strncmp?
 {
@@ -203,7 +203,7 @@ int msh_loop(t_ms *ms)
 }
 */
 
-t_env *tenv_init(char *name, char *value)
+/*t_env *tenv_init(char *name, char *value)
 {
 	t_env *env;
 
@@ -263,7 +263,7 @@ void tenv_print(t_env *env)
 		i++;
 		env = env->next;
 	}
-}
+} */
 
 int msh_set_fd(t_ms *ms)
 {
@@ -343,10 +343,10 @@ char	*get_next_line(char *command)
 	return (command);
 }
 
-void display_prompt_msg()
+/*void display_prompt_msg()
 {
 	write(1, "minishell-1.0$ ", 16);
-}
+}*/
 
 int msh_loop(t_ms *ms)
 {
@@ -397,7 +397,7 @@ void ft_error(char *name, char *arg, char *error, t_ms *ms)
 	ms->ret = 1;
 }
 
-void	sigint_handler(int sn)
+/*void	sigint_handler(int sn)
 {
 	if (write(1, "\b\b  \n", 5) < 0)
 		return ;
@@ -410,7 +410,7 @@ void	sigquit_handler(int nb)
 	if (write(1, "\b\b  \b\b", 6) < 0)
 		return ;
 	return ;
-}
+}*/
 
 int main(int argc, char **argv, char **envp)
 {

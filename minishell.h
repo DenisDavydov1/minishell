@@ -77,6 +77,7 @@ t_cmd *tcmd_init(t_ms *ms);
 t_cmd *tcmd_gotofirst(t_cmd *cmd);
 int tms_lineparse(t_ms *ms);
 
+void tenv_set(t_ms *ms, char **envp);
 void tenv_print(t_env *env);
 
 //add function
