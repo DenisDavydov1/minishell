@@ -102,7 +102,7 @@ void charxx_swap(char **s1, char **s2);
 void export_print(char **s, t_ms *ms);
 
 void tcmd_free(t_ms *ms);
-void ft_error(char *name, char *arg, char *error, t_ms *ms);
+int ft_error(char *name, char *arg, char *error, t_ms *ms);
 int check_env_name(t_ms *ms, char *s);
 
 

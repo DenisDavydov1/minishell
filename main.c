@@ -380,7 +380,7 @@ int msh_loop(t_ms *ms)
 	return (1);
 }
 
-void ft_error(char *name, char *arg, char *error, t_ms *ms)
+int ft_error(char *name, char *arg, char *error, t_ms *ms)
 {
 	ft_putstr_fd("minishell: ", 2);
 	if (name)
@@ -395,6 +395,7 @@ void ft_error(char *name, char *arg, char *error, t_ms *ms)
 	}
 	ft_putendl_fd(error, 2);
 	ms->ret = 1;
+	return (0);
 }
 
 /*void	sigint_handler(int sn)
@@ -415,8 +416,8 @@ void	sigquit_handler(int nb)
 int main(int argc, char **argv, char **envp)
 {
 
-	pid_t wpid;
-	int status;
+	//pid_t wpid;
+	//int status;
 	// Загрузка файлов конфигурации при их наличии.
 
 	// Запуск цикла команд.
