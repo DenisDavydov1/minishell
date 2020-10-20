@@ -5,8 +5,8 @@ int msh_pwd(t_ms *ms)
 	char *s;
 
 	s = find_in_env(ms, "PWD");
-	write(1, s, ft_strlen(s));
-	write(1, "\n", 1);
+	write(ms->cmd->fd, s, ft_strlen(s));
+	write(ms->cmd->fd, "\n", 1);
 	ms->ret = 0;
 	return (1);
 }

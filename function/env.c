@@ -9,10 +9,10 @@ int msh_env(t_ms *ms)
 	{
 		if (tmp->value)
 		{
-			write(1, tmp->name, ft_strlen(tmp->name));
-			write(1, "=", 1);
-			write(1, tmp->value, ft_strlen(tmp->value));
-			write(1, "\n", 1);
+			write(ms->cmd->fd, tmp->name, ft_strlen(tmp->name));
+			write(ms->cmd->fd, "=", 1);
+			write(ms->cmd->fd, tmp->value, ft_strlen(tmp->value));
+			write(ms->cmd->fd, "\n", 1);
 		}
 		tmp = tmp->next;
 	}
