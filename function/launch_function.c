@@ -237,7 +237,8 @@ int msh_launch(t_ms *ms)
 	envp = tenv_to_envp(ms->env);
 	execute_ps(full_path, argv, envp, ms);
 
-	free(full_path);
+	if (ft_strcmp(full_path, ms->cmd->name))
+		free(full_path);
 	charxx_free(argv);
 	charxx_free(envp);
 	return (1);
