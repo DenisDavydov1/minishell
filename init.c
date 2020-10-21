@@ -7,15 +7,15 @@ t_env *tenv_init(char *name, char *value)
 	env = (t_env *)e_malloc(sizeof(t_env));
 	if (!(ft_strcmp(name, "OLDPWD")))
 	{
-		env->name = name;
+		env->name = e_strdup(name);
 		env->value = NULL;
 		env->next = NULL;
-		free(value);
+		//free(value);
 	}
 	else
 	{
-		env->name = name;
-		env->value = value;
+		env->name = e_strdup(name);
+		env->value = e_strdup(value);
 		env->next = NULL;
 	}
 	return (env);
@@ -40,7 +40,8 @@ void tenv_set(t_ms *ms, char **envp)
 			e->next = tenv_init(split[0], split[1]);
 			e = e->next;
 		}
-		free(split);
+		//free(split);
+		charxx_free(split);
 		envp++;
 	}
 	ms->path = e_split(find_in_env(ms, "PATH"), ':');

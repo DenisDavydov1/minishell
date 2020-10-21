@@ -38,7 +38,7 @@
 	return (1);
 }*/
 
-/*int ft_strcmp2(char *s1, char *s2, int count) //strncmp?
+int ft_strcmp2(char *s1, char *s2, int count) //strncmp?
 {
 	int i;
 
@@ -53,7 +53,7 @@
 		}
 	}
 	return (1);
-}*/
+}
 
 int ft_strcmp3(char *s1, char *s2)
 {
@@ -81,6 +81,20 @@ int ft_strcmp3(char *s1, char *s2)
 		return (0);
 	return (1);
 }
+/*
+char *find_in_env(t_ms *ms, char *s)
+{
+	t_env *tmp;
+
+	tmp = ms->env;
+	while (tmp)
+	{
+		if (ft_strcmp2(tmp->name, s, ft_strlen(s)))
+			return(tmp->value);
+		tmp = tmp->next;
+	}
+	return (NULL);
+}*/
 
 char *find_in_env(t_ms *ms, char *s)
 {
@@ -89,7 +103,6 @@ char *find_in_env(t_ms *ms, char *s)
 	tmp = ms->env;
 	while (tmp)
 	{
-		//if (ft_strcmp2(tmp->name, s, ft_strlen(s)))
 		if (!ft_strcmp(tmp->name, s))
 			return(tmp->value);
 		tmp = tmp->next;
@@ -105,8 +118,7 @@ int find_and_replace_env(t_ms *ms, char *name, char *value)
 	tmp = ms->env;
 	while (tmp)
 	{
-		//if (ft_strcmp2(tmp->name, name, ft_strlen(name)))
-		if (!ft_strcmp(tmp->name, name))
+		if (ft_strcmp2(tmp->name, name, ft_strlen(name)))
 		{
 			old_value = tmp->value;
 			tmp->value = value;

@@ -68,6 +68,6 @@ int throw_error(char *errtype, t_ms *ms)
 		else if (!ft_strcmp(errtype, ISADIRERR) || !ft_strcmp(errtype, PERMISSIONERR))
 			exit(126);
 	}
-	return (0);
+	return (1);
 }
 

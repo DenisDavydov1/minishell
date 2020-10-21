@@ -20,10 +20,11 @@ char *parse_dollar_sign(char *s, int *i, t_ms *ms)
 		return (e_itoa(ms->ret));
 	while (s[*i] && !in_set(s[*i], QUOTES) && !in_set(s[*i], SET) && s[*i] != '$')
 		(*i)++;
-	(*i)--;
 	name = e_substr(s, start, *i - start); //mb *i - 1
 	value = find_in_env(ms, name);
+	//printf("value: %s\n", value ? value : "NULL");
 	free(name);
+	(*i)--;
 	return (value ? e_strdup(value) : e_strdup(""));
 }
 
