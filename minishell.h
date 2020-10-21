@@ -98,7 +98,7 @@ int ft_strcmp1(char *s1, char *s2);
 char *find_in_env(t_ms *ms, char *s);
 int find_and_replace_env(t_ms *ms, char *name, char *value);
 int add_in_env(t_ms *ms, char *s);
-void delete_from_env(t_ms *ms, char *s);
+//void delete_from_env(t_ms *ms, char *s);
 int tenv_len(t_env *env);
 void charxx_swap(char **s1, char **s2);
 void export_print(char **s, t_ms *ms);
@@ -117,5 +117,11 @@ char *e_itoa(int n);
 
 void tcmd_print(t_cmd *cmd);
 void close_pfd(t_ms *ms);
+
+int msh_set_fd(t_ms *ms);
+void msh_set_pfd(t_ms *ms);
+char	*get_next_line(char *command);
+int	count_arg(t_ms *ms);
+int ft_strcmp_reg(char *s1, char *s2);
 
 #endif

@@ -1,18 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   cd.c                                               :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/10/21 22:57:54 by odhazzar          #+#    #+#             */
+/*   Updated: 2020/10/21 23:10:20 by odhazzar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-/*void check_home(t_ms *ms, char *home)
-{
-	if (home)
-	{
-		if (ft_strcmp(home, ms->home))
-		{
-			free(ms->home);
-			ms->home = ft_strdup(home);
-		}
-	}
-}*/
-
-void replace_pwd(t_ms *ms)
+static void	replace_pwd(t_ms *ms)
 {
 	t_env *tmp;
 	t_env *pwd;
@@ -30,10 +30,10 @@ void replace_pwd(t_ms *ms)
 	free(old_pwd->value);
 	old_pwd->value = pwd->value;
 	pwd->value = NULL;
-	pwd->value = getcwd(pwd->value, 0); //убрать эту функцию и передавать путь вручную (косяк с регистром)?
+	pwd->value = getcwd(pwd->value, 0);
 }
 
-int msh_cd(t_ms *ms)
+int			msh_cd(t_ms *ms)
 {
 	char **tmp;
 	char *home;
@@ -41,14 +41,8 @@ int msh_cd(t_ms *ms)
 	tmp = ms->cmd->arg;
 	ms->ret = 0;
 	home = find_in_env(ms, "HOME");
-	//check_home(ms, home);
 	if (tmp && *tmp)
 	{
-		/*if (!(ft_strcmp(*tmp, "~")))
-		{
-			if (chdir(ms->home) != 0)
-				ft_error(ms->cmd->name, ms->home, strerror(errno));
-		}	*/
 		if (!(ft_strcmp(*tmp, "-")))
 		{
 			if (chdir(find_in_env(ms, "OLDPWD")) != 0)
@@ -65,5 +59,5 @@ int msh_cd(t_ms *ms)
 			return (ft_error(ms->cmd->name, *tmp, strerror(errno), ms));
 	}
 	replace_pwd(ms);
-	return 1;
+	return (1);
 }

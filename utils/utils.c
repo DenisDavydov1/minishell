@@ -1,22 +1,36 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   exit.c                                             :+:      :+:    :+:   */
+/*   utils.c                                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/10/21 23:01:10 by odhazzar          #+#    #+#             */
-/*   Updated: 2020/10/21 23:08:39 by odhazzar         ###   ########.fr       */
+/*   Created: 2020/10/21 23:39:26 by odhazzar          #+#    #+#             */
+/*   Updated: 2020/10/21 23:52:38 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-static int	count_args(char **arg)
+int	count_arg(t_ms *ms)
 {
-	int i;
+	int		i;
+	char	**flag;
+	char	**arg;
 
 	i = 0;
+	flag = ms->cmd->flag;
+	arg = ms->cmd->arg;
+	if (ms->cmd->name)
+		i++;
+	if (flag && *flag)
+	{
+		while (*flag)
+		{
+			i++;
+			flag++;
+		}
+	}
 	if (arg && *arg)
 	{
 		while (*arg)
@@ -28,40 +42,29 @@ static int	count_args(char **arg)
 	return (i);
 }
 
-static int	check_arg(char *s)
+int	ft_strcmp_reg(char *s1, char *s2)
 {
-	while (*s)
-	{
-		if (ft_isdigit(*s))
-			s++;
-		else
-			return (0);
-	}
-	return (1);
-}
+	int i;
 
-int			msh_exit(t_ms *ms)
-{
-	char **tmp;
-
-	tmp = ms->cmd->arg;
-	ms->ret = 0;
-	ft_putendl_fd("exit", 1);
-	if (tmp && *tmp)
+	i = 0;
+	if (s1 && s2)
 	{
-		if (!check_arg(*tmp))
+		while (s1[i])
 		{
-			ft_error(ms->cmd->name, *tmp, "numeric argument required", ms);
-			exit(255);
-		}
-		else
-		{
-			if (count_args(tmp) > 1)
-				return (ft_error(ms->cmd->name, NULL,
-				"too many arguments", ms));
+			if (s1[i] > 64 && s1[i] < 91)
+			{
+				if (s1[i] != s2[i] + 32)
+					return (0);
+			}
 			else
-				exit(ft_atoi(*tmp));
+			{
+				if (s1[i] != s2[i])
+					return (0);
+			}
+			i++;
 		}
 	}
-	exit(0);
+	if (s1[i] != s2[i])
+		return (0);
+	return (1);
 }

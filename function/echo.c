@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   echo.c                                             :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/10/21 22:59:37 by odhazzar          #+#    #+#             */
+/*   Updated: 2020/10/21 23:10:41 by odhazzar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void echo_write(t_ms *ms)
+static void	echo_write(t_ms *ms)
 {
 	char **arg;
 	char *s;
@@ -11,18 +23,6 @@ void echo_write(t_ms *ms)
 	{
 		while (*arg)
 		{
-			/*if (**arg == '$')
-			{
-				if (ft_strlen(*arg) > 1)
-				{
-					s = find_in_env(ms, *arg + 1);
-					if (s)
-						write(ms->cmd->fd, s, ft_strlen(s));
-				}
-				else
-					write(ms->cmd->fd, "$", 1);
-			}
-			else*/
 			write(ms->cmd->fd, *arg, ft_strlen(*arg));
 			arg++;
 			if (*arg)
@@ -31,7 +31,7 @@ void echo_write(t_ms *ms)
 	}
 }
 
-int msh_echo(t_ms *ms)
+int			msh_echo(t_ms *ms)
 {
 	char **flag;
 	char **arg;

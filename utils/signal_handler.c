@@ -1,33 +1,28 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   signal_handler.c                                   :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/10/21 23:00:30 by odhazzar          #+#    #+#             */
-/*   Updated: 2020/10/21 23:00:53 by odhazzar         ###   ########.fr       */
+/*   Created: 2020/10/21 22:51:58 by odhazzar          #+#    #+#             */
+/*   Updated: 2020/10/21 23:51:40 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	msh_env(t_ms *ms)
+void	sigint_handler(int sn)
 {
-	t_env *tmp;
+	if (write(1, "\b\b  \n", 5) < 0)
+		return ;
+	write(1, "minishell-1.0$ ", 15);
+	signal(SIGINT, sigint_handler);
+}
 
-	tmp = ms->env;
-	while (tmp && tmp->name)
-	{
-		if (tmp->value)
-		{
-			write(ms->cmd->fd, tmp->name, ft_strlen(tmp->name));
-			write(ms->cmd->fd, "=", 1);
-			write(ms->cmd->fd, tmp->value, ft_strlen(tmp->value));
-			write(ms->cmd->fd, "\n", 1);
-		}
-		tmp = tmp->next;
-	}
-	ms->ret = 0;
-	return (1);
+void	sigquit_handler(int sn)
+{
+	if (write(1, "\b\b  \b\b", 6) < 0)
+		return ;
+	return ;
 }

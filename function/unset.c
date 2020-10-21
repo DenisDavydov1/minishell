@@ -1,6 +1,18 @@
+/* ************************************************************************** */
+/*                                                                            */
+/*                                                        :::      ::::::::   */
+/*   unset.c                                            :+:      :+:    :+:   */
+/*                                                    +:+ +:+         +:+     */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
+/*                                                +#+#+#+#+#+   +#+           */
+/*   Created: 2020/10/21 23:43:13 by odhazzar          #+#    #+#             */
+/*   Updated: 2020/10/21 23:44:57 by odhazzar         ###   ########.fr       */
+/*                                                                            */
+/* ************************************************************************** */
+
 #include "minishell.h"
 
-void delete_from_env(t_ms *ms, char *s)
+static void	delete_from_env(t_ms *ms, char *s)
 {
 	t_env *tmp;
 	t_env *prev;
@@ -25,7 +37,7 @@ void delete_from_env(t_ms *ms, char *s)
 	}
 }
 
-int msh_unset(t_ms *ms)
+int			msh_unset(t_ms *ms)
 {
 	char **tmp;
 

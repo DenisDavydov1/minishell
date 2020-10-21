@@ -22,9 +22,13 @@ HDR = $(addprefix $(HDR_DIR), $(HDR_LIST))
 SRC_DIR = ./#src/
 SRC_DIR_FUNCTION = function/
 SRC_DIR_PARCER = parser/
-SRC_LIST = main.c parser.c error_handling.c signal_handler.c init.c function/cd.c function/exit.c \
-function/env.c function/export.c function/export_utils.c function/echo.c function/pwd.c \
-function/unset.c function/launch_function.c parser/parser_quotes.c
+SRC_DIR_UTILS = utils/
+SRC_LIST = main.c parser.c function/cd.c function/exit.c \
+function/env.c function/export.c function/echo.c function/pwd.c \
+function/unset.c function/launch_function.c parser/parser_quotes.c utils/env_utils.c \
+utils/errors.c utils/command_read.c utils/export_utils.c utils/signal_handler.c \
+utils/init.c utils/utils.c
+
 SRC = $(addprefix $(SRC_DIR), $(SRC_LIST))
 
 OBJ_DIR = ./obj/
@@ -49,6 +53,7 @@ $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
 	@mkdir -p $(OBJ_DIR)$(SRC_DIR_FUNCTION)
 	@mkdir -p $(OBJ_DIR)$(SRC_DIR_PARCER)
+	@mkdir -p $(OBJ_DIR)$(SRC_DIR_UTILS)
 	@echo "$(OBJ_DIR) created"
 
 $(OBJ_DIR)%.o : $(SRC_DIR)%.c $(HDR) $(LIBFT)

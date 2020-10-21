@@ -1,33 +1,48 @@
 /* ************************************************************************** */
 /*                                                                            */
 /*                                                        :::      ::::::::   */
-/*   env.c                                              :+:      :+:    :+:   */
+/*   env_utils.c                                        :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
 /*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
-/*   Created: 2020/10/21 23:00:30 by odhazzar          #+#    #+#             */
-/*   Updated: 2020/10/21 23:00:53 by odhazzar         ###   ########.fr       */
+/*   Created: 2020/10/21 22:34:26 by odhazzar          #+#    #+#             */
+/*   Updated: 2020/10/21 23:47:24 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-int	msh_env(t_ms *ms)
+char	*find_in_env(t_ms *ms, char *s)
 {
 	t_env *tmp;
 
 	tmp = ms->env;
-	while (tmp && tmp->name)
+	while (tmp)
 	{
-		if (tmp->value)
+		if (!ft_strcmp(tmp->name, s))
+			return (tmp->value);
+		tmp = tmp->next;
+	}
+	return (NULL);
+}
+
+int		find_and_replace_env(t_ms *ms, char *name, char *value)
+{
+	t_env	*tmp;
+	char	*old_value;
+
+	tmp = ms->env;
+	while (tmp)
+	{
+		if (!ft_strcmp(tmp->name, name))
 		{
-			write(ms->cmd->fd, tmp->name, ft_strlen(tmp->name));
-			write(ms->cmd->fd, "=", 1);
-			write(ms->cmd->fd, tmp->value, ft_strlen(tmp->value));
-			write(ms->cmd->fd, "\n", 1);
+			old_value = tmp->value;
+			tmp->value = value;
+			free(old_value);
+			free(name);
+			return (1);
 		}
 		tmp = tmp->next;
 	}
-	ms->ret = 0;
-	return (1);
+	return (0);
 }
