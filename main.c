@@ -271,7 +271,9 @@ int msh_set_fd(t_ms *ms)
 
 	//pipe O_RDWR
 	//printf("%d\n", ms->cmd->write);
-	if (ms->cmd->write == 0)
+	if (ms->cmd->write == -1)
+		fd = 2;
+	else if (ms->cmd->write == 0)
 		fd = 1;
 	else if(ms->cmd->write == 1)
 	{

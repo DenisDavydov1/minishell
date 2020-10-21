@@ -500,8 +500,9 @@ char **charxx_alloc(int size)
 	out = NULL;
 	if (size > 0)
 	{
-		if (!(out = (char **)malloc(sizeof(char *) * (size + 1))))
-			throw_error(MEMALLOC, NULL);
+		out = (char **)e_malloc(sizeof(char *) * (size + 1));
+		//if (!(out = (char **)malloc(sizeof(char *) * (size + 1))))
+		//	throw_error(MEMALLOC, NULL);
 		while (size >= 0)
 			out[size--] = NULL;
 	}
@@ -939,6 +940,18 @@ void tcmd_set_write_files(t_ms *ms)
 	}
 }*/
 
+int ignore_command(t_cmd *cmd)
+{
+	if (cmd->name && (!ft_strcmp(cmd->name, "echo") || \
+		!ft_strcmp(cmd->name, "cd") || \
+		!ft_strcmp(cmd->name, "pwd") || \
+		!ft_strcmp(cmd->name, "export") || \
+		!ft_strcmp(cmd->name, "unset") || \
+		!ft_strcmp(cmd->name, "env") || \
+		!ft_strcmp(cmd->name, "exit")))
+		return (1);
+	return (0);
+}
 
 t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 {
@@ -951,10 +964,17 @@ t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 	next = ptr->next;
 	if ((ptr_cmd = tcmd_has_cmd(ptr)) && (!ptr_cmd->arg || (ptr_cmd->arg && !*ptr_cmd->arg)))
 	{
-		ptr_last = tcmd_gotolast(ptr, "<");
-		ptr_cmd->arg = charxx_insert(ptr_cmd->arg, *ptr_last->arg, 0);
-		ptr_last = tcmd_delete_cmd(ms, ptr_last);
+		if (ignore_command(ptr_cmd))
+			return (ptr->next);
+			//ptr = tcmd_delete_cmd(ms, ptr);
+		else//if (!ignore_command(ptr_cmd))
+		{
+			ptr_last = tcmd_gotolast(ptr, "<");
+			ptr_cmd->arg = charxx_insert(ptr_cmd->arg, *ptr_last->arg, 0);
+			ptr_last = tcmd_delete_cmd(ms, ptr_last);
+		}
 	}
+
 	return (next ? next : ptr);
 }
 
@@ -1510,7 +1530,7 @@ int main(int argc, char **argv, char **env)
 	//ms.line = ft_strdup("echo '$PATH     uuu'");
 	//ms.line = ft_strdup("ls asdf > sdf < f > er >> strt | cat sdf -e | cat -e | cat -e; sdf -n -pp sdf");
 	//ms.line = ft_strdup("ls asdf > sdf > er >> strt | cat sdf -e | cat -e | cat -e");
-	ms.line = ft_strdup("< sdf > l cat -e <> o u| cat");
+	ms.line = ft_strdup("echo 15 | cat -e ; echo < u");
 	tms_lineparse(&ms);
 	
 	tcmd_print(ms.cmd);

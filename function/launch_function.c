@@ -193,7 +193,7 @@ int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 			close(ms->cmd->pfd[1]);
 		if (ms->cmd->prev && ms->cmd->prev->pipe)
 			close(ms->cmd->prev->pfd[0]); */
-	} 
+	}
 	
 	signal(SIGINT, sigint_handler);
 	signal(SIGQUIT, sigquit_handler);
