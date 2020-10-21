@@ -24,7 +24,7 @@ char **tenv_tocharxx(t_env *env)
     }
     return (out);
 }
-
+/*
 char **tenv_to_envp(t_env *env)
 {
     char **envp;
@@ -37,6 +37,28 @@ char **tenv_to_envp(t_env *env)
     {
         *ptr = (char *)e_calloc((ft_strlen(env->name) + \
 			ft_strlen(env->value) + 1), sizeof(char));
+        ft_strlcat(*ptr, env->name, (len = ft_strlen(env->name) + 1));
+        ft_strlcat(*ptr, "=", (len += 2));
+        ft_strlcat(*ptr, env->value, (len += ft_strlen(env->value) + 1));
+        ptr++;
+        env = env->next;
+    }
+    return (envp);
+}
+*/
+
+char **tenv_to_envp(t_env *env)
+{
+    char **envp;
+    char **ptr;
+    int len;
+
+    envp = charxx_alloc(tenv_len(env));
+    ptr = envp;
+    while (env)
+    {
+        *ptr = (char *)e_calloc((ft_strlen(env->name) + \
+            ft_strlen(env->value) + 2), sizeof(char));
         ft_strlcat(*ptr, env->name, (len = ft_strlen(env->name) + 1));
         ft_strlcat(*ptr, "=", (len += 2));
         ft_strlcat(*ptr, env->value, (len += ft_strlen(env->value) + 1));

@@ -79,6 +79,18 @@ echo "echp
 minishell: parse error
 [1]    17117 segmentation fault (core dumped)  ./minishell
 
+bash-3.2$ exit 123 //запоминает аргумент?
+exit
+bash-3.2$ echo $?
+123
+
+bash-3.2$ exit 123 456
+exit
+bash: exit: too many arguments
+bash-3.2$ exit a
+exit
+bash: exit: a: numeric argument required
+
 
 
 Добавить обработчик ошибок:
