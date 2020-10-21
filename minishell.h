@@ -32,7 +32,7 @@ typedef struct		s_cmd
 	char			**flag;
 	char			**arg;
 	int				pipe;
-	int				write; // 0 - write to stdout, 1 - write to file, 2 - append to file
+	int				write; // -1 - write to stderr, 0 - write to stdout, 1 - write to file, 2 - append to file
 	int				fd;
 	char			*file; // write result of command to this file
 	int				pfd[2];

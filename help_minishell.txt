@@ -75,6 +75,11 @@ ls |cat -e| cat -e|cat -e //malloc error и подстановка из env
 
 > не должен перезаписывать файл полностью, а должен записать сначала файла
 
+echo "echp 
+minishell: parse error
+[1]    17117 segmentation fault (core dumped)  ./minishell
+
+
 
 Добавить обработчик ошибок:
 bash-3.2$ /bin

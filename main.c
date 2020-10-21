@@ -366,7 +366,7 @@ int msh_loop(t_ms *ms)
 	ms->line = get_next_line(ms->line);
 	if (ms->line && *ms->line && tms_lineparse(ms))
 	{
-		tcmd_print(ms->cmd);
+		//tcmd_print(ms->cmd);
 		while (ms->cmd)
 		{
 			tcmd_parse_quotes(ms);

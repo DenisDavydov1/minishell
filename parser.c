@@ -229,7 +229,7 @@ void tcmd_print(t_cmd *cmd)
 		printf("Write: %i (%s)\n", cmd->write, cmd->write ? \
 			(cmd->write == 1 ? "write to file" : "append to file" ) : "write to stdout");
 		printf("File: %s\n", cmd->file);
-		//printf("\nAddr: %p\n", cmd);
+		printf("Addr: %p\n", cmd);
 		//printf("Prev: %p, Next: %p\n",	cmd->prev ? cmd->prev : 0, \
 		//								cmd->next ? cmd->next : 0);
 		printf("Prev: %s, Next: %s\n",	cmd->prev ? "Yes" : "No", \
@@ -343,6 +343,7 @@ int split_validity(char **s)
 {
 	while (*s)
 	{
+		//printf("%c ", **s);
 		if (**s == '<' && split_validity_less(s + 1) == 2)
 			s++;
 		else if (**s == '<' && !split_validity_less(s + 1))
@@ -637,6 +638,8 @@ t_cmd *tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
 {
 	t_cmd *next;
 
+	if (!ms || !ptr)
+		return (NULL);
 	if (ms->cmd == ptr)
 		if (tcmd_delete_cmd_if_equal(ms))
 			return (NULL);
@@ -651,7 +654,7 @@ t_cmd *tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
 		ptr->prev->next = ptr->next;
 		if (ptr->next)
 			ptr->next->prev = ptr->prev;
-	}	
+	}
 	next = ptr->next;
 	tcmd_free_one(ptr);
 	return (next);
@@ -662,6 +665,15 @@ t_cmd *tcmd_gotoempty(t_cmd *cmd)
 	while (cmd && !tcmd_isempty(cmd) && cmd->next) // danger zone (cmd->next)
 	{
 		cmd = cmd->next;
+	}
+	return (cmd);
+}
+
+t_cmd *tcmd_gotocmdbegin(t_cmd *cmd)
+{
+	while (cmd && cmd->prev && !tcmd_isempty(cmd->prev))
+	{
+		cmd = cmd->prev;
 	}
 	return (cmd);
 }
@@ -739,10 +751,13 @@ void tcmd_flags_to_args(t_ms *ms)
 
 t_cmd *tcmd_has_cmd(t_cmd *cmd)
 {
-	while (cmd && cmd->prev && ((!cmd->name && cmd->arg) || (cmd->name && in_set(*cmd->name, SET))))
+	cmd = tcmd_gotocmdbegin(cmd);
+	while (cmd && cmd->next && ((!cmd->name && cmd->arg) || (cmd->name && in_set(*cmd->name, SET))))
+		cmd = cmd->next;
+	/*while (cmd && cmd->prev && ((!cmd->name && cmd->arg) || (cmd->name && in_set(*cmd->name, SET))))
 	{
 		cmd = cmd->prev;
-	}
+	}*/
 	if (cmd->name && !in_set(*cmd->name, SET))
 		return (cmd);
 	else
@@ -756,7 +771,18 @@ t_cmd *tcmd_make_cmd(t_cmd *cmd)
 
 	i = 0;
 	cmd->name = e_strdup(cmd->arg[i++]);
-	while (is_flag(cmd->arg[i]))
+	/*
+	j = 0;
+	while (cmd->arg[i])
+	{
+		free(cmd->arg[j]);
+		cmd->arg[j] = e_strdup(cmd->arg[i]);
+		free(cmd->arg[i]);
+		cmd->arg[i] = NULL;
+		j++;
+		i++;
+	}*/
+	while (cmd->arg[i] && is_flag(cmd->arg[i]))
 	{
 		cmd->flag = charxx_insert(cmd->flag, cmd->arg[i], i - 1);
 		i++;
@@ -770,6 +796,12 @@ t_cmd *tcmd_make_cmd(t_cmd *cmd)
 		cmd->arg[i] = NULL;
 		j++;
 		i++;
+	}
+	while (j < i)
+	{
+		free(cmd->arg[j]);
+		cmd->arg[j] = NULL;
+		j++;
 	}
 	return (cmd);
 }
@@ -874,7 +906,7 @@ t_cmd *tcmd_get_cmd(t_cmd *cmd)
 	return (cmd);
 }
 
-
+/*
 void tcmd_set_write_files(t_ms *ms)
 {
 	t_cmd *ptr;
@@ -905,34 +937,60 @@ void tcmd_set_write_files(t_ms *ms)
 		else
 			ptr = ptr->next;
 	}
-}
+}*/
 
 
 t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 {
 	t_cmd *ptr_cmd;
 	t_cmd *ptr_last;
+	t_cmd *next;
 
+	if (!ptr)
+		return (NULL);
+	next = ptr->next;
 	if ((ptr_cmd = tcmd_has_cmd(ptr)) && (!ptr_cmd->arg || (ptr_cmd->arg && !*ptr_cmd->arg)))
 	{
 		ptr_last = tcmd_gotolast(ptr, "<");
 		ptr_cmd->arg = charxx_insert(ptr_cmd->arg, *ptr_last->arg, 0);
 		ptr_last = tcmd_delete_cmd(ms, ptr_last);
-		return (ptr->next);
 	}
-
-	return (ptr->next);
+	return (next ? next : ptr);
 }
 
 t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 {
+	t_cmd *p_cmd;
+	t_cmd *p;
+	t_cmd *next;
+
+	if (!ptr)
+		return (NULL);
+	next = ptr->next;
+	if ((p_cmd = tcmd_has_cmd(ptr)) && p_cmd->write == 0 && !p_cmd->file)
+	{
+		p = tcmd_gotoempty(ptr);
+		p = p->name ? p : p->prev;
+		while (p && p->name && p->prev && p->prev->name && *p->name != '>')
+			p = p->prev;
+		p_cmd->write = *(p->name + 1) == '>' ? 2 : 1;
+		p_cmd->file = e_strdup(*p->arg);
+		p = tcmd_delete_cmd(ms, p);
+	}
+	return (next ? next : ptr);
+}
+/*
+t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
+{
 	t_cmd *tmp;
 	t_cmd *tmp_cmd;
+	t_cmd *next;
 
 	if (!ptr->prev || (ptr->prev && tcmd_isempty(ptr->prev)))
 		return ((ptr = tcmd_insert(ptr)));
 	else
 	{
+		next = ptr->next;
 		tmp = tcmd_gotoempty(ptr);
 		tmp = tmp->name ? tmp : tmp->prev;
 		while (tmp && tmp->name && tmp->prev && tmp->prev->name && *tmp->name != '>')
@@ -948,13 +1006,9 @@ t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 			tmp = tcmd_delete_cmd(ms, tmp);
 			return (ptr);
 		}
-		else if (tmp_cmd && (!tmp_cmd->name || (tmp_cmd->name && in_set(*tmp_cmd->name, SET))))
-		{
-
-		}
 	}
-	return (ptr->next);
-}
+	return (next);
+}*/
 
 
 void tcmd_optimize_signs(t_ms *ms)
@@ -983,7 +1037,6 @@ void tcmd_put_arg_to_name(t_ms *ms)
 		if (ptr->prev && tcmd_isempty(ptr->prev) && !tcmd_isempty(ptr) && \
 			!ptr->name && ptr->arg && *ptr->arg)
 		{
-			//printf("argtname: %s\n", *ptr->arg);
 			ptr->name = e_strdup(*ptr->arg);
 			ptr->arg = charxx_delete_one(ptr->arg, 0);
 		}
@@ -1040,6 +1093,7 @@ void tcmd_set_echo_err(t_ms *ms, t_cmd *p, char *errtype)
 
 	p = tcmd_insert(p);
 	//ms->ret = 1;
+	p->write = -1;
 	p->name = e_strdup("echo");
 	p->arg = charxx_alloc(2);
 	*p->arg = e_calloc(12 + ft_strlen(*p->prev->arg) + ft_strlen(errtype), sizeof(char));
@@ -1135,10 +1189,11 @@ void tcmd_optimize(t_ms *ms)
 	if (!ms->cmd)
 		return ;
 	//ptr = tcmd_gotofirst(ms->cmd);
+
 	//tcmd_replace_lg(ms);
+	tcmd_divide_args(ms);
 	tcmd_move_pipes(ms);
 	tcmd_flags_to_args(ms);
-	tcmd_divide_args(ms);
 	tcmd_put_arg_to_name(ms);
 	tcmd_put_args_to_cmd(ms);
 	tcmd_open_create_files(ms);
@@ -1146,10 +1201,20 @@ void tcmd_optimize(t_ms *ms)
 	tcmd_optimize_signs(ms);
 	tcmd_remove_nulls(ms);
 	tcmd_remove_signs(ms);
-	//tcmd_set_write_files(ms);
 
+	//tcmd_replace_lg(ms);
+	//tcmd_move_pipes(ms);
+	//tcmd_flags_to_args(ms);
+	//tcmd_divide_args(ms);
+	//tcmd_put_arg_to_name(ms);
+	//tcmd_put_args_to_cmd(ms);
+	//tcmd_open_create_files(ms);
+	//tcmd_replace_lg(ms);
+	//tcmd_optimize_signs(ms);
+	//tcmd_remove_nulls(ms);
+	//tcmd_remove_signs(ms);
 	
-
+	//tcmd_set_write_files(ms);
 	//tcmd_parse_quotes(ms);
 	//tcmd_put_input_args_to_cmd(ms);
 	//tcmd_print(ms->cmd);
@@ -1195,13 +1260,26 @@ static int in_set(char c, char *set)
 	return (0);
 }*/
 
+int is_esc_char(char *s, int i)
+{
+	if (s[i] && s[i] == '\\' && (s[i + 1] == '\'' || s[i + 1] == '\"' || \
+		s[i + 1] == '\\'))
+		return (1);
+	return (0);
+}
+
 int get_quote_end(char *s, char quote, int start)
 {
 	int end;
 
 	end = start + 1;
 	while (s && s[end] && s[end] != quote)
-		end++;
+	{
+		if (is_esc_char(s, end))
+			end += 2;
+		else
+			end++;
+	}
 	if (s[end] == quote)
 	{
 		//while (s[end + 1] && !in_set(s[end + 1], SET))
@@ -1283,12 +1361,15 @@ static char	**arralloc(char *s, char *set)
 	i = -1;
 	while (s && s[++i])
 	{
-		if (!s[i + 1])
-			words++;
 		if (in_set(s[i], set))
 		{
 			words += added ? 1 : 2;
 			added = 1;
+		}
+		else if (s[i] == '\\' && (s[i + 1] == '\'' || s[i + 1] == '\"' || s[i + 1] == '\\'))
+		{
+			added = 0;
+			i++;
 		}
 		else if (s[i] == '\'' || s[i] == '\"')
 		{
@@ -1298,6 +1379,8 @@ static char	**arralloc(char *s, char *set)
 		}
 		else
 			added = 0;
+		if (!s[i + 1] && !added)
+			words++;
 	}
 	//printf("words: %d\n", words);
 	return ((char **)e_malloc((words + 1) * sizeof(char *)));
@@ -1317,7 +1400,13 @@ char		**e_splitset(char *s, char *set)
 	end = 0;
 	while (s[start])
 	{
-		if (s[end] == '\'' || s[end] == '\"')
+		if (is_esc_char(s, end))//(s[end] == '\\' && (s[end + 1] == '\'' || s[end + 1] == '\"' || s[end + 1] == '\\'))
+		{
+			end += 2;
+			if (s[end] && !in_set(s[end], set))
+				continue ;
+		}
+		else if (s[end] == '\'' || s[end] == '\"')
 		{
 			end = get_quote_end(s, s[end], end) + 1;
 			if (s[end] && !in_set(s[end], set))
@@ -1327,9 +1416,9 @@ char		**e_splitset(char *s, char *set)
 			end++;
 		else
 		{
-			while (s[end] && !in_set(s[end], set) && s[end] != '\'' && s[end] != '\"')
+			while (s[end] && !in_set(s[end], set) && !is_esc_char(s, end) && s[end] != '\'' && s[end] != '\"')
 				end++;
-			if (s[end] && !in_set(s[end], set) && (s[end] == '\'' || s[end] == '\"'))
+			if (s[end] && !in_set(s[end], set) && (is_esc_char(s, end) || s[end] == '\'' || s[end] == '\"'))
 				continue ;
 		}
 		if (start < end)
@@ -1345,18 +1434,57 @@ char		**e_splitset(char *s, char *set)
 /*
 **
 */
+/*
+t_cmd *avav(t_ms *ms, t_cmd *ptr)
+{
+	t_cmd *ptr_cmd;
+	t_cmd *ptr_last;
 
+	if ((ptr_cmd = tcmd_has_cmd(ptr)) && (!ptr_cmd->arg || (ptr_cmd->arg && !*ptr_cmd->arg)))
+	{
+		ptr_last = tcmd_gotolast(ptr, "<");
+		ptr_cmd->arg = charxx_insert(ptr_cmd->arg, *ptr_last->arg, 0);
+		ptr_last = tcmd_delete_cmd(ms, ptr_last);
+		return (ptr->next);
+	}
+	return (ptr->next);
+}
 
+void arar(t_ms *ms)
+{
+	t_cmd *c;
 
+	//c = ms->cmd->next;
+	c = tcmd_gotofirst(ms->cmd);
+	while (c)
+	{
+		if (c->name && !ft_strcmp(c->name, "<"))
+		{
+			c = avav(ms, c);
+		}
+		else
+			c = c->next;
+	}
+}
+
+void afaf(t_ms *ms)
+{
+	arar(ms);
+	//tcmd_optimize_signs(ms);
+}
+*/
 
 int tms_lineparse(t_ms *ms)
 {
 	char **split;
 
+	//printf("1\n");
 	if (!(split = e_splitset(ms->line, SET)) && throw_error(PARSEERR, ms))
 		return (0);
+	//printf("2\n");
 	if (!split_validity(split) && throw_error(PARSEERR, ms))
 		return (0);
+	//printf("3\n");
 	//split = split_replace_quotes(split, ms);
 	ms->cmd = ms->cmd ? ms->cmd : tcmd_init(ms);
 	if (!tcmd_set(ms, split))
@@ -1364,11 +1492,12 @@ int tms_lineparse(t_ms *ms)
 		charxx_free(split);
 		return (0);
 	}
+	//printf("4\n");
 	charxx_free(split);
 	tcmd_optimize(ms);
+	//printf("5\n");
 	return (1);
 }
-
 /*
 int main(int argc, char **argv, char **env)
 {
@@ -1379,11 +1508,14 @@ int main(int argc, char **argv, char **env)
 
 	//ms.line = ft_strdup("echo \"$PATH  uuu\" 'aaa   aaa' bbb \"'123  456'\" | ec\"$c$o\" \"-la\" azaza < g >> t > g");
 	//ms.line = ft_strdup("echo '$PATH     uuu'");
-	ms.line = ft_strdup("echo aa > a");
+	//ms.line = ft_strdup("ls asdf > sdf < f > er >> strt | cat sdf -e | cat -e | cat -e; sdf -n -pp sdf");
+	//ms.line = ft_strdup("ls asdf > sdf > er >> strt | cat sdf -e | cat -e | cat -e");
+	ms.line = ft_strdup("< sdf > l cat -e <> o u| cat");
 	tms_lineparse(&ms);
 	
-	
 	tcmd_print(ms.cmd);
+	tcmd_free(&ms);
+	free(ms.line);
 
 	exit(EXIT_SUCCESS);
 	return (0);
