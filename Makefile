@@ -10,7 +10,7 @@ ft_isalnum.c ft_isascii.c ft_isprint.c ft_toupper.c ft_tolower.c \
 ft_calloc.c ft_strdup.c ft_substr.c ft_strjoin.c ft_strtrim.c ft_split.c \
 ft_itoa.c ft_strmapi.c ft_putchar_fd.c ft_putstr_fd.c ft_putendl_fd.c \
 ft_putnbr_fd.c ft_strcmp.c ft_strpass.c ft_strcpy.c
-#ft_splitset.c
+
 LIBFT_SRC = $(addprefix $(LIBFT_DIR), $(LIBFT_SRC_LIST))
 LIBFT_OBJ_LIST = $(patsubst %.c, %.o, $(LIBFT_SRC_LIST))
 LIBFT_OBJ = $(addprefix $(LIBFT_DIR), $(LIBFT_OBJ_LIST))
@@ -23,11 +23,31 @@ SRC_DIR = ./#src/
 SRC_DIR_FUNCTION = function/
 SRC_DIR_PARCER = parser/
 SRC_DIR_UTILS = utils/
-SRC_LIST = main.c parser.c function/cd.c function/exit.c \
+SRC_LIST = main.c function/cd.c function/exit.c \
 function/env.c function/export.c function/echo.c function/pwd.c \
-function/unset.c function/launch_function.c parser/parser_quotes.c utils/env_utils.c \
+function/unset.c function/launch_function.c utils/env_utils.c \
 utils/errors.c utils/command_read.c utils/export_utils.c utils/signal_handler.c \
-utils/init.c utils/utils.c
+utils/init.c utils/utils.c \
+	parser/parser_quotes_a.c \
+	parser/parser_quotes_b.c \
+	parser/parser_tcmd_utils_a.c \
+	parser/parser_tcmd_utils_b.c \
+	parser/e_functions_a.c \
+	parser/e_functions_b.c \
+	parser/parser_validity_a.c \
+	parser/parser_validity_b.c \
+	parser/parser_common_utils_a.c \
+	parser/parser_common_utils_b.c \
+	parser/parser_common_utils_c.c \
+	parser/parser_common_utils_d.c \
+	parser/parser_splitset_a.c \
+	parser/parser_splitset_b.c \
+	parser/parser_optimize_a.c \
+	parser/parser_optimize_b.c \
+	parser/parser_optimize_c.c \
+	parser/parser_optimize_d.c \
+	parser/parser_optimize_e.c \
+	parser/parser_main.c
 
 SRC = $(addprefix $(SRC_DIR), $(SRC_LIST))
 

@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "minishell_p.h"
 
 void	sigint_handler(int sn)
 {

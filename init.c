@@ -1,4 +1,4 @@
-#include "minishell.h"
+#include "minishell_p.h"
 
 t_env *tenv_init(char *name, char *value)
 {
