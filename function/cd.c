@@ -21,9 +21,9 @@ void replace_pwd(t_ms *ms)
 	tmp = ms->env;
 	while (tmp)
 	{
-		if (ft_strcmp2(tmp->name, "PWD", 3))
+		if (!ft_strcmp(tmp->name, "PWD"))
 			pwd = tmp;
-		if (ft_strcmp2(tmp->name, "OLDPWD", 6))
+		if (!ft_strcmp(tmp->name, "OLDPWD"))
 			old_pwd = tmp;
 		tmp = tmp->next;
 	}

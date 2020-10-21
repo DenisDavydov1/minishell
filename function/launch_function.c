@@ -117,13 +117,13 @@ char **create_argv(t_ms *ms)
 	return (res);
 }
 
-void	ft_error1(int err, char *exe, char *msg)
+/*void	ft_error1(int err, char *exe, char *msg)
 {
 	ft_putstr_fd(exe, 1);
 	ft_putchar_fd(':', 1);
 	ft_putendl_fd(msg, 1);
 	return (exit(err));
-}
+}*/
 
 void close_pfd(t_ms *ms)
 {
@@ -164,7 +164,8 @@ int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 		//printf("%d\n", pid);
 		if (execve(ex, args, env) == -1)
 		{
-			if (ft_strcmp2(ex, "./", 2))
+			//if (ft_strcmp2(ex, "./", 2))
+			if (!ft_strncmp(ex, "./", 2))
 				throw_error(PERMISSIONERR, ms);
 			else if (ft_strchr(ex, '/'))
 			{
@@ -182,7 +183,8 @@ int	execute_ps(char *ex, char **args, char **env, t_ms *ms)
 		
 	}
 	else if (pid < 0)
-		ft_error1(1, ex, "failed to fork"); //нужна ли эта ошибка?
+		ft_error(ex, NULL, "failed to fork", ms);
+		//ft_error1(1, ex, "failed to fork"); //нужна ли эта ошибка?
 	else
 	{
 		signal(SIGINT, SIG_IGN);
