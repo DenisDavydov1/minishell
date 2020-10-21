@@ -20,14 +20,16 @@ HDR_LIST = minishell.h
 HDR = $(addprefix $(HDR_DIR), $(HDR_LIST))
 
 SRC_DIR = ./#src/
+SRC_DIR_FUNCTION = function/
+SRC_DIR_PARCER = parser/
 SRC_LIST = main.c parser.c error_handling.c signal_handler.c init.c function/cd.c function/exit.c \
 function/env.c function/export.c function/export_utils.c function/echo.c function/pwd.c \
 function/unset.c function/launch_function.c parser/parser_quotes.c
 SRC = $(addprefix $(SRC_DIR), $(SRC_LIST))
 
 OBJ_DIR = ./obj/
-OBJ_LIST = $(patsubst %.c, %.o, $(SRC_LIST))
-OBJ = $(addprefix $(OBJ_DIR), $(OBJ_LIST))
+OBJ_LIST = $(patsubst %.c, $(OBJ_DIR)%.o, $(SRC_LIST))
+#OBJ = $(addprefix $(OBJ_DIR), $(OBJ_LIST))
 
 MAKE = make -sC
 CC = gcc
@@ -39,17 +41,18 @@ INCLUDE = -I$(HDR_DIR)
 
 all: $(NAME)
 
-$(NAME): $(LIBFT) $(LIBFT_OBJ) $(OBJ_DIR) $(OBJ)
-	@$(CC) $(OBJ_DIR)*.o $(LIBS)  -o $@ $(INCLUDE)
+$(NAME): $(LIBFT) $(LIBFT_OBJ) $(OBJ_DIR) $(OBJ_LIST)
+	@$(CC) $(OBJ_LIST) $(LIBS) -o $@ $(INCLUDE)
 	@echo "$(NAME) created"
 
 $(OBJ_DIR):
 	@mkdir -p $(OBJ_DIR)
+	@mkdir -p $(OBJ_DIR)$(SRC_DIR_FUNCTION)
+	@mkdir -p $(OBJ_DIR)$(SRC_DIR_PARCER)
 	@echo "$(OBJ_DIR) created"
 
 $(OBJ_DIR)%.o : $(SRC_DIR)%.c $(HDR) $(LIBFT)
-	@$(CC) $(FLAGS) -g -c $< $(INCLUDE)
-	@mv *.o $(OBJ_DIR)
+	@$(CC) $(FLAGS) -c $< -o $@ $(INCLUDE)
 
 $(LIBFT): $(LIBFT_OBJ)
 	@$(MAKE) $(LIBFT_DIR)
