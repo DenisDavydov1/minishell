@@ -25,19 +25,13 @@ int	count_arg(t_ms *ms)
 		i++;
 	if (flag && *flag)
 	{
-		while (*flag)
-		{
-			i++;
+		while (*flag && (++i))
 			flag++;
-		}
 	}
 	if (arg && *arg)
 	{
-		while (*arg)
-		{
-			i++;
+		while (*arg && (++i))
 			arg++;
-		}
 	}
 	return (i);
 }

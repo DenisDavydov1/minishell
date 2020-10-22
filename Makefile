@@ -15,7 +15,7 @@ LIBFT_SRC = $(addprefix $(LIBFT_DIR), $(LIBFT_SRC_LIST))
 LIBFT_OBJ_LIST = $(patsubst %.c, %.o, $(LIBFT_SRC_LIST))
 LIBFT_OBJ = $(addprefix $(LIBFT_DIR), $(LIBFT_OBJ_LIST))
 
-HDR_DIR = ./#include/
+HDR_DIR = ./include/
 HDR_LIST = minishell.h
 HDR = $(addprefix $(HDR_DIR), $(HDR_LIST))
 
@@ -23,31 +23,42 @@ SRC_DIR = ./#src/
 SRC_DIR_FUNCTION = function/
 SRC_DIR_PARCER = parser/
 SRC_DIR_UTILS = utils/
-SRC_LIST = main.c function/cd.c function/exit.c \
-function/env.c function/export.c function/echo.c function/pwd.c \
-function/unset.c function/launch_function.c utils/env_utils.c \
-utils/errors.c utils/command_read.c utils/export_utils.c utils/signal_handler.c \
-utils/init.c utils/utils.c \
-	parser/parser_quotes_a.c \
-	parser/parser_quotes_b.c \
-	parser/parser_tcmd_utils_a.c \
-	parser/parser_tcmd_utils_b.c \
-	parser/e_functions_a.c \
-	parser/e_functions_b.c \
-	parser/parser_validity_a.c \
-	parser/parser_validity_b.c \
-	parser/parser_common_utils_a.c \
-	parser/parser_common_utils_b.c \
-	parser/parser_common_utils_c.c \
-	parser/parser_common_utils_d.c \
-	parser/parser_splitset_a.c \
-	parser/parser_splitset_b.c \
-	parser/parser_optimize_a.c \
-	parser/parser_optimize_b.c \
-	parser/parser_optimize_c.c \
-	parser/parser_optimize_d.c \
-	parser/parser_optimize_e.c \
-	parser/parser_main.c
+SRC_LIST =	main.c \
+			function/cd.c \
+			function/exit.c \
+			function/env.c \
+			function/export.c \
+			function/echo.c \
+			function/pwd.c \
+			function/unset.c \
+			function/launch_function.c \
+			utils/env_utils.c \
+			utils/errors.c \
+			utils/command_read.c \
+			utils/export_utils.c \
+			utils/signal_handler.c \
+			utils/init.c \
+			utils/utils.c \
+			parser/parser_quotes_a.c \
+			parser/parser_quotes_b.c \
+			parser/parser_tcmd_utils_a.c \
+			parser/parser_tcmd_utils_b.c \
+			parser/e_functions_a.c \
+			parser/e_functions_b.c \
+			parser/parser_validity_a.c \
+			parser/parser_validity_b.c \
+			parser/parser_common_utils_a.c \
+			parser/parser_common_utils_b.c \
+			parser/parser_common_utils_c.c \
+			parser/parser_common_utils_d.c \
+			parser/parser_splitset_a.c \
+			parser/parser_splitset_b.c \
+			parser/parser_optimize_a.c \
+			parser/parser_optimize_b.c \
+			parser/parser_optimize_c.c \
+			parser/parser_optimize_d.c \
+			parser/parser_optimize_e.c \
+			parser/parser_main.c
 
 SRC = $(addprefix $(SRC_DIR), $(SRC_LIST))
 
@@ -61,7 +72,7 @@ FLAGS = #-Wall -Wextra -Werror
 LIBS = -lft -L./libft
 INCLUDE = -I$(HDR_DIR)
 
-#.PHONY: all clean fclean re
+.PHONY: all clean fclean re
 
 all: $(NAME)
 
@@ -77,13 +88,11 @@ $(OBJ_DIR):
 	@echo "$(OBJ_DIR) created"
 
 $(OBJ_DIR)%.o : $(SRC_DIR)%.c $(HDR) $(LIBFT)
-	@$(CC) $(FLAGS) -c $< -o $@ $(INCLUDE)
+	@$(CC) $(FLAGS) -g -c $< -o $@ $(INCLUDE)
 
 $(LIBFT): $(LIBFT_OBJ)
 	@$(MAKE) $(LIBFT_DIR)
 	@echo "$(LIBFT) created"
-
-#bonus: $(NAME)
 
 clean:
 	@$(MAKE) $(LIBFT_DIR) clean

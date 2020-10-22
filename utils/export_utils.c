@@ -55,7 +55,7 @@ int		check_env_name(t_ms *ms, char *s)
 	return (0);
 }
 
-int		check_env_value(t_ms *ms, char *s)
+/*int		check_env_value(t_ms *ms, char *s)
 {
 	int i;
 
@@ -74,7 +74,7 @@ int		check_env_value(t_ms *ms, char *s)
 		return (1);
 	}
 	return (0);
-}
+}*/
 
 char	**ft_split_first(t_ms *ms, char *s, char c)
 {
@@ -115,7 +115,8 @@ int		add_in_env(t_ms *ms, char *s)
 	test = ft_split_first(ms, s, '=');
 	if (!test)
 		return (0);
-	if ((!(check_env_name(ms, test[0]))) && (!(check_env_value(ms, test[1]))))
+	//if ((!(check_env_name(ms, test[0]))) && (!(check_env_value(ms, test[1]))))
+	if (!check_env_name(ms, test[0]))
 	{
 		charxx_free(test);
 		return (0);

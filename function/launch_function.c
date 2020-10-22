@@ -57,20 +57,12 @@ static char	**create_argv(t_ms *ms)
 	if (flag && *flag)
 	{
 		while (*flag)
-		{
-			res[i] = ft_strdup(*flag);
-			i++;
-			flag++;
-		}
+			res[i++] = ft_strdup(*(flag++));
 	}
 	if (arg && *arg)
 	{
 		while (*arg)
-		{
-			res[i] = ft_strdup(*arg);
-			i++;
-			arg++;
-		}
+			res[i++] = ft_strdup(*(arg++));
 	}
 	return (res);
 }
