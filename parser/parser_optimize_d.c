@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_optimize_d.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/22 01:03:20 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:32 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:35:15 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static int ignore_command(t_cmd *cmd)
+static int		ignore_command(t_cmd *cmd)
 {
 	if (cmd->name && (!ft_strcmp(cmd->name, "echo") || \
 		!ft_strcmp(cmd->name, "cd") || \
@@ -25,7 +25,7 @@ static int ignore_command(t_cmd *cmd)
 	return (0);
 }
 
-static t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
+static t_cmd	*tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 {
 	t_cmd *ptr_cmd;
 	t_cmd *ptr_last;
@@ -34,7 +34,8 @@ static t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 	if (!ptr)
 		return (NULL);
 	next = ptr->next;
-	if ((ptr_cmd = tcmd_has_cmd(ptr)) && (!ptr_cmd->arg || (ptr_cmd->arg && !*ptr_cmd->arg)))
+	if ((ptr_cmd = tcmd_has_cmd(ptr)) && (!ptr_cmd->arg ||
+	(ptr_cmd->arg && !*ptr_cmd->arg)))
 	{
 		if (!ignore_command(ptr_cmd))
 		{
@@ -47,7 +48,7 @@ static t_cmd *tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 	return (ptr->next);
 }
 
-static t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
+static t_cmd	*tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 {
 	t_cmd *p_cmd;
 	t_cmd *p;
@@ -69,7 +70,7 @@ static t_cmd *tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 	return (next ? next : ptr);
 }
 
-void tcmd_optimize_signs(t_ms *ms)
+void			tcmd_optimize_signs(t_ms *ms)
 {
 	t_cmd *ptr;
 
@@ -78,7 +79,8 @@ void tcmd_optimize_signs(t_ms *ms)
 	{
 		if (ptr && ptr->name && !ft_strcmp(ptr->name, "<"))
 			ptr = tcmd_opt_less(ms, ptr);
-		else if (ptr && ptr->name && (!ft_strcmp(ptr->name, ">" ) || !ft_strcmp(ptr->name, ">>")))
+		else if (ptr && ptr->name && (!ft_strcmp(ptr->name, ">") ||
+		!ft_strcmp(ptr->name, ">>")))
 			ptr = tcmd_opt_greater(ms, ptr);
 		else
 			ptr = ptr->next;

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_common_utils_c.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/22 01:02:00 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:20 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:28:12 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-char **tcmd_set_name(t_ms *ms, char **s)
+char	**tcmd_set_name(t_ms *ms, char **s)
 {
 	s = tcmd_skip(s);
 	if (*s && **s == '>' && *(s + 1) && **(s + 1) == '>')
@@ -36,7 +36,7 @@ char **tcmd_set_name(t_ms *ms, char **s)
 	return (s);
 }
 
-char **tcmd_addflag(t_ms *ms, char **s)
+char	**tcmd_addflag(t_ms *ms, char **s)
 {
 	int i;
 
@@ -47,7 +47,7 @@ char **tcmd_addflag(t_ms *ms, char **s)
 	return (s + 1);
 }
 
-char **tcmd_addarg(t_ms *ms, char **s)
+char	**tcmd_addarg(t_ms *ms, char **s)
 {
 	int i;
 
@@ -58,12 +58,13 @@ char **tcmd_addarg(t_ms *ms, char **s)
 	return (s + 1);
 }
 
-char **tcmd_semicolon(t_ms *ms, char **s)
+char	**tcmd_semicolon(t_ms *ms, char **s)
 {
 	s = tcmd_skip(s);
 	if (*s && **s == ';')
 	{
-		if (!ms->cmd->name && !ms->cmd->flag && !ms->cmd->arg && throw_error(PARSEERR, ms))
+		if (!ms->cmd->name && !ms->cmd->flag &&
+		!ms->cmd->arg && throw_error(PARSEERR, ms))
 			return (NULL);
 		ms->cmd = tcmd_init(ms);
 		ms->cmd = tcmd_init(ms);
@@ -72,7 +73,7 @@ char **tcmd_semicolon(t_ms *ms, char **s)
 	return (s);
 }
 
-char **tcmd_pipe(t_ms *ms, char **s)
+char	**tcmd_pipe(t_ms *ms, char **s)
 {
 	s = tcmd_skip(s);
 	if (*s && **s == '|')

@@ -6,11 +6,21 @@
 /*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:14:17 by odhazzar          #+#    #+#             */
-/*   Updated: 2020/10/21 23:21:59 by odhazzar         ###   ########.fr       */
+/*   Updated: 2020/10/22 08:56:23 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
+
+static void	export_print(char **s, t_ms *ms)
+{
+	while (*s)
+	{
+		ft_putstr_fd("declare -x ", ms->cmd->fd);
+		ft_putendl_fd(*s, ms->cmd->fd);
+		s++;
+	}
+}
 
 char		**tenv_tocharxx(t_env *env)
 {

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_splitset_a.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:47:27 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:40 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:38:17 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int is_esc_char(char *s, int *i)
+int			is_esc_char(char *s, int *i)
 {
 	if (s[*i] && s[*i] == '\\' && (s[*i + 1] == '\'' || s[*i + 1] == '\"' || \
 		s[*i + 1] == '\\'))
@@ -20,7 +20,7 @@ int is_esc_char(char *s, int *i)
 	return (0);
 }
 
-int get_quote_end(char *s, char quote, int *start)
+int			get_quote_end(char *s, char quote, int *start)
 {
 	int end;
 
@@ -38,7 +38,7 @@ int get_quote_end(char *s, char quote, int *start)
 		return (0);
 }
 
-static int spltst(char *s, int *end, char *set)
+static int	spltst(char *s, int *end, char *set)
 {
 	if (is_esc_char(s, end))
 	{
@@ -66,7 +66,7 @@ static int spltst(char *s, int *end, char *set)
 	return (0);
 }
 
-char	**free_arr(char **arr)
+char		**free_arr(char **arr)
 {
 	unsigned int i;
 
@@ -84,8 +84,8 @@ char		**e_splitset(char *s, char *set)
 {
 	char	**out;
 	char	**word_pt;
-	int	start;
-	int	end;
+	int		start;
+	int		end;
 
 	if (!s || !(out = arralloc(s, set)))
 		return (NULL);
@@ -96,7 +96,6 @@ char		**e_splitset(char *s, char *set)
 	{
 		if (spltst(s, &end, set))
 			continue ;
-
 		if (start < end)
 			if (!(*word_pt++ = ft_substr(s, (unsigned int)start, end - start)))
 				return (free_arr(out));

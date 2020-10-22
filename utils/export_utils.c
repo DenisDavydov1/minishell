@@ -6,13 +6,13 @@
 /*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:48:50 by odhazzar          #+#    #+#             */
-/*   Updated: 2020/10/21 23:48:51 by odhazzar         ###   ########.fr       */
+/*   Updated: 2020/10/22 09:19:05 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "minishell.h"
 
-void env_error(char *name, char *arg, t_ms *ms)
+void	env_error(char *name, char *arg, t_ms *ms)
 {
 	ft_putstr_fd("minishell: ", 2);
 	ft_putstr_fd(name, 2);
@@ -28,39 +28,7 @@ void env_error(char *name, char *arg, t_ms *ms)
 	ms->ret = 1;
 }
 
-void export_print(char **s, t_ms *ms)
-{
-	while (*s)
-	{
-		ft_putstr_fd("declare -x ", ms->cmd->fd);
-		ft_putendl_fd(*s, ms->cmd->fd);
-		s++;
-	}
-}
-
-void charxx_swap(char **s1, char **s2)
-{
-	char *tmp;
-
-	tmp = *s1;
-	*s1 = *s2;
-	*s2 = tmp;
-}
-
-int tenv_len(t_env *env)
-{
-    int i;
-
-    i = 0;
-    while (env)
-    {
-        i++;
-        env = env->next;
-    }
-    return (i);
-}
-
-int check_env_name(t_ms *ms, char *s)
+int		check_env_name(t_ms *ms, char *s)
 {
 	int i;
 
@@ -77,31 +45,28 @@ int check_env_name(t_ms *ms, char *s)
 				else
 				{
 					env_error(ms->cmd->name, s, ms);
-					//ft_putstr_fd("not a valid identifier\n", 1); // написать нормальную ошибку
 					return (0);
 				}
 			}
 			return (1);
 		}
-		//env_error(ms->cmd->name, s);
 	}
 	env_error(ms->cmd->name, s, ms);
 	return (0);
 }
 
-int check_env_value(t_ms *ms, char *s)
+int		check_env_value(t_ms *ms, char *s)
 {
 	int i;
 
 	i = 0;
 	if (s)
 	{
-		while (s[i]) //добавить обработку экранирования и кавычек
+		while (s[i])
 		{
-			if (s[i] == ' ' || s[i] == '<' || s[i] == '>' || s[i] == '|' || s[i] == '&')
-			{
+			if (s[i] == ' ' || s[i] == '|' || s[i] == '&')
+			{//какие символы парсятся?
 				env_error(ms->cmd->name, s, ms);
-				//ft_putstr_fd("not a valid identifier\n", 1);
 				return (0);
 			}
 			i++;
@@ -111,30 +76,20 @@ int check_env_value(t_ms *ms, char *s)
 	return (0);
 }
 
-char		**ft_split_first(t_ms *ms, char *s, char c)
+char	**ft_split_first(t_ms *ms, char *s, char c)
 {
 	char	**out;
-	int i;
+	int		i;
 
 	i = 0;
 	out = charxx_alloc(2);
 	if (s)
 	{
-		//if (!(ft_strchr(s, c)) || (!(ft_strcmp(s, "="))))
-		//if (!(ft_strchr(s, c)))
-
-		if (!(ft_strcmp(s, "=")))
+		if ((!(ft_strcmp(s, "="))) || (!(ft_strchr(s, c))))
 		{
 			out[0] = ft_strdup(s);
 			return (out);
 		}
-		/*if (!(ft_strchr(s, c)))
-		{
-			check_env_name(ms, s);
-			free(out);
-			return (NULL);
-		}*/
-
 		while (s[i])
 		{
 			if (s[i] == c)
@@ -145,29 +100,23 @@ char		**ft_split_first(t_ms *ms, char *s, char c)
 			}
 			i++;
 		}
-		out[0] = ft_strdup(s);
-		return (out);
 	}
 	charxx_free(out);
 	return (NULL);
 }
 
-int add_in_env(t_ms *ms, char *s) 
+int		add_in_env(t_ms *ms, char *s)
 {
-	char **test;
-	t_env *tmp;
-	char **value;
-	char *old_value;
+	char	**test;
+	t_env	*tmp;
+	char	**value;
+	char	*old_value;
 
-	//test = e_split(s, '='); //переписать функцию, делить только по первому знаку "=" ?
 	test = ft_split_first(ms, s, '=');
 	if (!test)
 		return (0);
-	//printf("test0 = |%s|  test1 = |%s| \n", test[0], test[1]);
 	if ((!(check_env_name(ms, test[0]))) && (!(check_env_value(ms, test[1]))))
-	//if ((!(check_env_name(ms, test[0]))))
 	{
-		//ms->ret = 1;
 		charxx_free(test);
 		return (0);
 	}
@@ -181,6 +130,6 @@ int add_in_env(t_ms *ms, char *s)
 		tmp->next->value = test[1];
 		tmp->next->next = NULL;
 	}
-	free(test); //как правильно очистить?
+	free(test);
 	return (1);
 }

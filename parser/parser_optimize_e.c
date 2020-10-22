@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_optimize_e.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/22 01:06:46 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:34 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:36:13 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void tcmd_remove_signs(t_ms *ms)
+void			tcmd_remove_signs(t_ms *ms)
 {
 	t_cmd *p;
 
@@ -26,11 +26,11 @@ void tcmd_remove_signs(t_ms *ms)
 	}
 }
 
-static t_cmd *patc(t_ms *ms, t_cmd *ptr)
+static t_cmd	*patc(t_ms *ms, t_cmd *ptr)
 {
-	int i;
-	t_cmd *ptr_cmd;
-	t_cmd *ptr_last;
+	int		i;
+	t_cmd	*ptr_cmd;
+	t_cmd	*ptr_last;
 
 	ptr_cmd = ptr;
 	ptr_last = tcmd_gotoempty(ptr);
@@ -55,8 +55,7 @@ static t_cmd *patc(t_ms *ms, t_cmd *ptr)
 	return (ptr);
 }
 
-
-void tcmd_put_args_to_cmd(t_ms *ms)
+void			tcmd_put_args_to_cmd(t_ms *ms)
 {
 	t_cmd *ptr;
 

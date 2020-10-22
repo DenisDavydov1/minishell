@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_tcmd_utils_b.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:24:02 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:46 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:40:07 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void tcmd_free(t_ms *ms)
+void	tcmd_free(t_ms *ms)
 {
 	t_cmd *ptr;
 
@@ -32,7 +32,7 @@ void tcmd_free(t_ms *ms)
 	ms->cmd = NULL;
 }
 
-void tcmd_free_one(t_cmd *cmd)
+void	tcmd_free_one(t_cmd *cmd)
 {
 	if (!cmd)
 		return ;
@@ -43,7 +43,7 @@ void tcmd_free_one(t_cmd *cmd)
 	free(cmd);
 }
 
-char **tcmd_skip(char **s)
+char	**tcmd_skip(char **s)
 {
 	if (*s && **s == ' ')
 	{
@@ -53,13 +53,13 @@ char **tcmd_skip(char **s)
 	return (s);
 }
 
-void tcmd_newtcmd(t_ms *ms)
+void	tcmd_newtcmd(t_ms *ms)
 {
 	if (ms->cmd->name || ms->cmd->flag || ms->cmd->arg)
 		ms->cmd = tcmd_init(ms);
 }
 
-int tcmd_set(t_ms *ms, char **s)
+int		tcmd_set(t_ms *ms, char **s)
 {
 	while (*s)
 	{

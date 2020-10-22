@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_tcmd_utils_a.c                              :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:16:28 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:44 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:39:38 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-t_cmd *tcmd_gotofirst(t_cmd *cmd)
+t_cmd		*tcmd_gotofirst(t_cmd *cmd)
 {
 	if (!cmd)
 		return (NULL);
@@ -23,7 +23,7 @@ t_cmd *tcmd_gotofirst(t_cmd *cmd)
 	return (cmd);
 }
 
-static void tcmd_set_values(t_cmd **cmd)
+static void	tcmd_set_values(t_cmd **cmd)
 {
 	(*cmd)->name = NULL;
 	(*cmd)->flag = NULL;
@@ -37,7 +37,7 @@ static void tcmd_set_values(t_cmd **cmd)
 	(*cmd)->next = NULL;
 }
 
-t_cmd *tcmd_init(t_ms *ms)
+t_cmd		*tcmd_init(t_ms *ms)
 {
 	t_cmd *cmd;
 
@@ -49,8 +49,7 @@ t_cmd *tcmd_init(t_ms *ms)
 	return (cmd);
 }
 
-
-t_cmd *tcmd_insert(t_cmd *to)
+t_cmd		*tcmd_insert(t_cmd *to)
 {
 	t_cmd *cmd;
 	t_cmd *t;
@@ -64,7 +63,7 @@ t_cmd *tcmd_insert(t_cmd *to)
 		to->next = cmd;
 		cmd->next = t;
 		t->prev = cmd;
-		cmd->prev = to;	
+		cmd->prev = to;
 	}
 	else
 	{
@@ -74,7 +73,7 @@ t_cmd *tcmd_insert(t_cmd *to)
 	return (cmd);
 }
 
-t_ms tms_init(void)
+t_ms		tms_init(void)
 {
 	t_ms ms;
 

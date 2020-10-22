@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_common_utils_b.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:44:53 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:18 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:27:09 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-t_cmd *tcmd_gotolast(t_cmd *cmd, char *s)
+t_cmd	*tcmd_gotolast(t_cmd *cmd, char *s)
 {
 	cmd = tcmd_gotoempty(cmd);
 	while (cmd)
@@ -27,22 +27,19 @@ t_cmd *tcmd_gotolast(t_cmd *cmd, char *s)
 	return (cmd);
 }
 
-t_cmd *tcmd_has_cmd(t_cmd *cmd)
+t_cmd	*tcmd_has_cmd(t_cmd *cmd)
 {
 	cmd = tcmd_gotocmdbegin(cmd);
-	while (cmd && cmd->next && ((!cmd->name && cmd->arg) || (cmd->name && in_set(*cmd->name, SET))))
+	while (cmd && cmd->next && ((!cmd->name && cmd->arg) ||
+	(cmd->name && in_set(*cmd->name, SET))))
 		cmd = cmd->next;
-	/*while (cmd && cmd->prev && ((!cmd->name && cmd->arg) || (cmd->name && in_set(*cmd->name, SET))))
-	{
-		cmd = cmd->prev;
-	}*/
 	if (cmd->name && !in_set(*cmd->name, SET))
 		return (cmd);
 	else
 		return (0);
 }
 
-t_cmd *tcmd_get_cmd(t_cmd *cmd)
+t_cmd	*tcmd_get_cmd(t_cmd *cmd)
 {
 	while (cmd && cmd->prev && !tcmd_isempty(cmd->prev))
 	{
@@ -50,4 +47,3 @@ t_cmd *tcmd_get_cmd(t_cmd *cmd)
 	}
 	return (cmd);
 }
-

@@ -3,19 +3,19 @@
 /*                                                        :::      ::::::::   */
 /*   parser_optimize_a.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/22 00:39:40 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:26 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:31:04 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static void tcmd_set_echo_err_a(t_ms *ms, t_cmd *p)
+static void	tcmd_set_echo_err_a(t_ms *ms, t_cmd *p)
 {
-	t_cmd *p_cmd;
-	int pipe;
+	t_cmd	*p_cmd;
+	int		pipe;
 
 	p_cmd = tcmd_get_cmd(p);
 	while (p_cmd && p_cmd)
@@ -33,26 +33,24 @@ static void tcmd_set_echo_err_a(t_ms *ms, t_cmd *p)
 	}
 }
 
-static void tcmd_set_echo_err(t_ms *ms, t_cmd *p, char *errtype)
+static void	tcmd_set_echo_err(t_ms *ms, t_cmd *p, char *errtype)
 {
-	t_cmd *p_cmd;
-	int len;
+	t_cmd	*p_cmd;
+	int		len;
 
 	p = tcmd_insert(p);
-	//ms->ret = 1;
 	p->write = -1;
 	p->name = e_strdup("echo");
 	p->arg = charxx_alloc(2);
-	*p->arg = e_calloc(12 + ft_strlen(*p->prev->arg) + ft_strlen(errtype), sizeof(char));
+	*p->arg = e_calloc(12 + ft_strlen(*p->prev->arg) +
+	ft_strlen(errtype), sizeof(char));
 	ft_strlcat(*p->arg, "minishell: ", (len = ft_strlen("minishell: ") + 1));
 	ft_strlcat(*p->arg, *p->prev->arg, (len += ft_strlen(*p->prev->arg) + 1));
 	ft_strlcat(*p->arg, errtype, (len += ft_strlen(errtype) + 1));
 	tcmd_set_echo_err_a(ms, p);
 }
 
-
-
-static void open_close(t_ms *ms, t_cmd *ptr, int fd)
+static void	open_close(t_ms *ms, t_cmd *ptr, int fd)
 {
 	if (fd < 0)
 		tcmd_set_echo_err(ms, ptr, CDERR);
@@ -60,12 +58,10 @@ static void open_close(t_ms *ms, t_cmd *ptr, int fd)
 		close(fd);
 }
 
-
-
-static void tcmd_open_create_files(t_ms *ms)
+static void	tcmd_open_create_files(t_ms *ms)
 {
-	t_cmd *ptr;
-	int fd;
+	t_cmd	*ptr;
+	int		fd;
 
 	ptr = tcmd_gotofirst(ms->cmd);
 	while (ptr)
@@ -86,9 +82,7 @@ static void tcmd_open_create_files(t_ms *ms)
 	}
 }
 
-
-
-void tcmd_optimize(t_ms *ms)
+void		tcmd_optimize(t_ms *ms)
 {
 	if (!ms->cmd)
 		return ;

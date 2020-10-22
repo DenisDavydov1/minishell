@@ -91,7 +91,7 @@ int add_in_env(t_ms *ms, char *s);
 //void delete_from_env(t_ms *ms, char *s);
 int tenv_len(t_env *env);
 void charxx_swap(char **s1, char **s2);
-void export_print(char **s, t_ms *ms);
+//void export_print(char **s, t_ms *ms);
 
 int ft_error(char *name, char *arg, char *error, t_ms *ms);
 int check_env_name(t_ms *ms, char *s);

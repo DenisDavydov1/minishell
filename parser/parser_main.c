@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_main.c                                      :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/22 01:24:56 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:24 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:29:26 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int tms_lineparse(t_ms *ms)
+int	tms_lineparse(t_ms *ms)
 {
 	char **split;
 

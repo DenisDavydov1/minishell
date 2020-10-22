@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_validity_a.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:39:33 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:56 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:40:46 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-static int split_validity_less(char **s)
+static int	split_validity_less(char **s)
 {
 	if (!*s)
 		return (0);
@@ -30,7 +30,7 @@ static int split_validity_less(char **s)
 	return (1);
 }
 
-static int split_validity_greater(char **s)
+static int	split_validity_greater(char **s)
 {
 	if (!*s)
 		return (0);
@@ -43,7 +43,7 @@ static int split_validity_greater(char **s)
 	return (1);
 }
 
-static int split_validity_semicolon(char **s)
+static int	split_validity_semicolon(char **s)
 {
 	if (!*s)
 		return (1);
@@ -54,7 +54,7 @@ static int split_validity_semicolon(char **s)
 	return (1);
 }
 
-static int split_validity_pipe(char **s)
+static int	split_validity_pipe(char **s)
 {
 	if (!*s)
 		return (0);
@@ -65,11 +65,10 @@ static int split_validity_pipe(char **s)
 	return (1);
 }
 
-int split_validity(char **s)
+int			split_validity(char **s)
 {
 	while (*s)
 	{
-		//printf("%c ", **s);
 		if (**s == '<' && split_validity_less(s + 1) == 2)
 			s++;
 		else if (**s == '<' && !split_validity_less(s + 1))

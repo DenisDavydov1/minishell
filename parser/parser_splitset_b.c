@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_splitset_b.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:47:49 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:42 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:38:42 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int split_countflags(char **s)
+int		split_countflags(char **s)
 {
 	int f;
 
@@ -29,7 +29,7 @@ int split_countflags(char **s)
 	return (f);
 }
 
-int split_countargs(char **s)
+int		split_countargs(char **s)
 {
 	int a;
 

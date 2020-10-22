@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_validity_b.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 23:39:36 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:53 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:41:07 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-int split_validity_skip(char **s)
+int	split_validity_skip(char **s)
 {
 	if (!*s)
 		return (0);

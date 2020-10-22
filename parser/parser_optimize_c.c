@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_optimize_c.c                                :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/22 01:00:12 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:30 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:33:40 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void tcmd_remove_nulls(t_ms *ms)
+void	tcmd_remove_nulls(t_ms *ms)
 {
 	t_cmd *ptr;
 
@@ -28,7 +28,7 @@ void tcmd_remove_nulls(t_ms *ms)
 	}
 }
 
-void tcmd_replace_lg(t_ms *ms)
+void	tcmd_replace_lg(t_ms *ms)
 {
 	t_cmd *ptr;
 
@@ -44,7 +44,7 @@ void tcmd_replace_lg(t_ms *ms)
 	}
 }
 
-int tcmd_delete_cmd_if_equal(t_ms *ms)
+int		tcmd_delete_cmd_if_equal(t_ms *ms)
 {
 	if (ms->cmd->next)
 		ms->cmd = ms->cmd->next;
@@ -58,7 +58,7 @@ int tcmd_delete_cmd_if_equal(t_ms *ms)
 	return (0);
 }
 
-t_cmd *tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
+t_cmd	*tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
 {
 	t_cmd *next;
 
@@ -72,7 +72,7 @@ t_cmd *tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
 		ptr->next->prev = ptr->prev;
 		if (ptr->prev)
 			ptr->prev->next = ptr->next;
-	}	
+	}
 	else if (ptr->prev)
 	{
 		ptr->prev->next = ptr->next;
@@ -83,4 +83,3 @@ t_cmd *tcmd_delete_cmd(t_ms *ms, t_cmd *ptr)
 	tcmd_free_one(ptr);
 	return (next);
 }
-

@@ -3,16 +3,16 @@
 /*                                                        :::      ::::::::   */
 /*   parser_common_utils_d.c                            :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
+/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/22 01:21:12 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:22 by abarbie          ###   ########.fr       */
+/*   Updated: 2020/10/22 09:29:14 by odhazzar         ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
 #include "../minishell.h"
 
-void charxx_free(char **s)
+void	charxx_free(char **s)
 {
 	char **p;
 
@@ -27,7 +27,7 @@ void charxx_free(char **s)
 	free(s);
 }
 
-char **charxx_alloc(int size)
+char	**charxx_alloc(int size)
 {
 	char **out;
 
@@ -41,9 +41,7 @@ char **charxx_alloc(int size)
 	return (out);
 }
 
-
-
-int charxx_len(char **ss)
+int		charxx_len(char **ss)
 {
 	int len;
 
@@ -56,10 +54,10 @@ int charxx_len(char **ss)
 	return (len);
 }
 
-char **charxx_insert(char **ss, char *s, int pos)
+char	**charxx_insert(char **ss, char *s, int pos)
 {
-	char **out;
-	int i;
+	char	**out;
+	int		i;
 
 	if (!ss)
 	{
@@ -81,10 +79,10 @@ char **charxx_insert(char **ss, char *s, int pos)
 	return (out);
 }
 
-char **charxx_delete_one(char **ss, int pos)
+char	**charxx_delete_one(char **ss, int pos)
 {
-	char **out;
-	int i;
+	char	**out;
+	int		i;
 
 	if (!ss)
 		return (NULL);
