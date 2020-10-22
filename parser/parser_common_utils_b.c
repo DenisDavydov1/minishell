@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "minishell.h"
 
 t_cmd	*tcmd_gotolast(t_cmd *cmd, char *s)
 {

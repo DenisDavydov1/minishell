@@ -67,7 +67,6 @@ typedef struct		s_cmd
 	int				fd;
 	char			*file;
 	int				pfd[2];
-	char			**fls; //
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }					t_cmd;
@@ -170,7 +169,6 @@ int					tms_lineparse(t_ms *ms);
 ** [parser_optimize_a.c - parser_optimize_e.c]
 */
 
-void	tcmd_open_create_files(t_ms *ms); // new
 void				tcmd_optimize(t_ms *ms);
 void				tcmd_put_arg_to_name(t_ms *ms);
 void				tcmd_move_pipes(t_ms *ms);
@@ -189,6 +187,7 @@ void				tcmd_put_args_to_cmd(t_ms *ms);
 */
 
 void				tcmd_parse_quotes(t_ms *ms);
+char				*parse_quotes(char *s, t_ms *ms);
 char				*parse_single_quote(char *s, int *i);
 char				*pq_add_char(char *out, char *s, int *i);
 char				*pq_add_var(char *out, char *s, int *i, t_ms *ms);

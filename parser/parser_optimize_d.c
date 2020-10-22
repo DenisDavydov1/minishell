@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "minishell.h"
 
 static int		ignore_command(t_cmd *cmd)
 {
@@ -67,7 +67,7 @@ static t_cmd	*tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 		p_cmd->file = e_strdup(*p->arg);
 		p = tcmd_delete_cmd(ms, p);
 	}
-	return (next ? next : ptr);
+	return (ptr ? ptr->next : next);
 }
 
 void			tcmd_optimize_signs(t_ms *ms)

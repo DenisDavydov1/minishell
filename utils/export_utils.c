@@ -55,27 +55,6 @@ int		check_env_name(t_ms *ms, char *s)
 	return (0);
 }
 
-/*int		check_env_value(t_ms *ms, char *s)
-{
-	int i;
-
-	i = 0;
-	if (s)
-	{
-		while (s[i])
-		{
-			if (s[i] == ' ' || s[i] == '|' || s[i] == '&')
-			{//какие символы парсятся?
-				env_error(ms->cmd->name, s, ms);
-				return (0);
-			}
-			i++;
-		}
-		return (1);
-	}
-	return (0);
-}*/
-
 char	**ft_split_first(t_ms *ms, char *s, char c)
 {
 	char	**out;
@@ -115,7 +94,6 @@ int		add_in_env(t_ms *ms, char *s)
 	test = ft_split_first(ms, s, '=');
 	if (!test)
 		return (0);
-	//if ((!(check_env_name(ms, test[0]))) && (!(check_env_value(ms, test[1]))))
 	if (!check_env_name(ms, test[0]))
 	{
 		charxx_free(test);

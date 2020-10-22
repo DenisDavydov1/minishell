@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "minishell.h"
 
 static char	*pq_add_quote(char *out, char *res)
 {
@@ -63,7 +63,7 @@ static char	*parse_double_quote(char *s, int *i, t_ms *ms)
 	return (out);
 }
 
-static char	*parse_quotes(char *s, t_ms *ms)
+char		*parse_quotes(char *s, t_ms *ms)
 {
 	int		i;
 	char	*out;

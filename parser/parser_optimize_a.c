@@ -10,7 +10,7 @@
 /*                                                                            */
 /* ************************************************************************** */
 
-#include "../minishell.h"
+#include "minishell.h"
 
 static void	tcmd_set_echo_err_a(t_ms *ms, t_cmd *p)
 {
@@ -68,6 +68,7 @@ static void	tcmd_open_create_files(t_ms *ms)
 	{
 		if (ptr->name && !ft_strcmp(ptr->name, "<") && ptr->arg && *ptr->arg)
 		{
+			*ptr->arg = parse_quotes(*ptr->arg, ms);
 			fd = open(*ptr->arg, O_RDONLY);
 			open_close(ms, ptr, fd);
 		}
@@ -75,6 +76,7 @@ static void	tcmd_open_create_files(t_ms *ms)
 			!ft_strcmp(ptr->name, ">>") || !ft_strcmp(ptr->name, "<>")) && \
 			ptr->arg && *ptr->arg)
 		{
+			*ptr->arg = parse_quotes(*ptr->arg, ms);
 			fd = open(*ptr->arg, O_CREAT, 0644);
 			open_close(ms, ptr, fd);
 		}
