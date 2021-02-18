@@ -67,11 +67,13 @@ int			main(int argc, char **argv, char **envp)
 {
 	t_ms ms;
 
+	(void)argc;
+	(void)argv;
 	ms = tms_init();
 	tenv_set(&ms, envp);
 	signal(SIGINT, sigint_handler);
 	signal(SIGQUIT, sigquit_handler);
 	while (msh_loop(&ms))
 		NULL;
-	return (EXIT_SUCCESS);
+	return (0);
 }

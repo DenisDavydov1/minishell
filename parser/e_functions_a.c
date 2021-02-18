@@ -34,6 +34,8 @@ char	*e_strdup(char *s)
 {
 	char *out;
 
+	if (!s)
+		return (NULL);
 	if (!(out = ft_strdup(s)))
 		throw_error(MEMALLOC, NULL);
 	return (out);
@@ -43,6 +45,8 @@ char	**e_split(char *s, char c)
 {
 	char **out;
 
+	if (!s)
+		return (NULL);
 	if (!(out = ft_split(s, c)))
 		throw_error(MEMALLOC, NULL);
 	return (out);
@@ -52,6 +56,8 @@ char	*e_substr(char *s, int start, int len)
 {
 	char *out;
 
+	if (!s)
+		return (NULL);
 	if (!(out = ft_substr((char const *)s, (unsigned int)start, (size_t)len)))
 		throw_error(MEMALLOC, NULL);
 	return (out);

@@ -34,6 +34,7 @@ static void	tcmd_set_values(t_cmd **cmd)
 	(*cmd)->file = NULL;
 	(*cmd)->pfd[0] = 0;
 	(*cmd)->pfd[1] = 1;
+	(*cmd)->prsd = 0;
 	(*cmd)->next = NULL;
 }
 
@@ -78,7 +79,6 @@ t_ms		tms_init(void)
 	t_ms ms;
 
 	ms.line = NULL;
-	ms.path = NULL;
 	ms.cmd = NULL;
 	ms.env = NULL;
 	ms.ret = 0;

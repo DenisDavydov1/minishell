@@ -3,10 +3,10 @@
 /*                                                        :::      ::::::::   */
 /*   echo.c                                             :+:      :+:    :+:   */
 /*                                                    +:+ +:+         +:+     */
-/*   By: odhazzar <marvin@42.fr>                    +#+  +:+       +#+        */
+/*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 22:59:37 by odhazzar          #+#    #+#             */
-/*   Updated: 2020/10/21 23:10:41 by odhazzar         ###   ########.fr       */
+/*   Updated: 2021/02/18 23:41:40 by abarbie          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -15,9 +15,7 @@
 static void	echo_write(t_ms *ms)
 {
 	char **arg;
-	char *s;
 
-	s = NULL;
 	arg = ms->cmd->arg;
 	if (arg && *arg)
 	{
@@ -34,10 +32,8 @@ static void	echo_write(t_ms *ms)
 int			msh_echo(t_ms *ms)
 {
 	char **flag;
-	char **arg;
 
 	flag = ms->cmd->flag;
-	arg = ms->cmd->arg;
 	if (flag && *flag && (!ft_strcmp(*flag, "-n")))
 		echo_write(ms);
 	else

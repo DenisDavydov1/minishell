@@ -16,6 +16,7 @@ int		msh_set_fd(t_ms *ms)
 {
 	int fd;
 
+	fd = 1;
 	if (ms->cmd->write == -1)
 		fd = 2;
 	else if (ms->cmd->write == 0)
@@ -59,14 +60,11 @@ char	*get_next_line(char *command)
 	char		buf[2];
 	char		*cpy;
 
-	buf[0] = ' ';
+	buf[0] = '\0';
 	buf[1] = '\0';
-	while (buf[0] != '\n' && buf[0] == ' ')
-	{
-		if (!(read(0, buf, 1)))
-			if (write(1, "exit\n", 5))
-				exit(EXIT_SUCCESS);
-	}
+	if (!(read(0, buf, 1)))
+		if (write(1, "exit\n", 5))
+			exit(EXIT_SUCCESS);
 	if (!command)
 		command = ft_strdup("");
 	while (buf[0] != '\n')
@@ -77,8 +75,8 @@ char	*get_next_line(char *command)
 		if (!(command = ft_strjoin(cpy, buf)))
 			return (NULL);
 		free(cpy);
-		if (!(read(0, buf, 1)))
-			return (NULL);
+		while (!(read(0, buf, 1)))
+			write(1, "  \b\b", 4);
 	}
 	return (command);
 }

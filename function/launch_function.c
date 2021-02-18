@@ -41,32 +41,6 @@ static char	*find_path(char *name, char **path)
 	return (NULL);
 }
 
-static char	**create_argv(t_ms *ms)
-{
-	int		i;
-	char	**flag;
-	char	**arg;
-	char	**res;
-
-	i = 0;
-	flag = ms->cmd->flag;
-	arg = ms->cmd->arg;
-	res = charxx_alloc(count_arg(ms));
-	if (ms->cmd->name)
-		res[i++] = ft_strdup(ms->cmd->name);
-	if (flag && *flag)
-	{
-		while (*flag)
-			res[i++] = ft_strdup(*(flag++));
-	}
-	if (arg && *arg)
-	{
-		while (*arg)
-			res[i++] = ft_strdup(*(arg++));
-	}
-	return (res);
-}
-
 static void	exec_child(char *ex, char **args, char **env, t_ms *ms)
 {
 	DIR *dir;
@@ -118,22 +92,35 @@ int			execute_ps(char *ex, char **args, char **env, t_ms *ms)
 	return (1);
 }
 
+static char	*check_path(t_ms *ms)
+{
+	char	**path;
+	char	*full_path;
+	char	**ptr;
+
+	full_path = NULL;
+	path = e_split(find_in_env(ms, "PATH"), ':');
+	ptr = path;
+	if (path && *path)
+		while (*path)
+		{
+			if ((full_path = find_path(ms->cmd->name, path)))
+				break ;
+			path++;
+		}
+	if (!full_path)
+		full_path = ms->cmd->name;
+	charxx_free(ptr);
+	return (full_path);
+}
+
 int			msh_launch(t_ms *ms)
 {
 	char	**argv;
 	char	**envp;
-	char	**path;
 	char	*full_path;
 
-	path = ms->path;
-	while (*path)
-	{
-		if ((full_path = find_path(ms->cmd->name, ms->path)))
-			break ;
-		path++;
-	}
-	if (!full_path)
-		full_path = ms->cmd->name;
+	full_path = check_path(ms);
 	argv = create_argv(ms);
 	envp = tenv_to_envp(ms->env);
 	execute_ps(full_path, argv, envp, ms);

@@ -19,7 +19,7 @@ HDR_DIR = ./include/
 HDR_LIST = minishell.h
 HDR = $(addprefix $(HDR_DIR), $(HDR_LIST))
 
-SRC_DIR = ./#src/
+SRC_DIR = ./
 SRC_DIR_FUNCTION = function/
 SRC_DIR_PARCER = parser/
 SRC_DIR_UTILS = utils/
@@ -64,17 +64,16 @@ SRC = $(addprefix $(SRC_DIR), $(SRC_LIST))
 
 OBJ_DIR = ./obj/
 OBJ_LIST = $(patsubst %.c, $(OBJ_DIR)%.o, $(SRC_LIST))
-#OBJ = $(addprefix $(OBJ_DIR), $(OBJ_LIST))
 
 MAKE = make -sC
 CC = gcc
-FLAGS = #-Wall -Wextra -Werror
+FLAGS = -Wall -Wextra -Werror
 LIBS = -lft -L./libft
 INCLUDE = -I$(HDR_DIR)
 
-.PHONY: all clean fclean re
+.PHONY: all parrot clean fclean re
 
-all: $(NAME)
+all: parrot $(NAME)
 
 $(NAME): $(LIBFT) $(LIBFT_OBJ) $(OBJ_DIR) $(OBJ_LIST)
 	@$(CC) $(OBJ_LIST) $(LIBS) -o $@ $(INCLUDE)
@@ -88,11 +87,15 @@ $(OBJ_DIR):
 	@echo "$(OBJ_DIR) created"
 
 $(OBJ_DIR)%.o : $(SRC_DIR)%.c $(HDR) $(LIBFT)
-	@$(CC) $(FLAGS) -g -c $< -o $@ $(INCLUDE)
+	@$(CC) $(FLAGS) -c $< -o $@ $(INCLUDE)
 
 $(LIBFT): $(LIBFT_OBJ)
 	@$(MAKE) $(LIBFT_DIR)
 	@echo "$(LIBFT) created"
+
+parrot:
+	@curl -s -m 5 parrot.live || true
+	@clear
 
 clean:
 	@$(MAKE) $(LIBFT_DIR) clean

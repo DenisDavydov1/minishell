@@ -14,6 +14,7 @@
 
 void	sigint_handler(int sn)
 {
+	(void)sn;
 	if (write(1, "\b\b  \n", 5) < 0)
 		return ;
 	write(1, "minishell-1.0$ ", 15);
@@ -22,6 +23,7 @@ void	sigint_handler(int sn)
 
 void	sigquit_handler(int sn)
 {
+	(void)sn;
 	if (write(1, "\b\b  \b\b", 6) < 0)
 		return ;
 	return ;

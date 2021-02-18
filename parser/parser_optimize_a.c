@@ -35,7 +35,6 @@ static void	tcmd_set_echo_err_a(t_ms *ms, t_cmd *p)
 
 static void	tcmd_set_echo_err(t_ms *ms, t_cmd *p, char *errtype)
 {
-	t_cmd	*p_cmd;
 	int		len;
 
 	p = tcmd_insert(p);
@@ -69,6 +68,7 @@ static void	tcmd_open_create_files(t_ms *ms)
 		if (ptr->name && !ft_strcmp(ptr->name, "<") && ptr->arg && *ptr->arg)
 		{
 			*ptr->arg = parse_quotes(*ptr->arg, ms);
+			ptr->prsd = 1;
 			fd = open(*ptr->arg, O_RDONLY);
 			open_close(ms, ptr, fd);
 		}
@@ -77,6 +77,7 @@ static void	tcmd_open_create_files(t_ms *ms)
 			ptr->arg && *ptr->arg)
 		{
 			*ptr->arg = parse_quotes(*ptr->arg, ms);
+			ptr->prsd = 2;
 			fd = open(*ptr->arg, O_CREAT, 0644);
 			open_close(ms, ptr, fd);
 		}

@@ -55,7 +55,7 @@ int		check_env_name(t_ms *ms, char *s)
 	return (0);
 }
 
-char	**ft_split_first(t_ms *ms, char *s, char c)
+char	**ft_split_first(char *s, char c)
 {
 	char	**out;
 	int		i;
@@ -88,10 +88,8 @@ int		add_in_env(t_ms *ms, char *s)
 {
 	char	**test;
 	t_env	*tmp;
-	char	**value;
-	char	*old_value;
 
-	test = ft_split_first(ms, s, '=');
+	test = ft_split_first(s, '=');
 	if (!test)
 		return (0);
 	if (!check_env_name(ms, test[0]))

@@ -41,6 +41,7 @@ static t_cmd	*tcmd_opt_less(t_ms *ms, t_cmd *ptr)
 		{
 			ptr_last = tcmd_gotolast(ptr, "<");
 			ptr_cmd->arg = charxx_insert(ptr_cmd->arg, *ptr_last->arg, 0);
+			ptr_cmd->prsd = ptr_last->prsd;
 			ptr_last = tcmd_delete_cmd(ms, ptr_last);
 			return (next ? next : ptr);
 		}
@@ -65,6 +66,7 @@ static t_cmd	*tcmd_opt_greater(t_ms *ms, t_cmd *ptr)
 			p = p->prev;
 		p_cmd->write = *(p->name + 1) == '>' ? 2 : 1;
 		p_cmd->file = e_strdup(*p->arg);
+		p_cmd->prsd = p->prsd;
 		p = tcmd_delete_cmd(ms, p);
 	}
 	return (ptr ? ptr->next : next);

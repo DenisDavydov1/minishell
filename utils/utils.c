@@ -12,7 +12,33 @@
 
 #include "minishell.h"
 
-int	count_arg(t_ms *ms)
+char	**create_argv(t_ms *ms)
+{
+	int		i;
+	char	**flag;
+	char	**arg;
+	char	**res;
+
+	i = 0;
+	flag = ms->cmd->flag;
+	arg = ms->cmd->arg;
+	res = charxx_alloc(count_arg(ms));
+	if (ms->cmd->name)
+		res[i++] = ft_strdup(ms->cmd->name);
+	if (flag && *flag)
+	{
+		while (*flag)
+			res[i++] = ft_strdup(*(flag++));
+	}
+	if (arg && *arg)
+	{
+		while (*arg)
+			res[i++] = ft_strdup(*(arg++));
+	}
+	return (res);
+}
+
+int		count_arg(t_ms *ms)
 {
 	int		i;
 	char	**flag;
@@ -36,7 +62,7 @@ int	count_arg(t_ms *ms)
 	return (i);
 }
 
-int	ft_strcmp_reg(char *s1, char *s2)
+int		ft_strcmp_reg(char *s1, char *s2)
 {
 	int i;
 

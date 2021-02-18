@@ -15,7 +15,6 @@
 
 /*
 ** Allowed functions:
-** <stdio.h>		: strerror
 ** <string.h>		: strerror
 ** <stdlib.h>		: malloc, free, exit
 ** <unistd.h>		: write, read, fork, getcwd, chdir, execve, dup, dup2, pipe
@@ -27,7 +26,6 @@
 ** <dirent.h>		: opendir, readdir, closedir
 */
 
-# include <stdio.h>
 # include <string.h>
 # include <stdlib.h>
 # include <unistd.h>
@@ -67,6 +65,7 @@ typedef struct		s_cmd
 	int				fd;
 	char			*file;
 	int				pfd[2];
+	int				prsd;
 	struct s_cmd	*next;
 	struct s_cmd	*prev;
 }					t_cmd;
@@ -82,7 +81,6 @@ typedef struct		s_ms
 {
 	pid_t			pid;
 	char			*line;
-	char			**path;
 	int				ret;
 	t_cmd			*cmd;
 	t_env			*env;
@@ -106,6 +104,7 @@ int					msh_launch(t_ms *ms);
 */
 
 char				**tenv_to_envp(t_env *env);
+char				**create_argv(t_ms *ms);
 char				*find_in_env(t_ms *ms, char *s);
 char				*get_next_line(char *command);
 void				tenv_set(t_ms *ms, char **envp);

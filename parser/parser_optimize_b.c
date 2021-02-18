@@ -31,7 +31,6 @@ void			tcmd_put_arg_to_name(t_ms *ms)
 
 void			tcmd_move_pipes(t_ms *ms)
 {
-	int		i;
 	t_cmd	*ptr;
 	t_cmd	*ptr_cur;
 

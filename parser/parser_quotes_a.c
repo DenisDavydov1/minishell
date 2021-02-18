@@ -6,7 +6,7 @@
 /*   By: abarbie <abarbie@student.21-school.ru>     +#+  +:+       +#+        */
 /*                                                +#+#+#+#+#+   +#+           */
 /*   Created: 2020/10/21 22:43:59 by abarbie           #+#    #+#             */
-/*   Updated: 2020/10/22 01:43:36 by abarbie          ###   ########.fr       */
+/*   Updated: 2021/02/18 23:42:08 by abarbie          ###   ########.fr       */
 /*                                                                            */
 /* ************************************************************************** */
 
@@ -43,12 +43,8 @@ static char	*pq_add_slash(char *out, char *s, int *i)
 
 static char	*parse_double_quote(char *s, int *i, t_ms *ms)
 {
-	int		start;
-	char	*res;
-	char	*tmp;
 	char	*out;
 
-	start = ++(*i);
 	out = e_strdup("");
 	while (s[*i] && s[*i] != '\"')
 	{
@@ -67,8 +63,6 @@ char		*parse_quotes(char *s, t_ms *ms)
 {
 	int		i;
 	char	*out;
-	char	*tmp;
-	char	*res;
 
 	out = e_strdup("");
 	i = -1;
@@ -95,16 +89,21 @@ char		*parse_quotes(char *s, t_ms *ms)
 void		tcmd_parse_quotes(t_ms *ms)
 {
 	t_cmd	*p;
-	char	*pt;
 	int		i;
 
 	p = ms->cmd;
+	if (!p)
+		return ;
 	p->name = p->name ? parse_quotes(p->name, ms) : p->name;
 	i = -1;
 	while (p->flag && p->flag[++i])
 		p->flag[i] = parse_quotes(p->flag[i], ms);
-	i = -1;
-	while (p->arg && p->arg[++i])
-		p->arg[i] = parse_quotes(p->arg[i], ms);
-	p->file = p->file ? parse_quotes(p->file, ms) : p->file;
+	if (p->prsd != 1)
+	{
+		i = -1;
+		while (p->arg && p->arg[++i])
+			p->arg[i] = parse_quotes(p->arg[i], ms);
+	}
+	if (p->prsd != 2)
+		p->file = p->file ? parse_quotes(p->file, ms) : p->file;
 }

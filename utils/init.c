@@ -54,5 +54,4 @@ void	tenv_set(t_ms *ms, char **envp)
 		charxx_free(split);
 		envp++;
 	}
-	ms->path = e_split(find_in_env(ms, "PATH"), ':');
 }
